@@ -28,7 +28,7 @@ public final class ScanConstants {
 	public static final String SCAN_ID = "scanID";
 
 	public static final String TYPE_SCAN = "scan";
-	public static final String TYPE_SCAN_POINT = "scan point";
+	public static final String TYPE_SCAN_POINT = "scan point 2d";
 	public static final String TYPE_TARGET = "target point";
 	public static final String TYPE_GOAL = "goal point";
 }
