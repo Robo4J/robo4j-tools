@@ -7,7 +7,7 @@
              class="io.robo4j.jmc.visualization.jfr.ScanComponent"
              defaultIdentifier="myScanVisualizationComponent"
              description="Displays Coffee Scan results in coffe local coordinate system points"
-             icon="icons/coffe16.png"
+             icon="icons/scan16.png"
              id="io.robo4j.jmc.visualization.scan"
              name="ScanVisualizer"
           	 requiredServices="com.jrockit.mc.flightrecorder.FlightRecording"
@@ -24,7 +24,7 @@
    <extension point="com.jrockit.mc.core.formpage">
       <formPage
             hostEditorId="com.jrockit.mc.console.ui.editor"
-            icon="icons/coffe32.png"
+            icon="icons/robo4j32.png"
             class="io.robo4j.jmc.visualization.jmx.CoffePage"
             title="Coff-E"
             id="io.robo4j.jmc.visualization.jmx.formpage">
