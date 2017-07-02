@@ -57,10 +57,10 @@ public class MagWiz extends Application {
 		stage.getScene();
 		AmbientLight ambient = new AmbientLight(Color.WHITE);
 
-		PerspectiveCamera camera = new PerspectiveCamera(false);
-		camera.setTranslateX(-WIDTH / 2);
-		camera.setTranslateY(-HEIGHT / 2);
-		camera.setTranslateZ(-200);
+		PerspectiveCamera camera = new PerspectiveCamera(true);
+		camera.setFieldOfView(30);
+		camera.setFarClip(50000);
+		camera.setTranslateZ(-500);
 
 		Group points = null;
 
@@ -71,14 +71,15 @@ public class MagWiz extends Application {
 		}
 
 		Group axesAndPoints = new Group(getAxes(), points);
-		Group root = new Group(ambient, axesAndPoints);
+		Group pivotGroup = new Group(axesAndPoints);
+		Group root = new Group(ambient, pivotGroup);
 
-		RotateTransition rotation = new RotateTransition(Duration.seconds(4), root);
+		RotateTransition rotation = new RotateTransition(Duration.seconds(4), pivotGroup);
 		rotation.setFromAngle(0);
 		rotation.setToAngle(360);
 		rotation.setAxis(Rotate.X_AXIS);
 
-		RotateTransition rotationBack = new RotateTransition(Duration.seconds(4), root);
+		RotateTransition rotationBack = new RotateTransition(Duration.seconds(4), pivotGroup);
 		rotationBack.setFromAngle(360);
 		rotationBack.setToAngle(0);
 		rotationBack.setAxis(Rotate.X_AXIS);
