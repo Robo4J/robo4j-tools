@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.stream.Stream;
 
 import javafx.animation.Animation;
@@ -14,13 +13,17 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.RotateTransition;
 import javafx.animation.SequentialTransition;
-import javafx.application.Application;
+import javafx.fxml.FXML;
 import javafx.geometry.Point3D;
 import javafx.scene.AmbientLight;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
-import javafx.scene.Scene;
+import javafx.scene.SubScene;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Material;
 import javafx.scene.paint.PhongMaterial;
@@ -28,40 +31,32 @@ import javafx.scene.shape.Box;
 import javafx.scene.shape.Sphere;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
-/**
- * Visualizer for 3D data.
- * 
- * @author marcus
- */
-public class MagWiz extends Application {
+public class MagVizController {
 	private static final String SEPARATOR = ";";
 	private static final Point3D ZERO = new Point3D(0, 0, 0);
-	private static final int WIDTH = 800;
-	private static final int HEIGHT = 600;
 	private static final double AXIS_LENGTH = 50;
 	private static final double AXIS_THICKNESS = 3;
 
 	private final static Material BLACK = new PhongMaterial(Color.BLACK);
 
-	public static void main(String[] args) {
-		Application.launch(args);
-	}
+	@FXML
+	private BorderPane animatedBorderPane;
+	@FXML
+	private SubScene animatedSubScene;
+	@FXML
+	private HBox animatedSubSceneHBox;
+	@FXML
+	private Label testLabel;
+	@FXML
+	private TextField textNoOfPoints;
+	@FXML
+	private TextField textMaxRadius;
 
-	@Override
-	public void start(Stage stage) throws Exception {
-		File csvFile = parseFileParam();
-
-		stage.getScene();
-		AmbientLight ambient = new AmbientLight(Color.WHITE);
-
-		PerspectiveCamera camera = new PerspectiveCamera(true);
-		camera.setFieldOfView(30);
-		camera.setFarClip(50000);
-		camera.setTranslateZ(-500);
-
+	public void initializeSubScenes(File csvFile) {
+	    	    
+	    AmbientLight ambient = new AmbientLight(Color.WHITE);
 		Group points = null;
 
 		if (csvFile != null) {
@@ -69,7 +64,7 @@ public class MagWiz extends Application {
 		} else {
 			points = new Group();
 		}
-
+		
 		Group axesAndPoints = new Group(getAxes(), points);
 		Group pivotGroup = new Group(axesAndPoints);
 		Group root = new Group(ambient, pivotGroup);
@@ -103,11 +98,14 @@ public class MagWiz extends Application {
 		transition.setDelay(Duration.seconds(2));
 		transition.play();
 
-		Scene scene = new Scene(root, WIDTH, HEIGHT, true);
-		scene.setCamera(camera);
-		stage.setScene(scene);
-		stage.setTitle("Magnetometer Calibration Utility");
-		stage.show();
+		PerspectiveCamera camera = new PerspectiveCamera(true);
+		camera.setFieldOfView(30);
+		camera.setFarClip(50000);
+		camera.setTranslateZ(-500);
+		animatedSubScene.heightProperty().bind(animatedSubSceneHBox.heightProperty());
+		animatedSubScene.widthProperty().bind(animatedSubSceneHBox.widthProperty());
+		animatedSubScene.setCamera(camera);
+		animatedSubScene.setRoot(root);
 	}
 
 	private Group createPoints(File csvFile) {
@@ -118,10 +116,12 @@ public class MagWiz extends Application {
 			e.printStackTrace();
 		}
 
+		textNoOfPoints.setText(String.valueOf(points.size()));
 		double maxRadius = 0;
 		for (Point3D p : points) {
 			maxRadius = Math.max(maxRadius, ZERO.distance(p));
 		}
+		textMaxRadius.setText(String.format("%.2f", maxRadius));
 		
 		final Collection<Node> spheres = new LinkedList<>();
 		double normalizingFactor = 100.0f / maxRadius;
@@ -149,20 +149,6 @@ public class MagWiz extends Application {
 		s.setTranslateZ(position.getZ());
 	}
 
-	private File parseFileParam() {
-		List<String> params = getParameters().getRaw();
-		if (params.isEmpty()) {
-			System.out.println("Warning - no csv file specified!");
-			return null;
-		}
-		File f = new File(params.get(0));
-		if (!f.exists()) {
-			System.out.println("Warning - the csv file specified (" + f.getName() + ") does not exist!");
-			return null;
-		}
-		return f;
-	}
-
 	private Group getAxes() {
 		Box xAxis = new Box(AXIS_LENGTH, AXIS_THICKNESS, AXIS_THICKNESS);
 		xAxis.setMaterial(new PhongMaterial(Color.BLUE));
@@ -185,4 +171,6 @@ public class MagWiz extends Application {
 
 		return new Group(xAxis, yAxis, zAxis, xLabel, yLabel, zLabel);
 	}
+
+	
 }
