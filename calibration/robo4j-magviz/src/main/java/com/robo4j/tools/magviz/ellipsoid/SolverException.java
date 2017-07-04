@@ -15,13 +15,17 @@
  * along with Robo4J. If not, see <http://www.gnu.org/licenses/>.
  */
 
-println "configure $project"
+package com.robo4j.tools.magviz.ellipsoid;
 
-ext {
-    robo4jVersion = "alpha-0.3"
-    apacheCommonsMath3 = "3.6.1"
-    gradleVersion = "3.5"
-    junitVersion = "4.12"
-    hamcrestAllVersion = "1.3"
-    mockitoAllVersion = "1.10.19"
+/**
+ * Default Exception for Solver
+ *
+ * @author Marcus Hirt (@hirt)
+ * @author Miro Wengner (@miragemiko)
+ */
+public class SolverException extends RuntimeException{
+
+    public SolverException(String message) {
+        super(message);
+    }
 }
