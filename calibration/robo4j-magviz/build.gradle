@@ -1,0 +1,51 @@
+group 'com.robo4j'
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'maven'
+
+apply from: 'libraries.gradle'
+
+version "${robo4jVersion}"
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+//create a single Jar with all dependencies
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'robo4j-magviz',
+                'Implementation-Version': version,
+                'Main-Class': 'com.robo4j.tools.magviz.MagViz'
+    }
+    //baseName = project.name + '-all'
+    baseName = 'robo4j-magviz'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "${gradleVersion}"
+}
+
+//sources
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', 'src/examples/java', 'src/test/java']
+        }
+        resources {
+            srcDirs = ['src/main/resources', 'src/examples/resources', 'src/test/resources']
+        }
+    }
+}
+
+dependencies {
+    testCompile "junit:junit:${junitVersion}@jar"
+    testCompile "org.hamcrest:hamcrest-all:${hamcrestAllVersion}@jar"
+    testCompile "org.mockito:mockito-all:${mockitoAllVersion}@jar"
+}
