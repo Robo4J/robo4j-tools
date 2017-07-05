@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Stream;
 
 import javafx.animation.Animation;
@@ -30,6 +31,7 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.RotateTransition;
 import javafx.animation.SequentialTransition;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Point3D;
 import javafx.scene.AmbientLight;
@@ -38,6 +40,7 @@ import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SubScene;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -51,7 +54,8 @@ import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
 
 /**
- **
+ * Visualizer for magnetometer data.
+ *
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
  */
@@ -75,18 +79,37 @@ public class MagVizController {
 	private TextField textNoOfPoints;
 	@FXML
 	private TextField textMaxRadius;
+	@FXML
+	private RadioButton radioRawData;
+	@FXML
+	private RadioButton radioCorrectedData;
 
-	public void initializeSubScenes(File csvFile) {
+	// FIXME(Marcus/Jul 6, 2017): This thing should be broken up into smaller
+	// pieces at some point.
+	@FXML
+	private TextField textBiasX;
+	@FXML
+	private TextField textBiasY;
+	@FXML
+	private TextField textBiasZ;
 
+	private List<Point3D> points;
+
+	public void loadFile(File csvFile) {
+		points = loadPointsFromFile(csvFile);
+		initializeSubScenes(points);
+	}
+
+	public void initializeSubScenes(List<Point3D> rawPointList) {
 		AmbientLight ambient = new AmbientLight(Color.WHITE);
-		Group points = null;
+		Group pointsGroup = null;
 
-		if (csvFile != null) {
-			points = createPoints(csvFile);
+		if (points != null && points.size() > 0) {
+			pointsGroup = createSpheres(rawPointList, 1.5f);
 		} else {
-			points = new Group();
+			pointsGroup = new Group();
 		}
-		Group axesAndPoints = new Group(getAxes(), points);
+		Group axesAndPoints = new Group(getAxes(), pointsGroup);
 		Group pivotGroup = new Group(axesAndPoints);
 		Group root = new Group(ambient, pivotGroup);
 
@@ -113,9 +136,8 @@ public class MagVizController {
 		ParallelTransition parallelTransition = new ParallelTransition(rotation, axisRot);
 		ParallelTransition parallelTransitionBack = new ParallelTransition(rotationBack, axisRotBack);
 
-		SequentialTransition transition = new SequentialTransition(parallelTransition,
-				new PauseTransition(Duration.seconds(1)), parallelTransitionBack,
-				new PauseTransition(Duration.seconds(1)));
+		SequentialTransition transition = new SequentialTransition(parallelTransition, new PauseTransition(Duration.seconds(1)),
+				parallelTransitionBack, new PauseTransition(Duration.seconds(1)));
 		transition.setCycleCount(Animation.INDEFINITE);
 		transition.setDelay(Duration.seconds(2));
 		transition.play();
@@ -130,14 +152,33 @@ public class MagVizController {
 		animatedSubScene.setRoot(root);
 	}
 
-	private Group createPoints(File csvFile) {
-		final Collection<Point3D> points = new ArrayList<>();
-		try (Stream<String> stream = Files.lines(csvFile.toPath())) {
-			stream.forEach((s) -> points.add(readPoint(s)));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	@FXML
+	private void handleRawData(ActionEvent event) {
+		initializeSubScenes(points);
+	}
 
+	@FXML
+	private void handleCorrectedData(ActionEvent event) {
+		initializeSubScenes(transform(points));
+	}
+
+	private List<Point3D> transform(List<Point3D> pointsToTransform) {
+		List<Point3D> transformedPoints = new ArrayList<>();
+		Point3D bias = getBias();
+
+		// Add matrix etc here.
+		for (Point3D p : pointsToTransform) {
+			transformedPoints.add(p.subtract(bias));
+		}
+		return transformedPoints;
+	}
+
+	private Point3D getBias() {
+		return new Point3D(Double.parseDouble(textBiasX.getText()), Double.parseDouble(textBiasY.getText()),
+				Double.parseDouble(textBiasZ.getText()));
+	}
+
+	public Group createSpheres(List<Point3D> points, float size) {
 		textNoOfPoints.setText(String.valueOf(points.size()));
 		double maxRadius = 0;
 		for (Point3D p : points) {
@@ -151,6 +192,16 @@ public class MagVizController {
 			spheres.add(createSphere(1.5f, p.multiply(normalizingFactor)));
 		}
 		return new Group(spheres);
+	}
+
+	public List<Point3D> loadPointsFromFile(File csvFile) {
+		final List<Point3D> points = new ArrayList<>();
+		try (Stream<String> stream = Files.lines(csvFile.toPath())) {
+			stream.forEach((s) -> points.add(readPoint(s)));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return points;
 	}
 
 	private Point3D readPoint(String csvLine) {

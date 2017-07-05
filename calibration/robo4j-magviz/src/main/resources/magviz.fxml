@@ -3,8 +3,10 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.SubScene?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -58,35 +60,8 @@
                </children>
             </HBox>
             <BorderPane GridPane.rowIndex="1">
-               <center>
-                  <GridPane>
-                    <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
-                     <children>
-                        <Label contentDisplay="CENTER" text="Transform Matrix" textAlignment="CENTER" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.valignment="BOTTOM" />
-                        <TextField promptText="m11" text="1.0" GridPane.rowIndex="1" />
-                        <TextField promptText="m12" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <TextField layoutX="87.0" layoutY="99.0" promptText="m13" text="0.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <TextField layoutX="164.0" layoutY="99.0" promptText="m21" text="0.0" GridPane.rowIndex="2" />
-                        <TextField layoutX="10.0" layoutY="166.0" promptText="m22" text="1.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <TextField layoutX="87.0" layoutY="166.0" promptText="m23" text="0.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                        <TextField layoutX="164.0" layoutY="166.0" promptText="m31" text="0.0" GridPane.rowIndex="3" />
-                        <TextField layoutX="10.0" layoutY="233.0" promptText="m32" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <TextField layoutX="87.0" layoutY="233.0" promptText="m33" text="1.0" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-                     </children>
-                  </GridPane>
-               </center>
                <top>
-                  <TitledPane collapsible="false" text="Calculated Correction" BorderPane.alignment="CENTER">
+                  <TitledPane text="Calculated Correction" BorderPane.alignment="CENTER">
                      <content>
                         <BorderPane>
                            <center>
@@ -108,7 +83,7 @@
                                     <Label text="Y:" GridPane.columnIndex="2" />
                                     <TextField fx:id="textBiasY" text="0.0" GridPane.columnIndex="3" />
                                     <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Z:" GridPane.columnIndex="4" />
-                                    <TextField text="0.0" GridPane.columnIndex="5" />
+                                    <TextField fx:id="textBiasZ" text="0.0" GridPane.columnIndex="5" />
                                  </children>
                               </GridPane>
                            </center>
@@ -122,10 +97,60 @@
                                  </padding>
                               </Label>
                            </top>
+                           <bottom>
+                              <GridPane BorderPane.alignment="CENTER">
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                </rowConstraints>
+                                 <children>
+                                    <Label contentDisplay="CENTER" text="Transform Matrix" textAlignment="CENTER" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.valignment="BOTTOM" />
+                                    <TextField promptText="m11" text="1.0" GridPane.rowIndex="1" />
+                                    <TextField promptText="m12" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <TextField layoutX="87.0" layoutY="99.0" promptText="m13" text="0.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                    <TextField layoutX="164.0" layoutY="99.0" promptText="m21" text="0.0" GridPane.rowIndex="2" />
+                                    <TextField layoutX="10.0" layoutY="166.0" promptText="m22" text="1.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <TextField layoutX="87.0" layoutY="166.0" promptText="m23" text="0.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                    <TextField layoutX="164.0" layoutY="166.0" promptText="m31" text="0.0" GridPane.rowIndex="3" />
+                                    <TextField layoutX="10.0" layoutY="233.0" promptText="m32" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    <TextField layoutX="87.0" layoutY="233.0" promptText="m33" text="1.0" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                 </children>
+                              </GridPane>
+                           </bottom>
                         </BorderPane>
                      </content>
                   </TitledPane>
                </top>
+               <bottom>
+                  <TitledPane text="Visualization" BorderPane.alignment="CENTER">
+                     <content>
+                        <GridPane>
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <children>
+                              <RadioButton fx:id="radioRawData" mnemonicParsing="false" onAction="#handleRawData" selected="true" text="Raw Data">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="visualizationToggleGroup" />
+                                 </toggleGroup>
+                              </RadioButton>
+                              <RadioButton fx:id="radioCorrectedData" mnemonicParsing="false" onAction="#handleCorrectedData" text="Corrected" toggleGroup="$visualizationToggleGroup" GridPane.columnIndex="1" />
+                           </children>
+                        </GridPane>
+                     </content>
+                  </TitledPane>
+               </bottom>
             </BorderPane>
             <FlowPane alignment="CENTER" GridPane.columnIndex="1">
                <children>

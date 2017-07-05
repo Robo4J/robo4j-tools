@@ -48,7 +48,7 @@ public class MagViz extends Application {
 		FXMLLoader fxmlLoader = new FXMLLoader(file);
 		BorderPane myPane = (BorderPane) fxmlLoader.load();
 		MagVizController controller = fxmlLoader.getController();
-		controller.initializeSubScenes(csvFile);
+		controller.loadFile(csvFile);
 		stage.setScene(new Scene(myPane, 800, 600));
 		myPane.setStyle("-fx-border-color:black");
 		initializeStage(stage);
