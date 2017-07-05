@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Random;
 
 import javafx.geometry.Point3D;
+import javafx.scene.transform.Rotate;
 
 /**
  * Simple generator to test the visualizer.
@@ -40,6 +41,19 @@ public class PointGenerator {
 		}
 		return points;
 	}
+	
+	public static List<Point3D> generatePoints(int noOfPoints, double startRadius, double gaussianNoise, Point3D bias, Point3D scale, Point3D rotAxis, double rotAngle) {
+		List<Point3D> generatedPoints = generatePoints(noOfPoints, startRadius, gaussianNoise);
+		List<Point3D> modifiedPoints = new ArrayList<>(generatedPoints.size());
+		for (Point3D p : generatedPoints) {
+			Point3D newPoint = new Point3D(p.getX() * scale.getX(), p.getY() * scale.getY(), p.getZ() * scale.getZ());
+			Rotate rotate = new Rotate(rotAngle, rotAxis);
+			Point3D rotPoint = rotate.transform(newPoint);
+			newPoint = rotPoint.subtract(bias);
+			modifiedPoints.add(newPoint);
+		}
+		return modifiedPoints;
+	}
 
 	private static Point3D generatePoint(double r, double stddev) {
 		double radius = RND.nextGaussian() * stddev + r;
@@ -49,5 +63,5 @@ public class PointGenerator {
 		double y = radius * Math.sin(s) * Math.sin(t);
 		double z = radius * Math.cos(t);
 		return new Point3D(x, y, z);
-	}
+	}	
 }

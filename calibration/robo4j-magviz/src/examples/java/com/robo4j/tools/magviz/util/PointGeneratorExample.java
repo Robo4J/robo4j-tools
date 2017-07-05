@@ -31,16 +31,35 @@ import javafx.geometry.Point3D;
  */
 public class PointGeneratorExample {
 	public static void main(String[] args) {
-		if (args.length != 3) {
-			System.out.println("Usage: PointGenerator <number of points> <radius> <stddev>\nExample: PointGenerator 1000 200 4");
+		if (args.length != 3 && args.length != 7) {
+			System.out.println(
+					"Usage: PointGenerator <number of points> <radius> <stddev> [<bias> <scale> <rotAxis> <rotangle>]\nExample: PointGenerator 1000 200 4 5,2,15 1,1.4,1 45,45,45 45");
 			System.exit(2);
 		}
 
 		int noOfPoints = Integer.parseInt(args[0]);
 		double r = Double.parseDouble(args[1]);
 		double stddev = Double.parseDouble(args[2]);
-
-		List<Point3D> generatedPoints = PointGenerator.generatePoints(noOfPoints, r, stddev);
+		Point3D bias = null;
+		Point3D scale = null;
+		Point3D rotAxis = null;
+		double angle = 0.0;
+		if (args.length == 7) {
+			bias = getPoint(args[3]);
+			scale = getPoint(args[4]);
+			rotAxis =  getPoint(args[5]);
+			angle = Double.parseDouble(args[6]);
+		}
+		List<Point3D> generatedPoints = args.length == 3 ? PointGenerator.generatePoints(noOfPoints, r, stddev)
+				: PointGenerator.generatePoints(noOfPoints, r, stddev, bias, scale, rotAxis, angle);
 		generatedPoints.forEach((point) -> System.out.println(String.format("%f;%f;%f", point.getX(), point.getY(), point.getZ())));
+	}
+
+	private static Point3D getPoint(String string) {
+		String[] split = string.split(",");
+		if (split.length != 3) {
+			throw new IllegalArgumentException("");
+		}
+		return new Point3D(Double.parseDouble(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]));
 	}
 }
