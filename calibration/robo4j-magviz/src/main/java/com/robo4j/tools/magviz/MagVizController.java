@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2014, 2017, Marcus Hirt, Miroslav Wengner
+ *
+ * Robo4J is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Robo4J is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Robo4J. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.robo4j.tools.magviz;
 
 import java.io.File;
@@ -6,8 +23,10 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.robo4j.tools.magviz.ellipsoid.SampleDataGenerator;
 import javafx.animation.Animation;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
@@ -33,6 +52,11 @@ import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
 
+/**
+ **
+ * @author Marcus Hirt (@hirt)
+ * @author Miro Wengner (@miragemiko)
+ */
 public class MagVizController {
 	private static final String SEPARATOR = ";";
 	private static final Point3D ZERO = new Point3D(0, 0, 0);
@@ -54,17 +78,43 @@ public class MagVizController {
 	@FXML
 	private TextField textMaxRadius;
 
+	private Group getGeneratedPoint(){
+		SampleDataGenerator generator = new SampleDataGenerator();
+
+		Group result = new Group();
+
+
+		final Collection<Point3D> points = generator.generatePoints(1000).stream()
+				.map(e -> new Point3D(e.x, e.y, e.z))
+				.collect(Collectors.toList());
+
+		textNoOfPoints.setText(String.valueOf(points.size()));
+		double maxRadius = 0;
+		for (Point3D p : points) {
+			maxRadius = Math.max(maxRadius, ZERO.distance(p));
+		}
+		textMaxRadius.setText(String.format("%.2f", maxRadius));
+
+		final Collection<Node> spheres = new LinkedList<>();
+		double normalizingFactor = 100.0f / maxRadius;
+		for (Point3D p : points) {
+			spheres.add(createSphere(1.5f, p.multiply(normalizingFactor)));
+		}
+
+		return result;
+	}
+
 	public void initializeSubScenes(File csvFile) {
-	    	    
-	    AmbientLight ambient = new AmbientLight(Color.WHITE);
+
+		AmbientLight ambient = new AmbientLight(Color.WHITE);
 		Group points = null;
 
 		if (csvFile != null) {
 			points = createPoints(csvFile);
 		} else {
-			points = new Group();
+			points = getGeneratedPoint();
 		}
-		
+
 		Group axesAndPoints = new Group(getAxes(), points);
 		Group pivotGroup = new Group(axesAndPoints);
 		Group root = new Group(ambient, pivotGroup);
@@ -92,8 +142,9 @@ public class MagVizController {
 		ParallelTransition parallelTransition = new ParallelTransition(rotation, axisRot);
 		ParallelTransition parallelTransitionBack = new ParallelTransition(rotationBack, axisRotBack);
 
-		SequentialTransition transition = new SequentialTransition(parallelTransition, new PauseTransition(Duration.seconds(1)),
-				parallelTransitionBack, new PauseTransition(Duration.seconds(1)));
+		SequentialTransition transition = new SequentialTransition(parallelTransition,
+				new PauseTransition(Duration.seconds(1)), parallelTransitionBack,
+				new PauseTransition(Duration.seconds(1)));
 		transition.setCycleCount(Animation.INDEFINITE);
 		transition.setDelay(Duration.seconds(2));
 		transition.play();
@@ -122,11 +173,11 @@ public class MagVizController {
 			maxRadius = Math.max(maxRadius, ZERO.distance(p));
 		}
 		textMaxRadius.setText(String.format("%.2f", maxRadius));
-		
+
 		final Collection<Node> spheres = new LinkedList<>();
 		double normalizingFactor = 100.0f / maxRadius;
 		for (Point3D p : points) {
-			spheres.add(createSphere(1.5f, p.multiply(normalizingFactor)));					
+			spheres.add(createSphere(1.5f, p.multiply(normalizingFactor)));
 		}
 		return new Group(spheres);
 	}
@@ -172,5 +223,4 @@ public class MagVizController {
 		return new Group(xAxis, yAxis, zAxis, xLabel, yLabel, zLabel);
 	}
 
-	
 }
