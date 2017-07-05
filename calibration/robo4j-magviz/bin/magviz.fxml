@@ -122,17 +122,6 @@
                                  </padding>
                               </Label>
                            </top>
-                           <bottom>
-                              <HBox alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
-                                 <children>
-                                    <Label alignment="BOTTOM_LEFT" text="Code: " />
-                                    <TextField alignment="BOTTOM_LEFT" editable="false" text="new Tuple3f(0.0f, 0.0f, 0.0f)" />
-                                 </children>
-                                 <opaqueInsets>
-                                    <Insets bottom="10.0" top="10.0" />
-                                 </opaqueInsets>
-                              </HBox>
-                           </bottom>
                         </BorderPane>
                      </content>
                   </TitledPane>
@@ -147,7 +136,7 @@
                      <graphic>
                         <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../../../../../icons/robo4j256.png" />
+                              <Image url="@robo4j256.png" />
                            </image>
                         </ImageView>
                      </graphic>

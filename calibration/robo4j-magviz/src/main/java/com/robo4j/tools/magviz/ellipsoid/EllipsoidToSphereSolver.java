@@ -28,7 +28,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
 
-import com.robo4j.tools.magviz.math.Tuple3d;
+import javafx.geometry.Point3D;
 
 /**
  * Fit points to the polynomial expression Ax^2 + By^2 + Cz^2 + 2Dxy + 2Exz +
@@ -40,20 +40,20 @@ import com.robo4j.tools.magviz.math.Tuple3d;
  */
 public class EllipsoidToSphereSolver {
 
-	public Tuple3d ellipsoidCenter;
-	public Tuple3d radii;
+	public Point3D ellipsoidCenter;
+	public Point3D radii;
 	public double[] eigenValues;
-	public Tuple3d eigenVector0;
-	public Tuple3d eigenVector1;
-	public Tuple3d eigenVector2;
+	public Point3D eigenVector0;
+	public Point3D eigenVector1;
+	public Point3D eigenVector2;
 
-	private List<Tuple3d> dataPoints;
+	private List<Point3D> dataPoints;
 
-	public EllipsoidToSphereSolver(List<Tuple3d> dataPoints) {
+	public EllipsoidToSphereSolver(List<Point3D> dataPoints) {
 		this.dataPoints = dataPoints;
 	}
 
-	public Tuple3d getSphereMatrix() {
+	public Point3D getSphereMatrix() {
 		if (dataPoints == null || dataPoints.isEmpty()) {
 			throw new SolverException("no data-points");
 		}
@@ -68,7 +68,7 @@ public class EllipsoidToSphereSolver {
 
 		// solve ellipsoid ellipsoidCenter
 		RealVector solvedCenter = solveCenter(algebralicMatrix4);
-		ellipsoidCenter = new Tuple3d(solvedCenter.getEntry(0), solvedCenter.getEntry(1), solvedCenter.getEntry(2));
+		ellipsoidCenter = new Point3D(solvedCenter.getEntry(0), solvedCenter.getEntry(1), solvedCenter.getEntry(2));
 
 		// Translate the algebraic form of the ellipsoid to the center.
 		RealMatrix translatedMatrix4 = translateToCenter(solvedCenter, algebralicMatrix4);
@@ -83,16 +83,16 @@ public class EllipsoidToSphereSolver {
 		RealVector ev0 = solvedEigenVecors.getEigenvector(0);
 		RealVector ev1 = solvedEigenVecors.getEigenvector(1);
 		RealVector ev2 = solvedEigenVecors.getEigenvector(2);
-		eigenVector0 = new Tuple3d(ev0.getEntry(0), ev0.getEntry(1), ev0.getEntry(2));
-		eigenVector1 = new Tuple3d(ev1.getEntry(0), ev1.getEntry(1), ev1.getEntry(2));
-		eigenVector2 = new Tuple3d(ev2.getEntry(0), ev2.getEntry(1), ev2.getEntry(2));
+		eigenVector0 = new Point3D(ev0.getEntry(0), ev0.getEntry(1), ev0.getEntry(2));
+		eigenVector1 = new Point3D(ev1.getEntry(0), ev1.getEntry(1), ev1.getEntry(2));
+		eigenVector2 = new Point3D(ev2.getEntry(0), ev2.getEntry(1), ev2.getEntry(2));
 		// Find the radii of the ellipsoid.
-		radii = findRadii(eigenValues);
-
+		double [] radiiArray = findRadii(eigenValues);
+		radii = new Point3D(radiiArray[0], radiiArray[1], radiiArray[2]);
 		return ellipsoidCenter;
 	}
 
-	public Tuple3d getRadii() {
+	public Point3D getRadii() {
 		return radii;
 	}
 
@@ -100,15 +100,15 @@ public class EllipsoidToSphereSolver {
 		return eigenValues;
 	}
 
-	public Tuple3d getEigenVector0() {
+	public Point3D getEigenVector0() {
 		return eigenVector0;
 	}
 
-	public Tuple3d getEigenVector1() {
+	public Point3D getEigenVector1() {
 		return eigenVector1;
 	}
 
-	public Tuple3d getEigenVector2() {
+	public Point3D getEigenVector2() {
 		return eigenVector2;
 	}
 
@@ -128,13 +128,12 @@ public class EllipsoidToSphereSolver {
 	 *            the eigenvalues of the ellipsoid.
 	 * @return the radii of the ellipsoid.
 	 */
-	public Tuple3d findRadii(double[] eigenValues) {
-		Tuple3d result = new Tuple3d();
-		// radii[i] = sqrt(1/eval[i]);
+	public double [] findRadii(double[] eigenValues) {
+		double [] radii = new double[eigenValues.length]; 
 		for (int i = 0; i < eigenValues.length; i++) {
-			result.setEntry(i, Math.sqrt(1 / eigenValues[i]));
+			radii[i] = Math.sqrt(1 / eigenValues[i]);
 		}
-		return result;
+		return radii;
 	}
 
 	/**
@@ -210,19 +209,19 @@ public class EllipsoidToSphereSolver {
 	 *            => result vector is then size of 9
 	 * @return the solution vector to the polynomial expression.
 	 */
-	private RealVector pointsToEquation(List<Tuple3d> dataPoints) {
+	private RealVector pointsToEquation(List<Point3D> dataPoints) {
 
 		RealMatrix designMatrix = new Array2DRowRealMatrix(dataPoints.size(), 9);
 		IntStream.range(0, dataPoints.size() - 1).forEach(i -> {
-			double xx = Math.pow(dataPoints.get(i).x, 2);
-			double yy = Math.pow(dataPoints.get(i).y, 2);
-			double zz = Math.pow(dataPoints.get(i).z, 2);
-			double xy = 2 * (dataPoints.get(i).x * dataPoints.get(i).y);
-			double xz = 2 * (dataPoints.get(i).x * dataPoints.get(i).z);
-			double yz = 2 * (dataPoints.get(i).y * dataPoints.get(i).z);
-			double x = 2 * dataPoints.get(i).x;
-			double y = 2 * dataPoints.get(i).y;
-			double z = 2 * dataPoints.get(i).z;
+			double xx = Math.pow(dataPoints.get(i).getX(), 2);
+			double yy = Math.pow(dataPoints.get(i).getY(), 2);
+			double zz = Math.pow(dataPoints.get(i).getZ(), 2);
+			double xy = 2 * (dataPoints.get(i).getX() * dataPoints.get(i).getY());
+			double xz = 2 * (dataPoints.get(i).getX() * dataPoints.get(i).getZ());
+			double yz = 2 * (dataPoints.get(i).getY() * dataPoints.get(i).getZ());
+			double x = 2 * dataPoints.get(i).getX();
+			double y = 2 * dataPoints.get(i).getY();
+			double z = 2 * dataPoints.get(i).getZ();
 
 			designMatrix.setEntry(i, 0, xx);
 			designMatrix.setEntry(i, 1, yy);

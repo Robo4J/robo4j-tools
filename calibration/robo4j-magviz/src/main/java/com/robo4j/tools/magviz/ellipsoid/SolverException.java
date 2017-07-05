@@ -24,8 +24,9 @@ package com.robo4j.tools.magviz.ellipsoid;
  * @author Miro Wengner (@miragemiko)
  */
 public class SolverException extends RuntimeException{
+  	private static final long serialVersionUID = 1L;
 
-    public SolverException(String message) {
+	public SolverException(String message) {
         super(message);
     }
 }

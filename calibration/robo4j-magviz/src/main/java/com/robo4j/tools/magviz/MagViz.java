@@ -18,7 +18,6 @@
 package com.robo4j.tools.magviz;
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 

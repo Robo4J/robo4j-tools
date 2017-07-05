@@ -17,7 +17,7 @@
 
 package com.robo4j.tools.magviz.ellipsoid;
 
-import com.robo4j.tools.magviz.math.Tuple3d;
+import javafx.geometry.Point3D;
 
 /**
  * @author Marcus Hirt (@hirt)
@@ -29,8 +29,8 @@ public class EllipsoidSolverMainTest {
         System.out.println("ellipsoid fit test");
 
         // Generates points for plots.
-        EllipsoidToSphereSolver solver = new EllipsoidToSphereSolver(new SampleDataGenerator().generatePoints((1000)));
-        Tuple3d center = solver.getSphereMatrix();
+        EllipsoidToSphereSolver solver = new EllipsoidToSphereSolver(PointGenerator.generatePoints(1000, 100, 10));
+        Point3D center = solver.getSphereMatrix();
 
         System.out.println("CENTER: " + center);
         System.out.println("RADII: " + solver.getRadii());
