@@ -84,7 +84,6 @@ public class MagVizController {
 		if (csvFile != null) {
 			points = createPoints(csvFile);
 		} 
-
 		Group axesAndPoints = new Group(getAxes(), points);
 		Group pivotGroup = new Group(axesAndPoints);
 		Group root = new Group(ambient, pivotGroup);
@@ -192,5 +191,4 @@ public class MagVizController {
 
 		return new Group(xAxis, yAxis, zAxis, xLabel, yLabel, zLabel);
 	}
-
 }
