@@ -33,9 +33,9 @@ import com.robo4j.tools.magviz.math.Tuple3d;
 public class SampleDataGenerator {
 
 	// This ellipsoid will be scaled back to the sphere
-	private static final double A_CONTROL_ELLIPSE = 1.4;
-	private static final double B_CONTROL_ELLIPSE = 1.3;
-	private static final double C_CONTROL_ELLIPSE = 1.2;
+	private static final double A_CONTROL_ELLIPSE = 22.4;
+	private static final double B_CONTROL_ELLIPSE = 3.3;
+	private static final double C_CONTROL_ELLIPSE = 9.2;
 	private static final double SHIFT_X_CONTROL_ELLIPSE = 2;
 	private static final double SHIFT_Y_CONTROL_ELLIPSE = 2;
 	private static final double SHIFT_Z_CONTROL_ELLIPSE = 2;
