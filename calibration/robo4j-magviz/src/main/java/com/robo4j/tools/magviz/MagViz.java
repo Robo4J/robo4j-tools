@@ -45,10 +45,6 @@ public class MagViz extends Application {
 	public void start(Stage stage) throws Exception {
 		File csvFile = parseFileParam();
 
-		URL test1 = getClass().getClassLoader().getResource("robo4j256.png");
-		InputStream test2 = getClass().getClassLoader().getResourceAsStream("robo4j256.png");
-		URL test3 = getClass().getClassLoader().getResource("magviz.fxml");
-
 		URL file = Thread.currentThread().getContextClassLoader().getResource("magviz.fxml");
 		FXMLLoader fxmlLoader = new FXMLLoader(file);
 		BorderPane myPane = (BorderPane) fxmlLoader.load();

@@ -23,8 +23,10 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.robo4j.tools.magviz.ellipsoid.SampleDataGenerator;
 import javafx.animation.Animation;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
@@ -76,6 +78,32 @@ public class MagVizController {
 	@FXML
 	private TextField textMaxRadius;
 
+	private Group getGeneratedPoint(){
+		SampleDataGenerator generator = new SampleDataGenerator();
+
+		Group result = new Group();
+
+
+		final Collection<Point3D> points = generator.generatePoints(1000).stream()
+				.map(e -> new Point3D(e.x, e.y, e.z))
+				.collect(Collectors.toList());
+
+		textNoOfPoints.setText(String.valueOf(points.size()));
+		double maxRadius = 0;
+		for (Point3D p : points) {
+			maxRadius = Math.max(maxRadius, ZERO.distance(p));
+		}
+		textMaxRadius.setText(String.format("%.2f", maxRadius));
+
+		final Collection<Node> spheres = new LinkedList<>();
+		double normalizingFactor = 100.0f / maxRadius;
+		for (Point3D p : points) {
+			spheres.add(createSphere(1.5f, p.multiply(normalizingFactor)));
+		}
+
+		return result;
+	}
+
 	public void initializeSubScenes(File csvFile) {
 
 		AmbientLight ambient = new AmbientLight(Color.WHITE);
@@ -84,7 +112,7 @@ public class MagVizController {
 		if (csvFile != null) {
 			points = createPoints(csvFile);
 		} else {
-			points = new Group();
+			points = getGeneratedPoint();
 		}
 
 		Group axesAndPoints = new Group(getAxes(), points);

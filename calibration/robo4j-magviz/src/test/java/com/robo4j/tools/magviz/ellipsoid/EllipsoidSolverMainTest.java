@@ -19,35 +19,17 @@ package com.robo4j.tools.magviz.ellipsoid;
 
 import com.robo4j.tools.magviz.math.Tuple3d;
 
-import java.util.List;
-
 /**
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
  */
 public class EllipsoidSolverMainTest {
 
-    // This ellipsoid will be scaled back to the sphere
-    private static double A_CONTROL_ELLIPSE = 1.4;
-    private static double B_CONTROL_ELLIPSE = 1.3;
-    private static double C_CONTROL_ELLIPSE = 1.2;
-    private static double SHIFT_X_CONTROL_ELLIPSE = 2;
-    private static double SHIFT_Y_CONTROL_ELLIPSE = 2;
-    private static double SHIFT_Z_CONTROL_ELLIPSE = 2;
-    private static double NOISE_INTENSITY = 0.01;
-
-    // Generates points for plots.
-    static SampleDataGenerator pointGenerator = new SampleDataGenerator();
-
-    private static final List<Tuple3d> CONTROL_ELLIPSOID_POINTS = pointGenerator.generatePoints(
-            A_CONTROL_ELLIPSE, B_CONTROL_ELLIPSE, C_CONTROL_ELLIPSE,
-            SHIFT_X_CONTROL_ELLIPSE, SHIFT_Y_CONTROL_ELLIPSE,
-            SHIFT_Z_CONTROL_ELLIPSE, NOISE_INTENSITY);
-
     public static void main(String[] args) {
         System.out.println("ellipsoid fit test");
 
-        EllipsoidToSphereSolver solver = new EllipsoidToSphereSolver(CONTROL_ELLIPSOID_POINTS);
+        // Generates points for plots.
+        EllipsoidToSphereSolver solver = new EllipsoidToSphereSolver(new SampleDataGenerator().generatePoints((1000)));
         Tuple3d center = solver.getSphereMatrix();
 
         System.out.println("CENTER: " + center);

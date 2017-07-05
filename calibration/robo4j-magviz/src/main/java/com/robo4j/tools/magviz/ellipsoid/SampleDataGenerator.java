@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Robo4J. If not, see <http://www.gnu.org/licenses/>.
+ * along with Robo4J. If not, see <http://www.gnu.org/licenses/>.                                                                                          
  */
 package com.robo4j.tools.magviz.ellipsoid;
 
@@ -30,17 +30,32 @@ import com.robo4j.tools.magviz.math.Tuple3d;
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
  */
-class SampleDataGenerator {
-    private static final int NUMBER_POINTS = 1000;
+public class SampleDataGenerator {
+
+	// This ellipsoid will be scaled back to the sphere
+	private static final double A_CONTROL_ELLIPSE = 1.4;
+	private static final double B_CONTROL_ELLIPSE = 1.3;
+	private static final double C_CONTROL_ELLIPSE = 1.2;
+	private static final double SHIFT_X_CONTROL_ELLIPSE = 2;
+	private static final double SHIFT_Y_CONTROL_ELLIPSE = 2;
+	private static final double SHIFT_Z_CONTROL_ELLIPSE = 2;
+	private static final double NOISE_INTENSITY = 0.01;
+
 	private Random r = new Random();
 
-	List<Tuple3d> generatePoints(double a, double b, double c, double shiftx, double shifty, double shiftz,
-			double noiseIntensity) {
-		double[] x = new double[NUMBER_POINTS];
-		double[] y = new double[NUMBER_POINTS];
-		double[] z = new double[NUMBER_POINTS];
+	public  List<Tuple3d> generatePoints(int number){
+		return generatePoints(number, A_CONTROL_ELLIPSE, B_CONTROL_ELLIPSE, C_CONTROL_ELLIPSE,
+				SHIFT_X_CONTROL_ELLIPSE, SHIFT_Y_CONTROL_ELLIPSE,
+				SHIFT_Z_CONTROL_ELLIPSE, NOISE_INTENSITY);
+	}
 
-		IntStream.range(0, NUMBER_POINTS).forEach(i -> {
+	public List<Tuple3d> generatePoints(int number, double a, double b, double c, double shiftx, double shifty, double shiftz,
+			double noiseIntensity) {
+		double[] x = new double[number];
+		double[] y = new double[number];
+		double[] z = new double[number];
+
+		IntStream.range(0, number).forEach(i -> {
 			double s = Math.toRadians(r.nextInt(360));
 			double t = Math.toRadians(r.nextInt(360));
 
@@ -52,12 +67,12 @@ class SampleDataGenerator {
 
 		double angle = Math.toRadians((Math.PI / 6));
 
-		IntStream.range(0, NUMBER_POINTS).forEach(i ->{
+		IntStream.range(0, number).forEach(i ->{
             x[i] = x[i] * Math.cos(angle) - y[i] * Math.sin(angle) + shiftx + r.nextDouble() * noiseIntensity;
             y[i] = x[i] * Math.sin(angle) + y[i] * Math.cos(angle) + shifty + r.nextDouble() * noiseIntensity;
             z[i] = z[i] + shiftz + r.nextDouble() * noiseIntensity;
         });
 
-		return IntStream.range(0, NUMBER_POINTS).mapToObj(i -> new Tuple3d(x[i], y[i], z[i])).collect(Collectors.toList());
+		return IntStream.range(0, number).mapToObj(i -> new Tuple3d(x[i], y[i], z[i])).collect(Collectors.toList());
 	}
 }
