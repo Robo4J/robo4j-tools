@@ -197,11 +197,22 @@ public class MagVizController {
 	public List<Point3D> loadPointsFromFile(File csvFile) {
 		final List<Point3D> points = new ArrayList<>();
 		try (Stream<String> stream = Files.lines(csvFile.toPath())) {
-			stream.forEach((s) -> points.add(readPoint(s)));
+			stream.forEach((s) -> parsePoint(points, s));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return points;
+	}
+
+	private void parsePoint(final List<Point3D> points, String s) {
+		if (s.startsWith("#")) {
+			return;
+		}
+		String trimmed = s.trim();
+		if (trimmed.isEmpty()) {
+			return;
+		}
+		points.add(readPoint(trimmed));
 	}
 
 	private Point3D readPoint(String csvLine) {
