@@ -17,9 +17,10 @@
 
 package com.robo4j.tools.magviz.ellipsoid;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javafx.geometry.Point3D;
 import javafx.scene.transform.Rotate;
@@ -34,25 +35,20 @@ public class PointGenerator {
 	private final static Random RND = new Random();
 
 	public static List<Point3D> generatePoints(int noOfPoints, double startRadius, double gaussianNoise) {
-		List<Point3D> points = new ArrayList<>();
-		for (int i = 0; i < noOfPoints; i++) {
-			Point3D point = generatePoint(startRadius, gaussianNoise);
-			points.add(point);
-		}
-		return points;
+		return IntStream.range(0, noOfPoints)
+				.mapToObj(i -> generatePoint(startRadius, gaussianNoise))
+				.collect(Collectors.toList());
 	}
 	
 	public static List<Point3D> generatePoints(int noOfPoints, double startRadius, double gaussianNoise, Point3D bias, Point3D scale, Point3D rotAxis, double rotAngle) {
-		List<Point3D> generatedPoints = generatePoints(noOfPoints, startRadius, gaussianNoise);
-		List<Point3D> modifiedPoints = new ArrayList<>(generatedPoints.size());
-		for (Point3D p : generatedPoints) {
-			Point3D newPoint = new Point3D(p.getX() * scale.getX(), p.getY() * scale.getY(), p.getZ() * scale.getZ());
-			Rotate rotate = new Rotate(rotAngle, rotAxis);
-			Point3D rotPoint = rotate.transform(newPoint);
-			newPoint = rotPoint.subtract(bias);
-			modifiedPoints.add(newPoint);
-		}
-		return modifiedPoints;
+		final List<Point3D> generatedPoints = generatePoints(noOfPoints, startRadius, gaussianNoise);
+		return generatedPoints.stream()
+				.map(p -> {
+					Point3D newPoint = new Point3D(p.getX() * scale.getX(), p.getY() * scale.getY(), p.getZ() * scale.getZ());
+					Rotate rotate = new Rotate(rotAngle, rotAxis);
+					Point3D rotPoint = rotate.transform(newPoint);
+					return rotPoint.subtract(bias);})
+				.collect(Collectors.toList());
 	}
 
 	private static Point3D generatePoint(double r, double stddev) {
