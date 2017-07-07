@@ -17,6 +17,7 @@
 
 package com.robo4j.tools.magviz.ellipsoid;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -39,13 +40,13 @@ import javafx.geometry.Point3D;
  * @author Miro Wengner (@miragemiko)
  */
 public class EllipsoidToSphereSolver {
-
-	public Point3D ellipsoidCenter;
-	public Point3D radii;
-	public double[] eigenValues;
-	public Point3D eigenVector0;
-	public Point3D eigenVector1;
-	public Point3D eigenVector2;
+	private Point3D radii;
+	private double[] eigenValues;
+	private Point3D eigenVector0;
+	private Point3D eigenVector1;
+	private Point3D eigenVector2;
+	private RealMatrix matrix;
+	private Point3D center;
 
 	private List<Point3D> dataPoints;
 
@@ -53,7 +54,7 @@ public class EllipsoidToSphereSolver {
 		this.dataPoints = dataPoints;
 	}
 
-	public Point3D getSphereMatrix() {
+	public void solve() {
 		if (dataPoints == null || dataPoints.isEmpty()) {
 			throw new SolverException("no data-points");
 		}
@@ -66,9 +67,9 @@ public class EllipsoidToSphereSolver {
 		// Form the algebraic form of the ellipsoid dimension of 4
 		RealMatrix algebralicMatrix4 = formAlgebraicMatrix(fitVector9);
 
-		// solve ellipsoid ellipsoidCenter
+		// Solve ellipsoid ellipsoidCenter. Will be used as the bias vector
 		RealVector solvedCenter = solveCenter(algebralicMatrix4);
-		ellipsoidCenter = new Point3D(solvedCenter.getEntry(0), solvedCenter.getEntry(1), solvedCenter.getEntry(2));
+		center = new Point3D(solvedCenter.getEntry(0), solvedCenter.getEntry(1), solvedCenter.getEntry(2));
 
 		// Translate the algebraic form of the ellipsoid to the center.
 		RealMatrix translatedMatrix4 = translateToCenter(solvedCenter, algebralicMatrix4);
@@ -77,6 +78,10 @@ public class EllipsoidToSphereSolver {
 		RealMatrix subr = translatedMatrix4.getSubMatrix(0, 2, 0, 2);
 		double divisor = -translatedMatrix4.getEntry(3, 3);
         divideMatrixByValue(subr, divisor);
+        
+        // This is the matrix to use in Robo4J
+        matrix = subr;
+        
 		// Get the eigenvalues and eigenvectors.
 		EigenDecomposition solvedEigenVecors = new EigenDecomposition(subr);
 		eigenValues = solvedEigenVecors.getRealEigenvalues();
@@ -88,8 +93,8 @@ public class EllipsoidToSphereSolver {
 		eigenVector2 = new Point3D(ev2.getEntry(0), ev2.getEntry(1), ev2.getEntry(2));
 		// Find the radii of the ellipsoid.
 		double [] radiiArray = findRadii(eigenValues);
+		System.out.println(Arrays.toString(radiiArray));
 		radii = new Point3D(radiiArray[0], radiiArray[1], radiiArray[2]);
-		return ellipsoidCenter;
 	}
 
 	public Point3D getRadii() {
@@ -128,7 +133,7 @@ public class EllipsoidToSphereSolver {
 	 *            the eigenvalues of the ellipsoid.
 	 * @return the radii of the ellipsoid.
 	 */
-	public double [] findRadii(double[] eigenValues) {
+	public static double [] findRadii(double[] eigenValues) {
 		double [] radii = new double[eigenValues.length]; 
 		for (int i = 0; i < eigenValues.length; i++) {
 			radii[i] = Math.sqrt(1 / eigenValues[i]);
@@ -248,4 +253,12 @@ public class EllipsoidToSphereSolver {
 		return dtdMatrix9.operate(dtOnes);
 	}
 
+
+	public Point3D getCenter() {
+		return center;
+	}
+
+	public RealMatrix getMatrix() {
+		return matrix;
+	}
 }

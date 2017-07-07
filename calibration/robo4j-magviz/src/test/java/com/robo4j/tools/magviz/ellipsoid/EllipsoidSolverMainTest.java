@@ -30,8 +30,9 @@ public class EllipsoidSolverMainTest {
 
         // Generates points for plots.
         EllipsoidToSphereSolver solver = new EllipsoidToSphereSolver(PointGenerator.generatePoints(1000, 100, 10));
-        Point3D center = solver.getSphereMatrix();
-
+        solver.solve();
+        Point3D center = solver.getCenter();
+        
         System.out.println("CENTER: " + center);
         System.out.println("RADII: " + solver.getRadii());
         System.out.println("eigen0: " + solver.getEigenVector0());
