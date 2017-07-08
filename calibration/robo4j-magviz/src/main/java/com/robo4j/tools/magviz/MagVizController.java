@@ -30,6 +30,8 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 
 import com.robo4j.tools.magviz.ellipsoid.EllipsoidToSphereSolver;
 
@@ -93,10 +95,17 @@ public class MagVizController {
 	private HBox animatedSubSceneHBox;
 	@FXML
 	private Label testLabel;
+
 	@FXML
 	private TextField textNoOfPoints;
 	@FXML
 	private TextField textMaxRadius;
+	@FXML
+	private TextField textMeanRadius;
+
+	@FXML
+	private TextField textFilterStddev;
+
 	@FXML
 	private CheckBox checkRawData;
 	@FXML
@@ -135,6 +144,7 @@ public class MagVizController {
 	private List<Point3D> points;
 	private List<Node> lastCorrectedSpheres;
 	private List<Node> rawSpheres;
+	private File lastLoaded;
 
 	public void initialize() {
 		sliderSphereSize.valueProperty().addListener(new ChangeListener<Number>() {
@@ -145,10 +155,31 @@ public class MagVizController {
 	}
 
 	public void loadFile(File csvFile) {
+		lastLoaded = csvFile;
 		points = loadPointsFromFile(csvFile);
-		initializeMatrix(points);
+		setupInitialScene(points);
+	}
+
+	private void setupInitialScene(List<Point3D> points) {
+		solveSphereMapping(points);
+		initializeStats(points);
 		initializeSubScene(points);
 		fade(true, null);
+	}
+
+	private void initializeStats(List<Point3D> points) {
+		textNoOfPoints.setText(String.valueOf(points.size()));
+		Point3D center = getBiasFromFields();
+		
+		double maxRadius = Double.MIN_VALUE;
+		Mean mean = new Mean();
+		
+		for (Point3D p : points) {
+			maxRadius = Math.max(maxRadius, p.distance(center));
+			mean.increment(p.distance(center));
+		}
+		textMaxRadius.setText(String.valueOf(maxRadius));
+		textMeanRadius.setText(String.valueOf(mean.getResult()));
 	}
 
 	public synchronized void initializeSubScene(List<Point3D> rawPointList) {
@@ -224,6 +255,40 @@ public class MagVizController {
 		fade(checkRawData.isSelected(), checkCorrectedData.isSelected());
 	}
 
+	@FXML
+	private void filterPoints(ActionEvent event) {
+		List<Point3D> pointsFromFile = loadPointsFromFile(lastLoaded);
+		solveSphereMapping(pointsFromFile);
+		points = filter(pointsFromFile);
+		setupInitialScene(points);
+	}
+
+	private List<Point3D> filter(List<Point3D> originalPoints) {
+		initializeStats(originalPoints);
+		Point3D biasCorrectedCenter = getBiasFromFields();
+		
+		double maxRadius = Double.MIN_VALUE;
+		Mean mean = new Mean();
+		StandardDeviation stddev = new StandardDeviation();
+		for (Point3D p : points) {
+			double r = p.distance(biasCorrectedCenter);
+			maxRadius = Math.max(maxRadius, r);
+			mean.increment(r);
+			stddev.increment(r);
+		}
+		double meanResult = mean.getResult();
+		double stddevResult = stddev.getResult();
+		double allowedDeviation = stddevResult * getValue(textFilterStddev);
+		
+		List<Point3D> filteredPoints = new ArrayList<>();
+		for (Point3D p : originalPoints) {
+			if (Math.abs(p.distance(biasCorrectedCenter) - meanResult) <= allowedDeviation) {
+				filteredPoints.add(p);
+			}
+		}		
+		return filteredPoints;
+	}
+
 	private void fade(Boolean showRaw, Boolean showCorrected) {
 		ArrayList<Animation> animations = new ArrayList<>();
 		synchronized (this) {
@@ -268,12 +333,10 @@ public class MagVizController {
 	}
 
 	public List<Node> createSpheres(List<Point3D> points, float size, Material material) {
-		textNoOfPoints.setText(String.valueOf(points.size()));
 		double maxRadius = 0;
 		for (Point3D p : points) {
 			maxRadius = Math.max(maxRadius, ZERO.distance(p));
 		}
-		textMaxRadius.setText(String.format("%.2f", maxRadius));
 
 		final List<Node> spheres = new ArrayList<>();
 		double normalizingFactor = 100.0f / maxRadius;
@@ -283,10 +346,9 @@ public class MagVizController {
 		return spheres;
 	}
 
-	public void initializeMatrix(List<Point3D> points) {
+	public void solveSphereMapping(List<Point3D> points) {
 		EllipsoidToSphereSolver solver = new EllipsoidToSphereSolver(points);
 		solver.solve();
-		textNoOfPoints.setText(String.valueOf(points.size()));
 
 		RealMatrix matrix = solver.getMatrix();
 		m11.setText(String.valueOf(matrix.getEntry(0, 0)));
@@ -308,7 +370,6 @@ public class MagVizController {
 	public List<Node> createCorrectedSpheres(List<Point3D> points, float size, Material material) {
 		Point3D bias = getBiasFromFields();
 		RealMatrix matrix = getMatrixFromFields();
-		textNoOfPoints.setText(String.valueOf(points.size()));
 
 		// Get the eigenvalues and eigenvectors.
 		EigenDecomposition solvedEigenVecors = new EigenDecomposition(matrix);
@@ -326,7 +387,6 @@ public class MagVizController {
 
 		// Find the radii of the ellipsoid.
 		double[] radiiArray = EllipsoidToSphereSolver.findRadii(eigenValues);
-		System.out.println(Arrays.toString(radiiArray));
 		Point3D radii = new Point3D(radiiArray[0], radiiArray[1], radiiArray[2]);
 
 		final List<Node> spheres = points.stream().map(p -> {
@@ -439,13 +499,13 @@ public class MagVizController {
 	}
 
 	private void resizeSpheres(List<Node> allNodes, double fromSize, double toSize) {
-		Animation [] animations = new Animation[allNodes.size()];
+		Animation[] animations = new Animation[allNodes.size()];
 
 		for (int i = 0; i < animations.length; i++) {
 			Sphere s = (Sphere) allNodes.get(i);
 			Timeline timeline = new Timeline();
-			timeline.getKeyFrames().add(new KeyFrame(Duration.millis(20), new KeyValue(s.radiusProperty(), fromSize/2)));
-			timeline.getKeyFrames().add(new KeyFrame(Duration.millis(1000), new KeyValue(s.radiusProperty(), toSize/2)));
+			timeline.getKeyFrames().add(new KeyFrame(Duration.millis(20), new KeyValue(s.radiusProperty(), fromSize / 2)));
+			timeline.getKeyFrames().add(new KeyFrame(Duration.millis(1000), new KeyValue(s.radiusProperty(), toSize / 2)));
 			animations[i] = timeline;
 		}
 		new ParallelTransition(animations).play();

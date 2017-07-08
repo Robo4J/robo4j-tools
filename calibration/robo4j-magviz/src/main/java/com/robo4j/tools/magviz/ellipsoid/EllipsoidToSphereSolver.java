@@ -17,7 +17,6 @@
 
 package com.robo4j.tools.magviz.ellipsoid;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -93,7 +92,6 @@ public class EllipsoidToSphereSolver {
 		eigenVector2 = new Point3D(ev2.getEntry(0), ev2.getEntry(1), ev2.getEntry(2));
 		// Find the radii of the ellipsoid.
 		double [] radiiArray = findRadii(eigenValues);
-		System.out.println(Arrays.toString(radiiArray));
 		radii = new Point3D(radiiArray[0], radiiArray[1], radiiArray[2]);
 	}
 
