@@ -35,6 +35,11 @@ import javafx.geometry.Point3D;
  * 2Fyz + 2Gx + 2Hy + 2Iz = 1 determine the ellipsoidCenter and radii of the fit
  * ellipsoid.
  *
+ * sources:
+ * inspired by article: Ellipsoid or sphere fitting for sensor calibration : https://goo.gl/v4XuQV
+ * inspired by Mathlab EllipsoidFit script: http://de.mathworks.com/matlabcentral/fileexchange/24693-ellipsoid-fit
+ * inspired by EllipsoidFit Java Implementation : https://github.com/KalebKE/EllipsoidFit/tree/master/EllipsoidFit/src/ellipsoidFit
+ *
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
  */
