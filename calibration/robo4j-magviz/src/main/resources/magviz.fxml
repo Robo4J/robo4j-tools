@@ -126,11 +126,11 @@
                                                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                         </rowConstraints>
                                                         <children>
-                                                            <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="X:" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="NEVER" />
+                                                            <Label alignment="CENTER" contentDisplay="RIGHT" text="X:" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="NEVER" />
                                                             <TextField fx:id="textBiasX" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                            <Label text="Y:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                                            <Label alignment="CENTER" text="Y:" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
                                                             <TextField fx:id="textBiasY" text="0.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                                                            <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Z:" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                                            <Label alignment="CENTER" contentDisplay="RIGHT" text="Z:" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
                                                             <TextField fx:id="textBiasZ" text="0.0" GridPane.columnIndex="5" GridPane.rowIndex="1" />
                                                           <Label text="Bias Vector" GridPane.columnSpan="6" GridPane.halignment="CENTER" GridPane.valignment="BOTTOM">
                                                               <padding>
