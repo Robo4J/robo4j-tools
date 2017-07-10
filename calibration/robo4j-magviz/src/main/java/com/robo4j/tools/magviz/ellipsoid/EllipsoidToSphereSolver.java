@@ -39,6 +39,7 @@ import javafx.geometry.Point3D;
  * @author Miro Wengner (@miragemiko)
  */
 public class EllipsoidToSphereSolver {
+
 	private Point3D radii;
 	private double[] eigenValues;
 	private Point3D eigenVector0;
@@ -66,24 +67,25 @@ public class EllipsoidToSphereSolver {
 		// Form the algebraic form of the ellipsoid dimension of 4
 		RealMatrix algebralicMatrix4 = formAlgebraicMatrix(fitVector9);
 
-		// Solve ellipsoid ellipsoidCenter. Will be used as the bias vector
-		RealVector solvedCenter = solveCenter(algebralicMatrix4);
+		// Solve ellipsoid ellipsoidCenter. Will be used as the bias vector, (offset - o ) = -inv(SubA)[3x3]*vectorGhi[3x1]
+		RealVector solvedCenterOffset = solveCenter(algebralicMatrix4);
 
-		center = new Point3D(solvedCenter.getEntry(0), solvedCenter.getEntry(1), solvedCenter.getEntry(2));
+		center = new Point3D(solvedCenterOffset.getEntry(0), solvedCenterOffset.getEntry(1), solvedCenterOffset.getEntry(2));
 
 		// Translate the algebraic form of the ellipsoid to the center.
-		RealMatrix translatedMatrix4 = translateToCenter(solvedCenter, algebralicMatrix4);
+		RealMatrix translatedMatrix4 = translateToCenter(solvedCenterOffset, algebralicMatrix4);
 
-		// Generate a submatrix of translatedMatrix4.
-		RealMatrix subr = translatedMatrix4.getSubMatrix(0, 2, 0, 2);
+		// Generate a submatrix of translatedMatrix4 subTranslatedM[3x3] = represents Gain and Cross
+		RealMatrix subTranslatedM = translatedMatrix4.getSubMatrix(0, 2, 0, 2);
 		double divisor = -translatedMatrix4.getEntry(3, 3);
-        divideMatrixByValue(subr, divisor);
+		// subTranslatedM computed from eigenValues and vectors subTranslatedM[3x3]/ (-translatedMatrix4(m33)[4x4])
+        divideMatrixByValue(subTranslatedM, divisor);
         
         // This is the matrix to use in Robo4J
-        matrix = subr;
+        matrix = subTranslatedM;
         
 		// Get the eigenvalues and eigenvectors.
-		EigenDecomposition solvedEigenVecors = new EigenDecomposition(subr);
+		EigenDecomposition solvedEigenVecors = new EigenDecomposition(subTranslatedM);
 		eigenValues = solvedEigenVecors.getRealEigenvalues();
 		RealVector ev0 = solvedEigenVecors.getEigenvector(0);
 		RealVector ev1 = solvedEigenVecors.getEigenvector(1);
@@ -91,7 +93,7 @@ public class EllipsoidToSphereSolver {
 		eigenVector0 = new Point3D(ev0.getEntry(0), ev0.getEntry(1), ev0.getEntry(2));
 		eigenVector1 = new Point3D(ev1.getEntry(0), ev1.getEntry(1), ev1.getEntry(2));
 		eigenVector2 = new Point3D(ev2.getEntry(0), ev2.getEntry(1), ev2.getEntry(2));
-		// Find the radii of the ellipsoid.
+		// Find the radii of the ellipsoid, radii values are the square root fo the inverse of 3 eigen values
 		double [] radiiArray = findRadii(eigenValues);
 		radii = new Point3D(radiiArray[0], radiiArray[1], radiiArray[2]);
 	}
@@ -159,10 +161,10 @@ public class EllipsoidToSphereSolver {
 
 		t.setSubMatrix(centerMatrix.getData(), 3, 0);
 
-		// Translate to the center.
-		RealMatrix tmp1 = t.multiply(aglMatrix);
+		// Translate to the center = T[4x4]*AlgMatrix[4x4]*T'[4x4]
+		RealMatrix tmpM = t.multiply(aglMatrix);
 		RealMatrix transposeT = t.transpose();
-		return tmp1.multiply(transposeT);
+		return tmpM.multiply(transposeT);
 	}
 
 	private RealVector solveCenter(RealMatrix algMatrix) {
@@ -177,9 +179,9 @@ public class EllipsoidToSphereSolver {
 		}
 
 		//Vghi = Vector[3x1]~(subA.row(3))
-		RealVector Vghi = algMatrix.getRowVector(3).getSubVector(0, 3);
-		// result = -inv(SubA)[3x3]*Vghi[3x]
-		return new SingularValueDecomposition(subA).getSolver().getInverse().operate(Vghi);
+		RealVector vectorGhi = algMatrix.getRowVector(3).getSubVector(0, 3);
+		// result (offset - o ) = -inv(SubA)[3x3]*vectorGhi[3x1]
+		return new SingularValueDecomposition(subA).getSolver().getInverse().operate(vectorGhi);
 	}
 
 	/**
