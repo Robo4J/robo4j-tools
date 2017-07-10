@@ -386,7 +386,8 @@ public class MagVizController {
 		rotationMatrix.setRow(2, new double[] { eigenVector2.getX(), eigenVector2.getY(), eigenVector2.getZ() });
 
 		// Find the radii of the ellipsoid.
-		double[] radiiArray = EllipsoidToSphereSolver.findRadii(eigenValues);
+		double aII = 1;
+		double[] radiiArray = EllipsoidToSphereSolver.findRadii(aII, eigenValues);
 		Point3D radii = new Point3D(radiiArray[0], radiiArray[1], radiiArray[2]);
 
 		final List<Node> spheres = points.stream().map(p -> {

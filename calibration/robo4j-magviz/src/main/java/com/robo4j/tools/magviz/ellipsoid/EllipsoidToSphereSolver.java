@@ -64,7 +64,7 @@ public class EllipsoidToSphereSolver {
 		// v = (( d' * d )^-1) * ( d' * ones.mapAddToSelf(1));
 		RealVector fitVector9 = pointsToEquation(dataPoints);
 
-		// Form the algebraic form of the ellipsoid dimension of 4
+		// algebralicMatrix4[4x4] Form the algebraic form of the ellipsoid dimension of 4
 		RealMatrix algebralicMatrix4 = formAlgebraicMatrix(fitVector9);
 
 		// Solve ellipsoid ellipsoidCenter. Will be used as the bias vector, (offset - o ) = -inv(SubA)[3x3]*vectorGhi[3x1]
@@ -94,7 +94,9 @@ public class EllipsoidToSphereSolver {
 		eigenVector1 = new Point3D(ev1.getEntry(0), ev1.getEntry(1), ev1.getEntry(2));
 		eigenVector2 = new Point3D(ev2.getEntry(0), ev2.getEntry(1), ev2.getEntry(2));
 		// Find the radii of the ellipsoid, radii values are the square root fo the inverse of 3 eigen values
-		double [] radiiArray = findRadii(eigenValues);
+		// a'' = a + b + c
+		double aII = fitVector9.getEntry(0) + fitVector9.getEntry(1) + fitVector9.getEntry(2);
+		double [] radiiArray = findRadii(aII, eigenValues);
 		radii = new Point3D(radiiArray[0], radiiArray[1], radiiArray[2]);
 	}
 
@@ -129,15 +131,16 @@ public class EllipsoidToSphereSolver {
 
 	/**
 	 * Find the radii of the ellipsoid in ascending order.
+	 * Gains can be calculated as follow G = [sqrt(a''/gx), sqrt(a''/gy), sqrt(a''/gz)]
 	 * 
 	 * @param evals
 	 *            the eigenvalues of the ellipsoid.
 	 * @return the radii of the ellipsoid.
 	 */
-	public static double [] findRadii(double[] eigenValues) {
+	public static double [] findRadii(double aII, double[] eigenValues) {
 		double [] radii = new double[eigenValues.length]; 
 		for (int i = 0; i < eigenValues.length; i++) {
-			radii[i] = Math.sqrt(1 / eigenValues[i]);
+			radii[i] = Math.sqrt(aII / eigenValues[i]);
 		}
 		return radii;
 	}
