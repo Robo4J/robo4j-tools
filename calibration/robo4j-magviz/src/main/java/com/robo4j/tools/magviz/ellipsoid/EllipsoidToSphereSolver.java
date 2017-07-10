@@ -68,6 +68,7 @@ public class EllipsoidToSphereSolver {
 
 		// Solve ellipsoid ellipsoidCenter. Will be used as the bias vector
 		RealVector solvedCenter = solveCenter(algebralicMatrix4);
+
 		center = new Point3D(solvedCenter.getEntry(0), solvedCenter.getEntry(1), solvedCenter.getEntry(2));
 
 		// Translate the algebraic form of the ellipsoid to the center.
@@ -175,9 +176,10 @@ public class EllipsoidToSphereSolver {
 			}
 		}
 
-		RealVector subV = algMatrix.getRowVector(3).getSubVector(0, 3);
-		// inv
-		return new SingularValueDecomposition(subA).getSolver().getInverse().operate(subV);
+		//Vghi = Vector[3x1]~(subA.row(3))
+		RealVector Vghi = algMatrix.getRowVector(3).getSubVector(0, 3);
+		// result = -inv(SubA)[3x3]*Vghi[3x]
+		return new SingularValueDecomposition(subA).getSolver().getInverse().operate(Vghi);
 	}
 
 	/**
@@ -194,7 +196,8 @@ public class EllipsoidToSphereSolver {
 		// [ 2Dxy By^2 2Fyz 2Hy ]
 		// [ 2Exz 2Fyz Cz^2 2Iz ]
 		// [ 2Gx 2Hy 2Iz -1 ] ]
-		double[][] data = { { v.getEntry(0), v.getEntry(3), v.getEntry(4), v.getEntry(6) },
+		double[][] data = {
+				{ v.getEntry(0), v.getEntry(3), v.getEntry(4), v.getEntry(6) },
 				{ v.getEntry(3), v.getEntry(1), v.getEntry(5), v.getEntry(7) },
 				{ v.getEntry(4), v.getEntry(5), v.getEntry(2), v.getEntry(8) },
 				{ v.getEntry(6), v.getEntry(7), v.getEntry(8), -1 } };
