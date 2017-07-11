@@ -18,13 +18,10 @@
 package com.robo4j.tools.magviz;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.EigenDecomposition;
@@ -62,10 +59,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Material;
-import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Box;
 import javafx.scene.shape.Sphere;
-import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
 
@@ -76,17 +70,7 @@ import javafx.util.Duration;
  * @author Miro Wengner (@miragemiko)
  */
 public class MagVizController {
-	private static final String SEPARATOR = ";";
-	private static final Point3D ZERO = new Point3D(0, 0, 0);
-	private static final double AXIS_LENGTH = 50;
-	private static final double AXIS_THICKNESS = 3;
-
-	private final static Material BLACK = new PhongMaterial(Color.BLACK);
-	private final static Material RED = new PhongMaterial(Color.RED);
-
-	private final static double MIN_SPHERE_SIZE = 0.4f;
-	private final static double MAX_SPHERE_SIZE = 2.0f;
-
+	static final String SEPARATOR = ";";
 	@FXML
 	private BorderPane animatedBorderPane;
 	@FXML
@@ -156,7 +140,7 @@ public class MagVizController {
 
 	public void loadFile(File csvFile) {
 		lastLoaded = csvFile;
-		points = loadPointsFromFile(csvFile);
+		points = VisualizationToolkit.loadPointsFromFile(csvFile);
 		setupInitialScene(points);
 	}
 
@@ -188,15 +172,15 @@ public class MagVizController {
 		Group correctedPointsGroup = null;
 
 		if (points != null && points.size() > 0) {
-			rawSpheres = createSpheres(rawPointList, 1.5f, RED);
+			rawSpheres = createNormalizedSpheres(rawPointList, 1.5f, VisualizationToolkit.RED_MATERIAL);
 			pointsGroup = new Group(rawSpheres);
-			lastCorrectedSpheres = createCorrectedSpheres(rawPointList, 1.5f, BLACK);
+			lastCorrectedSpheres = createCorrectedSpheres(rawPointList, 1.5f, VisualizationToolkit.BLACK_MATERIAL);
 			correctedPointsGroup = new Group(lastCorrectedSpheres);
 		} else {
 			pointsGroup = new Group();
 			correctedPointsGroup = new Group();
 		}
-		Group axesAndPoints = new Group(getAxes(), pointsGroup, correctedPointsGroup);
+		Group axesAndPoints = new Group(VisualizationToolkit.getAxes(), pointsGroup, correctedPointsGroup);
 		Group pivotGroup = new Group(axesAndPoints);
 		Group root = new Group(ambient, pivotGroup);
 
@@ -258,7 +242,7 @@ public class MagVizController {
 
 	@FXML
 	private void filterPoints(ActionEvent event) {
-		List<Point3D> pointsFromFile = loadPointsFromFile(lastLoaded);
+		List<Point3D> pointsFromFile = VisualizationToolkit.loadPointsFromFile(lastLoaded);
 		solveSphereMapping(pointsFromFile);
 		points = filter(pointsFromFile);
 		setupInitialScene(points);
@@ -279,7 +263,7 @@ public class MagVizController {
 		}
 		double meanResult = mean.getResult();
 		double stddevResult = stddev.getResult();
-		double allowedDeviation = stddevResult * getValue(textFilterStddev);
+		double allowedDeviation = stddevResult * VisualizationToolkit.getValue(textFilterStddev);
 
 		List<Point3D> filteredPoints = new ArrayList<>();
 		for (Point3D p : originalPoints) {
@@ -327,22 +311,22 @@ public class MagVizController {
 
 	private RealMatrix getMatrixFromFields() {
 		RealMatrix matrix = new Array2DRowRealMatrix(3, 3);
-		matrix.setRow(0, new double[] { getValue(m11), getValue(m12), getValue(m13) });
-		matrix.setRow(1, new double[] { getValue(m21), getValue(m22), getValue(m23) });
-		matrix.setRow(2, new double[] { getValue(m31), getValue(m32), getValue(m33) });
+		matrix.setRow(0, new double[] { VisualizationToolkit.getValue(m11), VisualizationToolkit.getValue(m12), VisualizationToolkit.getValue(m13) });
+		matrix.setRow(1, new double[] { VisualizationToolkit.getValue(m21), VisualizationToolkit.getValue(m22), VisualizationToolkit.getValue(m23) });
+		matrix.setRow(2, new double[] { VisualizationToolkit.getValue(m31), VisualizationToolkit.getValue(m32), VisualizationToolkit.getValue(m33) });
 		return matrix;
 	}
 
-	public List<Node> createSpheres(List<Point3D> points, float size, Material material) {
+	public List<Node> createNormalizedSpheres(List<Point3D> points, float size, Material material) {
 		double maxRadius = 0;
 		for (Point3D p : points) {
-			maxRadius = Math.max(maxRadius, ZERO.distance(p));
+			maxRadius = Math.max(maxRadius, VisualizationToolkit.ORIGO.distance(p));
 		}
 
 		final List<Node> spheres = new ArrayList<>();
 		double normalizingFactor = 100.0f / maxRadius;
 		for (Point3D p : points) {
-			spheres.add(createSphere(1.5f, p.multiply(normalizingFactor), material));
+			spheres.add(VisualizationToolkit.createSphere(1.5f, p.multiply(normalizingFactor), material));
 		}
 		return spheres;
 	}
@@ -416,7 +400,7 @@ public class MagVizController {
 
 		final RealMatrix correctionMatrix = rotationMatrix.multiply(diagRadiiMatrix).multiply(rotationMatrix.transpose());
 
-		return rawPoints.stream().map(p -> {
+		List<Point3D> correctedPoints = rawPoints.stream().map(p -> {
 			// calculation of corrected values
 			double valX = p.getX() - bias.getX();
 			double valY = p.getY() - bias.getY();
@@ -431,86 +415,8 @@ public class MagVizController {
 			double[] correctedZ = resultMatrix.getRow(2);
 
 			return new Point3D(correctedX[0], correctedY[0], correctedZ[0]);
-		}).map(p1 -> {
-			Sphere s = new Sphere(size / 2);
-			s.setScaleX(1 / 100);
-			s.setScaleY(1 / 100);
-			s.setScaleZ(1 / 100);
-			Point3D tmpP = new Point3D(p1.getX() * 100f, p1.getY() * 100f, p1.getZ() * 100f);
-
-			s.setTranslateX(tmpP.getX());
-			s.setTranslateY(tmpP.getY());
-			s.setTranslateZ(tmpP.getZ());
-			s.setMaterial(material);
-			return s;
 		}).collect(Collectors.toList());
-
-	}
-
-	private static double getValue(TextField field) {
-		return Double.valueOf(field.getText());
-	}
-
-	public static List<Point3D> loadPointsFromFile(File csvFile) {
-		final List<Point3D> points = new ArrayList<>();
-		try (Stream<String> stream = Files.lines(csvFile.toPath())) {
-			stream.forEach((s) -> parsePoint(points, s));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return points;
-	}
-
-	private static void parsePoint(final List<Point3D> points, String s) {
-		if (s.startsWith("#")) {
-			return;
-		}
-		String trimmed = s.trim();
-		if (trimmed.isEmpty()) {
-			return;
-		}
-		points.add(readPoint(trimmed));
-	}
-
-	private static Point3D readPoint(String csvLine) {
-		String[] values = csvLine.split(SEPARATOR);
-		return new Point3D(Double.parseDouble(values[0]), Double.parseDouble(values[1]), Double.parseDouble(values[2]));
-	}
-
-	private static Sphere createSphere(float diameter, Point3D position, Material material) {
-		Sphere s = new Sphere(diameter / 2);
-		translate(s, position);
-		s.setMaterial(material);
-		return s;
-	}
-
-	private static void translate(Sphere s, Point3D position) {
-		s.setTranslateX(position.getX());
-		s.setTranslateY(position.getY());
-		s.setTranslateZ(position.getZ());
-	}
-
-	private static Group getAxes() {
-		Box xAxis = new Box(AXIS_LENGTH, AXIS_THICKNESS, AXIS_THICKNESS);
-		xAxis.setMaterial(new PhongMaterial(Color.BLUE));
-		Text xLabel = new Text(AXIS_LENGTH / 2, 5, "X");
-
-		Box yAxis = new Box(AXIS_THICKNESS, AXIS_THICKNESS, AXIS_LENGTH);
-		yAxis.setMaterial(new PhongMaterial(Color.RED));
-		Text yLabel = new Text(0, AXIS_LENGTH / 2, "Y");
-		yLabel.setTranslateY(10);
-		yLabel.setTranslateX(-4);
-
-		Box zAxis = new Box(AXIS_THICKNESS, AXIS_LENGTH, AXIS_THICKNESS);
-		zAxis.setMaterial(new PhongMaterial(Color.GREEN));
-		Text zLabel = new Text(0, 0, "Z");
-		zLabel.setTranslateZ(AXIS_LENGTH / 2 + 5);
-		zLabel.setRotationAxis(Rotate.Y_AXIS);
-		zLabel.setRotate(-90);
-		zLabel.setTranslateX(-4);
-		zLabel.setTranslateY(5);
-
-		return new Group(xAxis, yAxis, zAxis, xLabel, yLabel, zLabel);
+		return VisualizationToolkit.scale(createNormalizedSpheres(correctedPoints, 1.5f, material), 1/100.0f);
 	}
 
 	private void updateSphereSizes(Number fromValue, Number toVal) {
@@ -550,7 +456,6 @@ public class MagVizController {
 	}
 
 	private double calculateSizeFromSliderValue(Number sliderValue) {
-		return sliderValue.doubleValue() * (MAX_SPHERE_SIZE - MIN_SPHERE_SIZE) / 100 + MIN_SPHERE_SIZE;
+		return sliderValue.doubleValue() * (VisualizationToolkit.MAX_SPHERE_SIZE - VisualizationToolkit.MIN_SPHERE_SIZE) / 100 + VisualizationToolkit.MIN_SPHERE_SIZE;
 	}
-
 }
