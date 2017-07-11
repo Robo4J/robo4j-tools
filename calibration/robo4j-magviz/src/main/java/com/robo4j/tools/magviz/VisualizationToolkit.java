@@ -56,7 +56,7 @@ public final class VisualizationToolkit {
 	private VisualizationToolkit() {
 		throw new UnsupportedOperationException("Toolkit!");
 	}
-	
+
 	public static Sphere createSphere(float diameter, Point3D position, Material material) {
 		Sphere s = new Sphere(diameter / 2);
 		VisualizationToolkit.translate(s, position);
@@ -90,13 +90,13 @@ public final class VisualizationToolkit {
 		Box xAxis = new Box(VisualizationToolkit.AXIS_LENGTH, VisualizationToolkit.AXIS_THICKNESS, VisualizationToolkit.AXIS_THICKNESS);
 		xAxis.setMaterial(new PhongMaterial(Color.BLUE));
 		Text xLabel = new Text(VisualizationToolkit.AXIS_LENGTH / 2, 5, "X");
-	
+
 		Box yAxis = new Box(VisualizationToolkit.AXIS_THICKNESS, VisualizationToolkit.AXIS_THICKNESS, VisualizationToolkit.AXIS_LENGTH);
 		yAxis.setMaterial(new PhongMaterial(Color.RED));
 		Text yLabel = new Text(0, VisualizationToolkit.AXIS_LENGTH / 2, "Y");
 		yLabel.setTranslateY(10);
 		yLabel.setTranslateX(-4);
-	
+
 		Box zAxis = new Box(VisualizationToolkit.AXIS_THICKNESS, VisualizationToolkit.AXIS_LENGTH, VisualizationToolkit.AXIS_THICKNESS);
 		zAxis.setMaterial(new PhongMaterial(Color.GREEN));
 		Text zLabel = new Text(0, 0, "Z");
@@ -105,12 +105,12 @@ public final class VisualizationToolkit {
 		zLabel.setRotate(-90);
 		zLabel.setTranslateX(-4);
 		zLabel.setTranslateY(5);
-	
+
 		return new Group(xAxis, yAxis, zAxis, xLabel, yLabel, zLabel);
 	}
 
 	public static List<Node> scale(List<Node> spheres, float scale) {
-		spheres.forEach((Node n)->VisualizationToolkit.scaleUniformly(n, scale));
+		spheres.forEach((Node n) -> VisualizationToolkit.scaleUniformly(n, scale));
 		return spheres;
 	}
 
@@ -134,12 +134,27 @@ public final class VisualizationToolkit {
 		return Double.valueOf(field.getText());
 	}
 
+	/**
+	 * This will create a list of spheres to represents the provided points. The
+	 * positions of the points will be normalized so that the farthest point
+	 * from ORIGO will have the radius 100.
+	 * 
+	 * This is to make the camera easier to handle.
+	 * 
+	 * @param points
+	 *            the points to get spheres for.
+	 * @param size
+	 *            the diameter of the individual spheres.
+	 * @param material
+	 *            the material to use on the spheres.
+	 * @return a list of nodes.
+	 */
 	public static List<Node> createNormalizedSpheres(List<Point3D> points, float size, Material material) {
 		double maxRadius = 0;
 		for (Point3D p : points) {
 			maxRadius = Math.max(maxRadius, ORIGO.distance(p));
 		}
-	
+
 		final List<Node> spheres = new ArrayList<>();
 		double normalizingFactor = 100.0f / maxRadius;
 		for (Point3D p : points) {

@@ -206,9 +206,8 @@ public class MagVizController {
 		ParallelTransition parallelTransition = new ParallelTransition(rotation, axisRot);
 		ParallelTransition parallelTransitionBack = new ParallelTransition(rotationBack, axisRotBack);
 
-		SequentialTransition transition = new SequentialTransition(parallelTransition,
-				new PauseTransition(Duration.seconds(1)), parallelTransitionBack,
-				new PauseTransition(Duration.seconds(1)));
+		SequentialTransition transition = new SequentialTransition(parallelTransition, new PauseTransition(Duration.seconds(1)),
+				parallelTransitionBack, new PauseTransition(Duration.seconds(1)));
 		transition.setCycleCount(Animation.INDEFINITE);
 		transition.setDelay(Duration.seconds(2));
 		transition.play();
@@ -293,9 +292,12 @@ public class MagVizController {
 
 	private RealMatrix getMatrixFromFields() {
 		RealMatrix matrix = new Array2DRowRealMatrix(3, 3);
-		matrix.setRow(0, new double[] { VisualizationToolkit.getValue(m11), VisualizationToolkit.getValue(m12), VisualizationToolkit.getValue(m13) });
-		matrix.setRow(1, new double[] { VisualizationToolkit.getValue(m21), VisualizationToolkit.getValue(m22), VisualizationToolkit.getValue(m23) });
-		matrix.setRow(2, new double[] { VisualizationToolkit.getValue(m31), VisualizationToolkit.getValue(m32), VisualizationToolkit.getValue(m33) });
+		matrix.setRow(0, new double[] { VisualizationToolkit.getValue(m11), VisualizationToolkit.getValue(m12),
+				VisualizationToolkit.getValue(m13) });
+		matrix.setRow(1, new double[] { VisualizationToolkit.getValue(m21), VisualizationToolkit.getValue(m22),
+				VisualizationToolkit.getValue(m23) });
+		matrix.setRow(2, new double[] { VisualizationToolkit.getValue(m31), VisualizationToolkit.getValue(m32),
+				VisualizationToolkit.getValue(m33) });
 		return matrix;
 	}
 
@@ -321,20 +323,29 @@ public class MagVizController {
 	}
 
 	/**
-	 * Mapping points onto the unit sphere. math notes:
-	 * correctedPoint[3x1] = correctionMatrix[3x3] * biasedVector[3x1]
-	 * where:
-	 * biasedVector[3x1] = rawPoint[3x1] - center[3x1]
-	 * correctionMatrix[3x3] = rotationMatrix[3x3] * diagRadiiMatrix(1./radii)[3x3] * rotationMatrix'[3x3]
-	 * rotationMatrix[3x3] = matrix of eigenVectors
+	 * Calculates the positions for the points from the bias and matrix set in
+	 * the UI. By default the UI is filled out with the solution for the bias
+	 * vector and transform matrix from solving the mapping from an ellipsoid to
+	 * a sphere. Finally, it creates little spheres to represent the corrected
+	 * points for visualization.
+	 *
+	 * <p>
+	 * Notes: correctedPoint[3x1] = correctionMatrix[3x3] * biasedVector[3x1]
+	 * where: biasedVector[3x1] = rawPoint[3x1] - center[3x1]
+	 * correctionMatrix[3x3] = rotationMatrix[3x3] *
+	 * diagRadiiMatrix(1./radii)[3x3] * rotationMatrix'[3x3] rotationMatrix[3x3]
+	 * = matrix of eigenVectors
+	 * </p>
+	 * 
+	 * @see VisualizationToolkit#createNormalizedSpheres(List, float, Material)
 	 *
 	 * @param rawPoints
 	 *            raw point
 	 * @param size
 	 *            sphere size
 	 * @param material
-	 *            material
-	 * @return List of Nodes
+	 *            material the material of the sphere
+	 * @return list of Nodes for visualization
 	 */
 	public List<Node> createCorrectedSpheres(List<Point3D> rawPoints, float size, Material material) {
 		Point3D bias = getBiasFromFields();
@@ -384,7 +395,7 @@ public class MagVizController {
 
 			return new Point3D(correctedX[0], correctedY[0], correctedZ[0]);
 		}).collect(Collectors.toList());
-		return VisualizationToolkit.scale(VisualizationToolkit.createNormalizedSpheres(correctedPoints, 1.5f, material), 1/100.0f);
+		return VisualizationToolkit.scale(VisualizationToolkit.createNormalizedSpheres(correctedPoints, 1.5f, material), 1 / 100.0f);
 	}
 
 	private void updateSphereSizes(Number fromValue, Number toVal) {
@@ -403,10 +414,8 @@ public class MagVizController {
 		for (int i = 0; i < animations.length; i++) {
 			Sphere s = (Sphere) allNodes.get(i);
 			Timeline timeline = new Timeline();
-			timeline.getKeyFrames()
-					.add(new KeyFrame(Duration.millis(20), new KeyValue(s.radiusProperty(), fromSize / 2)));
-			timeline.getKeyFrames()
-					.add(new KeyFrame(Duration.millis(1000), new KeyValue(s.radiusProperty(), toSize / 2)));
+			timeline.getKeyFrames().add(new KeyFrame(Duration.millis(20), new KeyValue(s.radiusProperty(), fromSize / 2)));
+			timeline.getKeyFrames().add(new KeyFrame(Duration.millis(1000), new KeyValue(s.radiusProperty(), toSize / 2)));
 			animations[i] = timeline;
 		}
 		new ParallelTransition(animations).play();
@@ -424,6 +433,7 @@ public class MagVizController {
 	}
 
 	private double calculateSizeFromSliderValue(Number sliderValue) {
-		return sliderValue.doubleValue() * (VisualizationToolkit.MAX_SPHERE_SIZE - VisualizationToolkit.MIN_SPHERE_SIZE) / 100 + VisualizationToolkit.MIN_SPHERE_SIZE;
+		return sliderValue.doubleValue() * (VisualizationToolkit.MAX_SPHERE_SIZE - VisualizationToolkit.MIN_SPHERE_SIZE) / 100
+				+ VisualizationToolkit.MIN_SPHERE_SIZE;
 	}
 }
