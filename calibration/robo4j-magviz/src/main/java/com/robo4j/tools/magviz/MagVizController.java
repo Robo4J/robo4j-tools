@@ -368,7 +368,23 @@ public class MagVizController {
 		textBiasZ.setText(String.valueOf(bias.getZ()));
 	}
 
-	public List<Node> createCorrectedSpheres(List<Point3D> points, float size, Material material) {
+	/**
+	 * Mapping points onto the unit sphere. math notes:
+	 * correctedPoint[3x1] = correctionMatrix[3x3] * biasedVector[3x1]
+	 * where:
+	 * biasedVector[3x1] = rawPoint[3x1] - center[3x1]
+	 * correctionMatrix[3x3] = rotationMatrix[3x3] * diagRadiiMatrix(1./radii)[3x3] * rotationMatrix'[3x3]
+	 * rotationMatrix[3x3] = matrix of eigenVectors
+	 *
+	 * @param rawPoints
+	 *            raw point
+	 * @param size
+	 *            sphere size
+	 * @param material
+	 *            material
+	 * @return List of Nodes
+	 */
+	public List<Node> createCorrectedSpheres(List<Point3D> rawPoints, float size, Material material) {
 		Point3D bias = getBiasFromFields();
 		RealMatrix matrix = getMatrixFromFields();
 
@@ -398,10 +414,9 @@ public class MagVizController {
 		});
 		//@formatter:on
 
-		// Correction Matrix = eigenVectors * diagonal(1./radii) * eigenVectors'
-		RealMatrix correctionMatrix = rotationMatrix.multiply(diagRadiiMatrix).multiply(rotationMatrix.transpose());
+		final RealMatrix correctionMatrix = rotationMatrix.multiply(diagRadiiMatrix).multiply(rotationMatrix.transpose());
 
-		return points.stream().map(p -> {
+		return rawPoints.stream().map(p -> {
 			// calculation of corrected values
 			double valX = p.getX() - bias.getX();
 			double valY = p.getY() - bias.getY();

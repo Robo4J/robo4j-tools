@@ -46,7 +46,7 @@ public class MagViz extends Application {
 
 		URL file = Thread.currentThread().getContextClassLoader().getResource("magviz.fxml");
 		FXMLLoader fxmlLoader = new FXMLLoader(file);
-		BorderPane myPane = (BorderPane) fxmlLoader.load();
+		BorderPane myPane = fxmlLoader.load();
 		MagVizController controller = fxmlLoader.getController();
 		controller.loadFile(csvFile);
 		stage.setScene(new Scene(myPane, 800, 600));
@@ -75,8 +75,8 @@ public class MagViz extends Application {
 			return null;
 		}
 
-//		File f = new File(params.get(0));
-		File f = new File(getClass().getClassLoader().getResource("points.txt").getFile());
+		File f = new File(params.get(0));
+//		File f = new File(getClass().getClassLoader().getResource("magnetometer2.csv").getFile());
 		if (!f.exists()) {
 			System.out.println("Warning - the csv file specified (" + f.getName() + ") does not exist!");
 			return null;
