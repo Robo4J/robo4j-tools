@@ -75,8 +75,8 @@ public class MagViz extends Application {
 			return null;
 		}
 
-		File f = new File(params.get(0));
-//		File f = new File(getClass().getClassLoader().getResource("points.txt").getFile());
+//		File f = new File(params.get(0));
+		File f = new File(getClass().getClassLoader().getResource("points.txt").getFile());
 		if (!f.exists()) {
 			System.out.println("Warning - the csv file specified (" + f.getName() + ") does not exist!");
 			return null;

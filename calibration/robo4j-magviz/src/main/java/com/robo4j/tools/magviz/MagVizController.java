@@ -368,22 +368,6 @@ public class MagVizController {
 		textBiasZ.setText(String.valueOf(bias.getZ()));
 	}
 
-	/**
-	 * Mapping points onto the unit sphere. math notes:
-	 * correctedPoint[3x1] = correctionMatrix[3x3] * biasedVector[3x1]
-	 * where:
-	 * biasedVector[3x1] = rawPoint[3x1] - center[3x1]
-	 * correctionMatrix[3x3] = rotationMatrix[3x3] * diagRadiiMatrix(1./radii)[3x3] * rotationMatrix'[3x3]
-	 * rotationMatrix[3x3] = matrix of eigenVectors
-	 *
-	 * @param points
-	 *            raw point
-	 * @param size
-	 *            sphere size
-	 * @param material
-	 *            material
-	 * @return List of Nodes
-	 */
 	public List<Node> createCorrectedSpheres(List<Point3D> points, float size, Material material) {
 		Point3D bias = getBiasFromFields();
 		RealMatrix matrix = getMatrixFromFields();
@@ -406,8 +390,13 @@ public class MagVizController {
 		double[] radiiArray = EllipsoidToSphereSolver.findRadii(eigenValues);
 		Point3D radii = new Point3D(radiiArray[0], radiiArray[1], radiiArray[2]);
 
-		RealMatrix diagRadiiMatrix = new Array2DRowRealMatrix(
-				new double[][] { { 1 / radii.getX(), 0, 0 }, { 0, 1 / radii.getY(), 0 }, { 0, 0, 1 / radii.getZ() } });
+		//@formatter:off
+		RealMatrix diagRadiiMatrix = new Array2DRowRealMatrix(new double[][] {
+		        { 1 / radii.getX(), 0, 0 },
+                { 0, 1 / radii.getY(), 0 },
+                { 0, 0, 1 / radii.getZ() }
+		});
+		//@formatter:on
 
 		// Correction Matrix = eigenVectors * diagonal(1./radii) * eigenVectors'
 		RealMatrix correctionMatrix = rotationMatrix.multiply(diagRadiiMatrix).multiply(rotationMatrix.transpose());
@@ -427,7 +416,6 @@ public class MagVizController {
 			double[] test3 = res.getRow(2);
 
 			return new Point3D(test1[0], test2[0], test3[0]);
-
 		}).map(p1 -> {
 			Sphere s = new Sphere(size / 2);
 			s.setScaleX(1 / 100);
