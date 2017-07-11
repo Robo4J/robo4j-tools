@@ -407,15 +407,15 @@ public class MagVizController {
 			double valY = p.getY() - bias.getY();
 			double valZ = p.getZ() - bias.getZ();
 
-			RealMatrix biasedVector = new Array2DRowRealMatrix(1, 3);
-			biasedVector.setRow(0, new double[] { valX, valY, valZ });
+			RealMatrix biasCompensatedPoint = new Array2DRowRealMatrix(1, 3);
+			biasCompensatedPoint.setRow(0, new double[] { valX, valY, valZ });
 
-			RealMatrix res = correctionMatrix.multiply(biasedVector.transpose());
-			double[] test1 = res.getRow(0);
-			double[] test2 = res.getRow(1);
-			double[] test3 = res.getRow(2);
+			RealMatrix resultMatrix = correctionMatrix.multiply(biasCompensatedPoint.transpose());
+			double[] correctedX = resultMatrix.getRow(0);
+			double[] correctedY = resultMatrix.getRow(1);
+			double[] correctedZ = resultMatrix.getRow(2);
 
-			return new Point3D(test1[0], test2[0], test3[0]);
+			return new Point3D(correctedX[0], correctedY[0], correctedZ[0]);
 		}).map(p1 -> {
 			Sphere s = new Sphere(size / 2);
 			s.setScaleX(1 / 100);
