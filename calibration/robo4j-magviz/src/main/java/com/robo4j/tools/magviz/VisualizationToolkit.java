@@ -57,6 +57,17 @@ public final class VisualizationToolkit {
 		throw new UnsupportedOperationException("Toolkit!");
 	}
 
+	/**
+	 * Creates a sphere.
+	 * 
+	 * @param diameter
+	 *            the diameter of the sphere.
+	 * @param position
+	 *            the position of the sphere.
+	 * @param material
+	 *            the material of the sphere.
+	 * @return the {@link Sphere}
+	 */
 	public static Sphere createSphere(float diameter, Point3D position, Material material) {
 		Sphere s = new Sphere(diameter / 2);
 		VisualizationToolkit.translate(s, position);
@@ -143,13 +154,13 @@ public final class VisualizationToolkit {
 	 * 
 	 * @param points
 	 *            the points to get spheres for.
-	 * @param size
+	 * @param diameter
 	 *            the diameter of the individual spheres.
 	 * @param material
 	 *            the material to use on the spheres.
 	 * @return a list of nodes.
 	 */
-	public static List<Node> createNormalizedSpheres(List<Point3D> points, float size, Material material) {
+	public static List<Node> createNormalizedSpheres(List<Point3D> points, float diameter, Material material) {
 		double maxRadius = 0;
 		for (Point3D p : points) {
 			maxRadius = Math.max(maxRadius, ORIGO.distance(p));

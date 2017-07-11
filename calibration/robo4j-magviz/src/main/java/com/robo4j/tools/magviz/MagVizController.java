@@ -341,13 +341,13 @@ public class MagVizController {
 	 *
 	 * @param rawPoints
 	 *            raw point
-	 * @param size
-	 *            sphere size
+	 * @param diameter
+	 *            sphere diameter
 	 * @param material
 	 *            material the material of the sphere
 	 * @return list of Nodes for visualization
 	 */
-	public List<Node> createCorrectedSpheres(List<Point3D> rawPoints, float size, Material material) {
+	public List<Node> createCorrectedSpheres(List<Point3D> rawPoints, float diameter, Material material) {
 		Point3D bias = getBiasFromFields();
 		RealMatrix matrix = getMatrixFromFields();
 
