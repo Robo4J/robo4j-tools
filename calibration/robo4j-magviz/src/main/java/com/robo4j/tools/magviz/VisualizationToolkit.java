@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import javafx.animation.Animation;
+import javafx.animation.ScaleTransition;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -34,6 +36,7 @@ import javafx.scene.shape.Box;
 import javafx.scene.shape.Sphere;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
+import javafx.util.Duration;
 
 /**
  * Various helpers.
@@ -129,5 +132,36 @@ public final class VisualizationToolkit {
 
 	public static double getValue(TextField field) {
 		return Double.valueOf(field.getText());
+	}
+
+	public static List<Node> createNormalizedSpheres(List<Point3D> points, float size, Material material) {
+		double maxRadius = 0;
+		for (Point3D p : points) {
+			maxRadius = Math.max(maxRadius, ORIGO.distance(p));
+		}
+	
+		final List<Node> spheres = new ArrayList<>();
+		double normalizingFactor = 100.0f / maxRadius;
+		for (Point3D p : points) {
+			spheres.add(createSphere(1.5f, p.multiply(normalizingFactor), material));
+		}
+		return spheres;
+	}
+
+	// Opacity fade does not seem to work well on phong shaded stuff, so
+	// shrinking them instead. ;)
+	public static Animation[] createFadeAnimation(int millis, List<Node> nodes, boolean fadeIn) {
+		Animation[] animations = new Animation[nodes.size()];
+		for (int i = 0; i < animations.length; i++) {
+			ScaleTransition fadeTransition = new ScaleTransition(Duration.millis(2000), nodes.get(i));
+			fadeTransition.setFromX(fadeIn ? 1 / 100 : 1);
+			fadeTransition.setFromY(fadeIn ? 1 / 100 : 1);
+			fadeTransition.setFromZ(fadeIn ? 1 / 100 : 1);
+			fadeTransition.setToX(fadeIn ? 1 : 1 / 100);
+			fadeTransition.setToY(fadeIn ? 1 : 1 / 100);
+			fadeTransition.setToZ(fadeIn ? 1 : 1 / 100);
+			animations[i] = fadeTransition;
+		}
+		return animations;
 	}
 }

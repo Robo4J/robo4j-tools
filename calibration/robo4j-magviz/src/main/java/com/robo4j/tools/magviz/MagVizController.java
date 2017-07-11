@@ -38,7 +38,6 @@ import javafx.animation.KeyValue;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.RotateTransition;
-import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
@@ -172,7 +171,7 @@ public class MagVizController {
 		Group correctedPointsGroup = null;
 
 		if (points != null && points.size() > 0) {
-			rawSpheres = createNormalizedSpheres(rawPointList, 1.5f, VisualizationToolkit.RED_MATERIAL);
+			rawSpheres = VisualizationToolkit.createNormalizedSpheres(rawPointList, 1.5f, VisualizationToolkit.RED_MATERIAL);
 			pointsGroup = new Group(rawSpheres);
 			lastCorrectedSpheres = createCorrectedSpheres(rawPointList, 1.5f, VisualizationToolkit.BLACK_MATERIAL);
 			correctedPointsGroup = new Group(lastCorrectedSpheres);
@@ -278,30 +277,13 @@ public class MagVizController {
 		ArrayList<Animation> animations = new ArrayList<>();
 		synchronized (this) {
 			if (showRaw != null) {
-				animations.addAll(Arrays.asList(createFadeAnimation(3000, rawSpheres, showRaw)));
+				animations.addAll(Arrays.asList(VisualizationToolkit.createFadeAnimation(3000, rawSpheres, showRaw)));
 			}
 			if (showCorrected != null) {
-				animations.addAll(Arrays.asList(createFadeAnimation(3000, lastCorrectedSpheres, showCorrected)));
+				animations.addAll(Arrays.asList(VisualizationToolkit.createFadeAnimation(3000, lastCorrectedSpheres, showCorrected)));
 			}
 		}
 		new ParallelTransition(animations.toArray(new Animation[0])).play();
-	}
-
-	// Opacity fade does not seem to work well on phong shaded stuff, so
-	// shrinking them instead. ;)
-	private Animation[] createFadeAnimation(int millis, List<Node> nodes, boolean fadeIn) {
-		Animation[] animations = new Animation[nodes.size()];
-		for (int i = 0; i < animations.length; i++) {
-			ScaleTransition fadeTransition = new ScaleTransition(Duration.millis(2000), nodes.get(i));
-			fadeTransition.setFromX(fadeIn ? 1 / 100 : 1);
-			fadeTransition.setFromY(fadeIn ? 1 / 100 : 1);
-			fadeTransition.setFromZ(fadeIn ? 1 / 100 : 1);
-			fadeTransition.setToX(fadeIn ? 1 : 1 / 100);
-			fadeTransition.setToY(fadeIn ? 1 : 1 / 100);
-			fadeTransition.setToZ(fadeIn ? 1 : 1 / 100);
-			animations[i] = fadeTransition;
-		}
-		return animations;
 	}
 
 	private Point3D getBiasFromFields() {
@@ -315,20 +297,6 @@ public class MagVizController {
 		matrix.setRow(1, new double[] { VisualizationToolkit.getValue(m21), VisualizationToolkit.getValue(m22), VisualizationToolkit.getValue(m23) });
 		matrix.setRow(2, new double[] { VisualizationToolkit.getValue(m31), VisualizationToolkit.getValue(m32), VisualizationToolkit.getValue(m33) });
 		return matrix;
-	}
-
-	public List<Node> createNormalizedSpheres(List<Point3D> points, float size, Material material) {
-		double maxRadius = 0;
-		for (Point3D p : points) {
-			maxRadius = Math.max(maxRadius, VisualizationToolkit.ORIGO.distance(p));
-		}
-
-		final List<Node> spheres = new ArrayList<>();
-		double normalizingFactor = 100.0f / maxRadius;
-		for (Point3D p : points) {
-			spheres.add(VisualizationToolkit.createSphere(1.5f, p.multiply(normalizingFactor), material));
-		}
-		return spheres;
 	}
 
 	public void solveSphereMapping(List<Point3D> points) {
@@ -416,7 +384,7 @@ public class MagVizController {
 
 			return new Point3D(correctedX[0], correctedY[0], correctedZ[0]);
 		}).collect(Collectors.toList());
-		return VisualizationToolkit.scale(createNormalizedSpheres(correctedPoints, 1.5f, material), 1/100.0f);
+		return VisualizationToolkit.scale(VisualizationToolkit.createNormalizedSpheres(correctedPoints, 1.5f, material), 1/100.0f);
 	}
 
 	private void updateSphereSizes(Number fromValue, Number toVal) {
