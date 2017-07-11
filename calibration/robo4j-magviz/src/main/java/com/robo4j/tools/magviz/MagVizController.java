@@ -170,10 +170,10 @@ public class MagVizController {
 	private void initializeStats(List<Point3D> points) {
 		textNoOfPoints.setText(String.valueOf(points.size()));
 		Point3D center = getBiasFromFields();
-		
+
 		double maxRadius = Double.MIN_VALUE;
 		Mean mean = new Mean();
-		
+
 		for (Point3D p : points) {
 			maxRadius = Math.max(maxRadius, p.distance(center));
 			mean.increment(p.distance(center));
@@ -223,8 +223,9 @@ public class MagVizController {
 		ParallelTransition parallelTransition = new ParallelTransition(rotation, axisRot);
 		ParallelTransition parallelTransitionBack = new ParallelTransition(rotationBack, axisRotBack);
 
-		SequentialTransition transition = new SequentialTransition(parallelTransition, new PauseTransition(Duration.seconds(1)),
-				parallelTransitionBack, new PauseTransition(Duration.seconds(1)));
+		SequentialTransition transition = new SequentialTransition(parallelTransition,
+				new PauseTransition(Duration.seconds(1)), parallelTransitionBack,
+				new PauseTransition(Duration.seconds(1)));
 		transition.setCycleCount(Animation.INDEFINITE);
 		transition.setDelay(Duration.seconds(2));
 		transition.play();
@@ -266,7 +267,7 @@ public class MagVizController {
 	private List<Point3D> filter(List<Point3D> originalPoints) {
 		initializeStats(originalPoints);
 		Point3D biasCorrectedCenter = getBiasFromFields();
-		
+
 		double maxRadius = Double.MIN_VALUE;
 		Mean mean = new Mean();
 		StandardDeviation stddev = new StandardDeviation();
@@ -279,13 +280,13 @@ public class MagVizController {
 		double meanResult = mean.getResult();
 		double stddevResult = stddev.getResult();
 		double allowedDeviation = stddevResult * getValue(textFilterStddev);
-		
+
 		List<Point3D> filteredPoints = new ArrayList<>();
 		for (Point3D p : originalPoints) {
 			if (Math.abs(p.distance(biasCorrectedCenter) - meanResult) <= allowedDeviation) {
 				filteredPoints.add(p);
 			}
-		}		
+		}
 		return filteredPoints;
 	}
 
@@ -367,6 +368,22 @@ public class MagVizController {
 		textBiasZ.setText(String.valueOf(bias.getZ()));
 	}
 
+	/**
+	 * Mapping points onto the unit sphere. math notes:
+	 * correctedPoint[3x1] = correctionMatrix[3x3] * biasedVector[3x1]
+	 * where:
+	 * biasedVector[3x1] = rawPoint[3x1] - center[3x1]
+	 * correctionMatrix[3x3] = rotationMatrix[3x3] * diagRadiiMatrix(1./radii)[3x3] * rotationMatrix'[3x3]
+	 * rotationMatrix[3x3] = matrix of eigenVectors
+	 *
+	 * @param points
+	 *            raw point
+	 * @param size
+	 *            sphere size
+	 * @param material
+	 *            material
+	 * @return List of Nodes
+	 */
 	public List<Node> createCorrectedSpheres(List<Point3D> points, float size, Material material) {
 		Point3D bias = getBiasFromFields();
 		RealMatrix matrix = getMatrixFromFields();
@@ -386,32 +403,37 @@ public class MagVizController {
 		rotationMatrix.setRow(2, new double[] { eigenVector2.getX(), eigenVector2.getY(), eigenVector2.getZ() });
 
 		// Find the radii of the ellipsoid.
-		double aII = 1;
-		double[] radiiArray = EllipsoidToSphereSolver.findRadii(aII, eigenValues);
+		double[] radiiArray = EllipsoidToSphereSolver.findRadii(eigenValues);
 		Point3D radii = new Point3D(radiiArray[0], radiiArray[1], radiiArray[2]);
 
-		final List<Node> spheres = points.stream().map(p -> {
+		RealMatrix diagRadiiMatrix = new Array2DRowRealMatrix(
+				new double[][] { { 1 / radii.getX(), 0, 0 }, { 0, 1 / radii.getY(), 0 }, { 0, 0, 1 / radii.getZ() } });
+
+		// Correction Matrix = eigenVectors * diagonal(1./radii) * eigenVectors'
+		RealMatrix correctionMatrix = rotationMatrix.multiply(diagRadiiMatrix).multiply(rotationMatrix.transpose());
+
+		return points.stream().map(p -> {
+			// calculation of corrected values
 			double valX = p.getX() - bias.getX();
 			double valY = p.getY() - bias.getY();
 			double valZ = p.getZ() - bias.getZ();
 
-			RealMatrix vector = new Array2DRowRealMatrix(1, 3);
-			vector.setRow(0, new double[] { valX, valY, valZ });
+			RealMatrix biasedVector = new Array2DRowRealMatrix(1, 3);
+			biasedVector.setRow(0, new double[] { valX, valY, valZ });
 
-			RealMatrix resultMatrix = rotationMatrix.multiply(vector.getRowMatrix(0).transpose());
-
-			double[] test1 = resultMatrix.getRow(0);
-			double[] test2 = resultMatrix.getRow(1);
-			double[] test3 = resultMatrix.getRow(2);
+			RealMatrix res = correctionMatrix.multiply(biasedVector.transpose());
+			double[] test1 = res.getRow(0);
+			double[] test2 = res.getRow(1);
+			double[] test3 = res.getRow(2);
 
 			return new Point3D(test1[0], test2[0], test3[0]);
+
 		}).map(p1 -> {
 			Sphere s = new Sphere(size / 2);
 			s.setScaleX(1 / 100);
 			s.setScaleY(1 / 100);
 			s.setScaleZ(1 / 100);
-			Point3D tmpP = new Point3D(p1.getX() * 100.0f / radii.getX(), p1.getY() * 100.0f / radii.getY(),
-					p1.getZ() * 100.0f / radii.getZ());
+			Point3D tmpP = new Point3D(p1.getX() * 100f, p1.getY() * 100f, p1.getZ() * 100f);
 
 			s.setTranslateX(tmpP.getX());
 			s.setTranslateY(tmpP.getY());
@@ -420,7 +442,6 @@ public class MagVizController {
 			return s;
 		}).collect(Collectors.toList());
 
-		return spheres;
 	}
 
 	private static double getValue(TextField field) {
@@ -505,8 +526,10 @@ public class MagVizController {
 		for (int i = 0; i < animations.length; i++) {
 			Sphere s = (Sphere) allNodes.get(i);
 			Timeline timeline = new Timeline();
-			timeline.getKeyFrames().add(new KeyFrame(Duration.millis(20), new KeyValue(s.radiusProperty(), fromSize / 2)));
-			timeline.getKeyFrames().add(new KeyFrame(Duration.millis(1000), new KeyValue(s.radiusProperty(), toSize / 2)));
+			timeline.getKeyFrames()
+					.add(new KeyFrame(Duration.millis(20), new KeyValue(s.radiusProperty(), fromSize / 2)));
+			timeline.getKeyFrames()
+					.add(new KeyFrame(Duration.millis(1000), new KeyValue(s.radiusProperty(), toSize / 2)));
 			animations[i] = timeline;
 		}
 		new ParallelTransition(animations).play();

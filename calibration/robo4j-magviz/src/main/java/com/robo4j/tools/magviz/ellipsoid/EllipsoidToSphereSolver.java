@@ -100,8 +100,7 @@ public class EllipsoidToSphereSolver {
 		eigenVector2 = new Point3D(ev2.getEntry(0), ev2.getEntry(1), ev2.getEntry(2));
 		// Find the radii of the ellipsoid, radii values are the square root fo the inverse of 3 eigen values
 		// a'' = a + b + c
-		double aII = fitVector9.getEntry(0) + fitVector9.getEntry(1) + fitVector9.getEntry(2);
-		double [] radiiArray = findRadii(aII, eigenValues);
+		double [] radiiArray = findRadii(eigenValues);
 		radii = new Point3D(radiiArray[0], radiiArray[1], radiiArray[2]);
 	}
 
@@ -138,14 +137,14 @@ public class EllipsoidToSphereSolver {
 	 * Find the radii of the ellipsoid in ascending order.
 	 * Gains can be calculated as follow G = [sqrt(a''/gx), sqrt(a''/gy), sqrt(a''/gz)]
 	 * 
-	 * @param evals
+	 * @param eigenValues
 	 *            the eigenvalues of the ellipsoid.
 	 * @return the radii of the ellipsoid.
 	 */
-	public static double [] findRadii(double aII, double[] eigenValues) {
+	public static double [] findRadii(double[] eigenValues) {
 		double [] radii = new double[eigenValues.length]; 
 		for (int i = 0; i < eigenValues.length; i++) {
-			radii[i] = Math.sqrt(aII / eigenValues[i]);
+			radii[i] = Math.sqrt(1 / eigenValues[i]);
 		}
 		return radii;
 	}
