@@ -35,10 +35,11 @@ import javafx.geometry.Point3D;
  * 2Fyz + 2Gx + 2Hy + 2Iz = 1 determine the ellipsoidCenter and radii of the fit
  * ellipsoid.
  *
- * sources:
- * inspired by article: Ellipsoid or sphere fitting for sensor calibration : https://goo.gl/v4XuQV
- * inspired by Mathlab EllipsoidFit script: http://de.mathworks.com/matlabcentral/fileexchange/24693-ellipsoid-fit
- * inspired by EllipsoidFit Java Implementation : https://github.com/KalebKE/EllipsoidFit/tree/master/EllipsoidFit/src/ellipsoidFit
+ * sources: inspired by article: Ellipsoid or sphere fitting for sensor
+ * calibration : https://goo.gl/v4XuQV inspired by Mathlab EllipsoidFit script:
+ * http://de.mathworks.com/matlabcentral/fileexchange/24693-ellipsoid-fit
+ * inspired by EllipsoidFit Java Implementation :
+ * https://github.com/KalebKE/EllipsoidFit/tree/master/EllipsoidFit/src/ellipsoidFit
  *
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
@@ -50,8 +51,10 @@ public class EllipsoidToSphereSolver {
 	private Point3D eigenVector0;
 	private Point3D eigenVector1;
 	private Point3D eigenVector2;
+	private RealMatrix eigenMatrix;
 	private RealMatrix matrix;
 	private Point3D center;
+	private RealVector fitVector9;
 
 	private List<Point3D> dataPoints;
 
@@ -67,40 +70,46 @@ public class EllipsoidToSphereSolver {
 		// Fit the points to Ax^2 + By^2 + Cz^2 + 2Dxy + 2Exz
 		// + 2Fyz + 2Gx + 2Hy + 2Iz = 1 and solve the system.
 		// v = (( d' * d )^-1) * ( d' * ones.mapAddToSelf(1));
-		RealVector fitVector9 = pointsToEquation(dataPoints);
+		fitVector9 = pointsToEquation(dataPoints);
 
 		// algebralicMatrix4[4x4] Form the algebraic form of the ellipsoid dimension of 4
 		RealMatrix algebralicMatrix4 = formAlgebraicMatrix(fitVector9);
 
-		// Solve ellipsoid ellipsoidCenter. Will be used as the bias vector, (offset - o ) = -inv(SubA)[3x3]*vectorGhi[3x1]
+		// Solve ellipsoid ellipsoidCenter. Will be used as the bias vector, (offset - o
+		// ) = -inv(SubA)[3x3]*vectorGhi[3x1]
 		RealVector solvedCenterOffset = solveCenter(algebralicMatrix4);
 
-		center = new Point3D(solvedCenterOffset.getEntry(0), solvedCenterOffset.getEntry(1), solvedCenterOffset.getEntry(2));
+		center = new Point3D(solvedCenterOffset.getEntry(0), solvedCenterOffset.getEntry(1),
+				solvedCenterOffset.getEntry(2));
 
 		// Translate the algebraic form of the ellipsoid to the center.
 		RealMatrix translatedMatrix4 = translateToCenter(solvedCenterOffset, algebralicMatrix4);
 
-		// Generate a submatrix of translatedMatrix4 subTranslatedM[3x3] = represents Gain and Cross
+		// Generate a submatrix of translatedMatrix4 subTranslatedM[3x3] = represents
+		// Gain and Cross
 		RealMatrix subTranslatedM = translatedMatrix4.getSubMatrix(0, 2, 0, 2);
 		double divisor = -translatedMatrix4.getEntry(3, 3);
-		// subTranslatedM computed from eigenValues and vectors subTranslatedM[3x3]/ (-translatedMatrix4(m33)[4x4])
-        divideMatrixByValue(subTranslatedM, divisor);
-        
-        // This is the matrix to use in Robo4J
-        matrix = subTranslatedM;
-        
+		// subTranslatedM computed from eigenValues and vectors subTranslatedM[3x3]/
+		// (-translatedMatrix4(m33)[4x4])
+		divideMatrixByValue(subTranslatedM, divisor);
+
+		// This is the matrix to use in Robo4J
+		matrix = subTranslatedM;
+
 		// Get the eigenvalues and eigenvectors.
 		EigenDecomposition solvedEigenVecors = new EigenDecomposition(subTranslatedM);
 		eigenValues = solvedEigenVecors.getRealEigenvalues();
+		eigenMatrix = solvedEigenVecors.getD();
 		RealVector ev0 = solvedEigenVecors.getEigenvector(0);
 		RealVector ev1 = solvedEigenVecors.getEigenvector(1);
 		RealVector ev2 = solvedEigenVecors.getEigenvector(2);
 		eigenVector0 = new Point3D(ev0.getEntry(0), ev0.getEntry(1), ev0.getEntry(2));
 		eigenVector1 = new Point3D(ev1.getEntry(0), ev1.getEntry(1), ev1.getEntry(2));
 		eigenVector2 = new Point3D(ev2.getEntry(0), ev2.getEntry(1), ev2.getEntry(2));
-		// Find the radii of the ellipsoid, radii values are the square root fo the inverse of 3 eigen values
+		// Find the radii of the ellipsoid, radii values are the square root fo the
+		// inverse of 3 eigen values
 		// a'' = a + b + c
-		double [] radiiArray = findRadii(eigenValues);
+		double[] radiiArray = findRadii(eigenValues);
 		radii = new Point3D(radiiArray[0], radiiArray[1], radiiArray[2]);
 	}
 
@@ -110,6 +119,10 @@ public class EllipsoidToSphereSolver {
 
 	public double[] getEigenValues() {
 		return eigenValues;
+	}
+
+	public RealMatrix getEigenMatrix() {
+		return eigenMatrix;
 	}
 
 	public Point3D getEigenVector0() {
@@ -124,6 +137,10 @@ public class EllipsoidToSphereSolver {
 		return eigenVector2;
 	}
 
+	public RealVector getFitVector9() {
+		return fitVector9;
+	}
+
 	// Private Methods
 	private void divideMatrixByValue(RealMatrix matrix, double divisor) {
 		for (int i = 0; i < matrix.getRowDimension(); i++) {
@@ -134,15 +151,15 @@ public class EllipsoidToSphereSolver {
 	}
 
 	/**
-	 * Find the radii of the ellipsoid in ascending order.
-	 * Gains can be calculated as follow G = [sqrt(a''/gx), sqrt(a''/gy), sqrt(a''/gz)]
+	 * Find the radii of the ellipsoid in ascending order. Gains can be calculated
+	 * as follow G = [sqrt(a''/gx), sqrt(a''/gy), sqrt(a''/gz)]
 	 * 
 	 * @param eigenValues
 	 *            the eigenvalues of the ellipsoid.
 	 * @return the radii of the ellipsoid.
 	 */
-	public static double [] findRadii(double[] eigenValues) {
-		double [] radii = new double[eigenValues.length]; 
+	public static double[] findRadii(double[] eigenValues) {
+		double[] radii = new double[eigenValues.length];
 		for (int i = 0; i < eigenValues.length; i++) {
 			radii[i] = Math.sqrt(1 / eigenValues[i]);
 		}
@@ -185,15 +202,15 @@ public class EllipsoidToSphereSolver {
 			}
 		}
 
-		//Vghi = Vector[3x1]~(subA.row(3))
+		// Vghi = Vector[3x1]~(subA.row(3))
 		RealVector vectorGhi = algMatrix.getRowVector(3).getSubVector(0, 3);
 		// result (offset - o ) = -inv(SubA)[3x3]*vectorGhi[3x1]
 		return new SingularValueDecomposition(subA).getSolver().getInverse().operate(vectorGhi);
 	}
 
 	/**
-	 * Create a matrix in the algebraic form of the polynomial Ax^2 + By^2 +
-	 * Cz^2 + 2Dxy + 2Exz + 2Fyz + 2Gx + 2Hy + 2Iz = 1.
+	 * Create a matrix in the algebraic form of the polynomial Ax^2 + By^2 + Cz^2 +
+	 * 2Dxy + 2Exz + 2Fyz + 2Gx + 2Hy + 2Iz = 1.
 	 *
 	 * @param v
 	 *            the vector polynomial.
@@ -205,8 +222,7 @@ public class EllipsoidToSphereSolver {
 		// [ 2Dxy By^2 2Fyz 2Hy ]
 		// [ 2Exz 2Fyz Cz^2 2Iz ]
 		// [ 2Gx 2Hy 2Iz -1 ] ]
-		double[][] data = {
-				{ v.getEntry(0), v.getEntry(3), v.getEntry(4), v.getEntry(6) },
+		double[][] data = { { v.getEntry(0), v.getEntry(3), v.getEntry(4), v.getEntry(6) },
 				{ v.getEntry(3), v.getEntry(1), v.getEntry(5), v.getEntry(7) },
 				{ v.getEntry(4), v.getEntry(5), v.getEntry(2), v.getEntry(8) },
 				{ v.getEntry(6), v.getEntry(7), v.getEntry(8), -1 } };
@@ -214,14 +230,14 @@ public class EllipsoidToSphereSolver {
 	}
 
 	/**
-	 * Solve the polynomial expression Ax^2 + By^2 + Cz^2 + 2Dxy + 2Exz + 2Fyz +
-	 * 2Gx + 2Hy + 2Iz from the provided points.
+	 * Solve the polynomial expression Ax^2 + By^2 + Cz^2 + 2Dxy + 2Exz + 2Fyz + 2Gx
+	 * + 2Hy + 2Iz from the provided points.
 	 *
 	 *
 	 * @param dataPoints
 	 *            the points that will be fit to the polynomial expression.
-	 *            dataPoint represent 3D Point dataPoint are fit to all 3 axes
-	 *            => result vector is then size of 9
+	 *            dataPoint represent 3D Point dataPoint are fit to all 3 axes =>
+	 *            result vector is then size of 9
 	 * @return the solution vector to the polynomial expression.
 	 */
 	private RealVector pointsToEquation(List<Point3D> dataPoints) {
@@ -262,7 +278,6 @@ public class EllipsoidToSphereSolver {
 		// result = (( d' * d )^-1) * ( d' * ones(Identity of size 9));
 		return dtdMatrix9.operate(dtOnes);
 	}
-
 
 	public Point3D getCenter() {
 		return center;

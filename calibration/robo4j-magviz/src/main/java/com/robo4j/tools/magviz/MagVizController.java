@@ -171,7 +171,8 @@ public class MagVizController {
 		Group correctedPointsGroup = null;
 
 		if (points != null && points.size() > 0) {
-			rawSpheres = VisualizationToolkit.createNormalizedSpheres(rawPointList, 1.5f, VisualizationToolkit.RED_MATERIAL);
+			rawSpheres = VisualizationToolkit.createNormalizedSpheres(rawPointList, 1.5f,
+					VisualizationToolkit.RED_MATERIAL);
 			pointsGroup = new Group(rawSpheres);
 			lastCorrectedSpheres = createCorrectedSpheres(rawPointList, 1.5f, VisualizationToolkit.BLACK_MATERIAL);
 			correctedPointsGroup = new Group(lastCorrectedSpheres);
@@ -206,8 +207,9 @@ public class MagVizController {
 		ParallelTransition parallelTransition = new ParallelTransition(rotation, axisRot);
 		ParallelTransition parallelTransitionBack = new ParallelTransition(rotationBack, axisRotBack);
 
-		SequentialTransition transition = new SequentialTransition(parallelTransition, new PauseTransition(Duration.seconds(1)),
-				parallelTransitionBack, new PauseTransition(Duration.seconds(1)));
+		SequentialTransition transition = new SequentialTransition(parallelTransition,
+				new PauseTransition(Duration.seconds(1)), parallelTransitionBack,
+				new PauseTransition(Duration.seconds(1)));
 		transition.setCycleCount(Animation.INDEFINITE);
 		transition.setDelay(Duration.seconds(2));
 		transition.play();
@@ -279,7 +281,8 @@ public class MagVizController {
 				animations.addAll(Arrays.asList(VisualizationToolkit.createFadeAnimation(3000, rawSpheres, showRaw)));
 			}
 			if (showCorrected != null) {
-				animations.addAll(Arrays.asList(VisualizationToolkit.createFadeAnimation(3000, lastCorrectedSpheres, showCorrected)));
+				animations.addAll(Arrays
+						.asList(VisualizationToolkit.createFadeAnimation(3000, lastCorrectedSpheres, showCorrected)));
 			}
 		}
 		new ParallelTransition(animations.toArray(new Animation[0])).play();
@@ -323,18 +326,17 @@ public class MagVizController {
 	}
 
 	/**
-	 * Calculates the positions for the points from the bias and matrix set in
-	 * the UI. By default the UI is filled out with the solution for the bias
-	 * vector and transform matrix from solving the mapping from an ellipsoid to
-	 * a sphere. Finally, it creates little spheres to represent the corrected
-	 * points for visualization.
+	 * Calculates the positions for the points from the bias and matrix set in the
+	 * UI. By default the UI is filled out with the solution for the bias vector and
+	 * transform matrix from solving the mapping from an ellipsoid to a sphere.
+	 * Finally, it creates little spheres to represent the corrected points for
+	 * visualization.
 	 *
 	 * <p>
-	 * Notes: correctedPoint[3x1] = correctionMatrix[3x3] * biasedVector[3x1]
-	 * where: biasedVector[3x1] = rawPoint[3x1] - center[3x1]
-	 * correctionMatrix[3x3] = rotationMatrix[3x3] *
-	 * diagRadiiMatrix(1./radii)[3x3] * rotationMatrix'[3x3] rotationMatrix[3x3]
-	 * = matrix of eigenVectors
+	 * Notes: correctedPoint[3x1] = correctionMatrix[3x3] * biasedVector[3x1] where:
+	 * biasedVector[3x1] = rawPoint[3x1] - center[3x1] correctionMatrix[3x3] =
+	 * rotationMatrix[3x3] * diagRadiiMatrix(1./radii)[3x3] * rotationMatrix'[3x3]
+	 * rotationMatrix[3x3] = matrix of eigenVectors
 	 * </p>
 	 * 
 	 * @see VisualizationToolkit#createNormalizedSpheres(List, float, Material)
@@ -351,12 +353,22 @@ public class MagVizController {
 		Point3D bias = getBiasFromFields();
 		RealMatrix matrix = getMatrixFromFields();
 
+		EllipsoidToSphereSolver solver = new EllipsoidToSphereSolver(rawPoints);
+		solver.solve();
+		Point3D radiiPoint = solver.getRadii();
+		RealVector solvedSystem = solver.getFitVector9();
+
+		RealMatrix transMatrix = new Array2DRowRealMatrix(
+				new double[][] { { solvedSystem.getEntry(0), solvedSystem.getEntry(3), solvedSystem.getEntry(4) },
+						{ solvedSystem.getEntry(3), solvedSystem.getEntry(1), solvedSystem.getEntry(5) },
+						{ solvedSystem.getEntry(4), solvedSystem.getEntry(5), solvedSystem.getEntry(2) } });
+
 		// Get the eigenvalues and eigenvectors.
 		EigenDecomposition solvedEigenVecors = new EigenDecomposition(matrix);
-		double[] eigenValues = solvedEigenVecors.getRealEigenvalues();
 		RealVector ev0 = solvedEigenVecors.getEigenvector(0);
 		RealVector ev1 = solvedEigenVecors.getEigenvector(1);
 		RealVector ev2 = solvedEigenVecors.getEigenvector(2);
+
 		Point3D eigenVector0 = new Point3D(ev0.getEntry(0), ev0.getEntry(1), ev0.getEntry(2));
 		Point3D eigenVector1 = new Point3D(ev1.getEntry(0), ev1.getEntry(1), ev1.getEntry(2));
 		Point3D eigenVector2 = new Point3D(ev2.getEntry(0), ev2.getEntry(1), ev2.getEntry(2));
@@ -365,19 +377,13 @@ public class MagVizController {
 		rotationMatrix.setRow(1, new double[] { eigenVector1.getX(), eigenVector1.getY(), eigenVector1.getZ() });
 		rotationMatrix.setRow(2, new double[] { eigenVector2.getX(), eigenVector2.getY(), eigenVector2.getZ() });
 
-		// Find the radii of the ellipsoid.
-		double[] radiiArray = EllipsoidToSphereSolver.findRadii(eigenValues);
-		Point3D radii = new Point3D(radiiArray[0], radiiArray[1], radiiArray[2]);
-
 		//@formatter:off
-		RealMatrix diagRadiiMatrix = new Array2DRowRealMatrix(new double[][] {
-		        { 1 / radii.getX(), 0, 0 },
-                { 0, 1 / radii.getY(), 0 },
-                { 0, 0, 1 / radii.getZ() }
+		RealMatrix gainMatrix = new Array2DRowRealMatrix(new double[][] {
+		        { Math.sqrt(1 / radiiPoint.getX()), 0, 0 },
+                { 0, Math.sqrt(1 / radiiPoint.getY()), 0 },
+                { 0, 0, Math.sqrt(1 / radiiPoint.getZ()) }
 		});
 		//@formatter:on
-
-		final RealMatrix correctionMatrix = rotationMatrix.multiply(diagRadiiMatrix).multiply(rotationMatrix.transpose());
 
 		List<Point3D> correctedPoints = rawPoints.stream().map(p -> {
 			// calculation of corrected values
@@ -388,14 +394,16 @@ public class MagVizController {
 			RealMatrix biasCompensatedPoint = new Array2DRowRealMatrix(1, 3);
 			biasCompensatedPoint.setRow(0, new double[] { valX, valY, valZ });
 
-			RealMatrix resultMatrix = correctionMatrix.multiply(biasCompensatedPoint.transpose());
-			double[] correctedX = resultMatrix.getRow(0);
-			double[] correctedY = resultMatrix.getRow(1);
-			double[] correctedZ = resultMatrix.getRow(2);
+			// RealMatrix resultMatrix =
+			RealMatrix resultMatrix = biasCompensatedPoint.multiply(transMatrix).multiply(gainMatrix);
+			double correctedX = resultMatrix.getEntry(0, 0);
+			double correctedY = resultMatrix.getEntry(0, 1);
+			double correctedZ = resultMatrix.getEntry(0, 2);
 
-			return new Point3D(correctedX[0], correctedY[0], correctedZ[0]);
+			return new Point3D(correctedX, correctedY, correctedZ);
 		}).collect(Collectors.toList());
-		return VisualizationToolkit.scale(VisualizationToolkit.createNormalizedSpheres(correctedPoints, 1.5f, material), 1 / 100.0f);
+		return VisualizationToolkit.scale(VisualizationToolkit.createNormalizedSpheres(correctedPoints, 1.5f, material),
+				1 / 100.0f);
 	}
 
 	private void updateSphereSizes(Number fromValue, Number toVal) {
@@ -414,8 +422,10 @@ public class MagVizController {
 		for (int i = 0; i < animations.length; i++) {
 			Sphere s = (Sphere) allNodes.get(i);
 			Timeline timeline = new Timeline();
-			timeline.getKeyFrames().add(new KeyFrame(Duration.millis(20), new KeyValue(s.radiusProperty(), fromSize / 2)));
-			timeline.getKeyFrames().add(new KeyFrame(Duration.millis(1000), new KeyValue(s.radiusProperty(), toSize / 2)));
+			timeline.getKeyFrames()
+					.add(new KeyFrame(Duration.millis(20), new KeyValue(s.radiusProperty(), fromSize / 2)));
+			timeline.getKeyFrames()
+					.add(new KeyFrame(Duration.millis(1000), new KeyValue(s.radiusProperty(), toSize / 2)));
 			animations[i] = timeline;
 		}
 		new ParallelTransition(animations).play();
@@ -433,7 +443,7 @@ public class MagVizController {
 	}
 
 	private double calculateSizeFromSliderValue(Number sliderValue) {
-		return sliderValue.doubleValue() * (VisualizationToolkit.MAX_SPHERE_SIZE - VisualizationToolkit.MIN_SPHERE_SIZE) / 100
-				+ VisualizationToolkit.MIN_SPHERE_SIZE;
+		return sliderValue.doubleValue() * (VisualizationToolkit.MAX_SPHERE_SIZE - VisualizationToolkit.MIN_SPHERE_SIZE)
+				/ 100 + VisualizationToolkit.MIN_SPHERE_SIZE;
 	}
 }
