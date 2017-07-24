@@ -243,7 +243,7 @@ public class EllipsoidToSphereSolver {
 	private RealVector pointsToEquation(List<Point3D> dataPoints) {
 
 		RealMatrix designMatrix = new Array2DRowRealMatrix(dataPoints.size(), 9);
-		IntStream.range(0, dataPoints.size() - 1).forEach(i -> {
+		IntStream.range(0, dataPoints.size()).forEach(i -> {
 			double xx = Math.pow(dataPoints.get(i).getX(), 2);
 			double yy = Math.pow(dataPoints.get(i).getY(), 2);
 			double zz = Math.pow(dataPoints.get(i).getZ(), 2);
