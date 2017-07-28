@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.robo4j.tools.magviz.ellipsoid.SolvedEllipsoidResult;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -308,7 +309,7 @@ public class MagVizController {
 		EllipsoidToSphereSolver solver = new EllipsoidToSphereSolver(points);
 		solver.solve();
 
-		RealMatrix matrix = solver.getMatrix();
+		RealMatrix matrix = solver.getRotationMatrix();
 		m11.setText(String.valueOf(matrix.getEntry(0, 0)));
 		m12.setText(String.valueOf(matrix.getEntry(0, 1)));
 		m13.setText(String.valueOf(matrix.getEntry(0, 2)));
@@ -350,58 +351,28 @@ public class MagVizController {
 	 * @return list of Nodes for visualization
 	 */
 	public List<Node> createCorrectedSpheres(List<Point3D> rawPoints, float diameter, Material material) {
-		Point3D bias = getBiasFromFields();
-		RealMatrix matrix = getMatrixFromFields();
 
 		EllipsoidToSphereSolver solver = new EllipsoidToSphereSolver(rawPoints);
-		solver.solve();
-		Point3D radiiPoint = solver.getRadii();
-		RealVector solvedSystem = solver.getFitVector9();
-
-		RealMatrix transMatrix = new Array2DRowRealMatrix(
-				new double[][] { { solvedSystem.getEntry(0), solvedSystem.getEntry(3), solvedSystem.getEntry(4) },
-						{ solvedSystem.getEntry(3), solvedSystem.getEntry(1), solvedSystem.getEntry(5) },
-						{ solvedSystem.getEntry(4), solvedSystem.getEntry(5), solvedSystem.getEntry(2) } });
-
-		// Get the eigenvalues and eigenvectors.
-		EigenDecomposition solvedEigenVecors = new EigenDecomposition(matrix);
-		RealVector ev0 = solvedEigenVecors.getEigenvector(0);
-		RealVector ev1 = solvedEigenVecors.getEigenvector(1);
-		RealVector ev2 = solvedEigenVecors.getEigenvector(2);
-
-		Point3D eigenVector0 = new Point3D(ev0.getEntry(0), ev0.getEntry(1), ev0.getEntry(2));
-		Point3D eigenVector1 = new Point3D(ev1.getEntry(0), ev1.getEntry(1), ev1.getEntry(2));
-		Point3D eigenVector2 = new Point3D(ev2.getEntry(0), ev2.getEntry(1), ev2.getEntry(2));
-		RealMatrix rotationMatrix = new Array2DRowRealMatrix(3, 3);
-		rotationMatrix.setRow(0, new double[] { eigenVector0.getX(), eigenVector0.getY(), eigenVector0.getZ() });
-		rotationMatrix.setRow(1, new double[] { eigenVector1.getX(), eigenVector1.getY(), eigenVector1.getZ() });
-		rotationMatrix.setRow(2, new double[] { eigenVector2.getX(), eigenVector2.getY(), eigenVector2.getZ() });
-
-		//@formatter:off
-		RealMatrix gainMatrix = new Array2DRowRealMatrix(new double[][] {
-		        { Math.sqrt(1 / radiiPoint.getX()), 0, 0 },
-                { 0, Math.sqrt(1 / radiiPoint.getY()), 0 },
-                { 0, 0, Math.sqrt(1 / radiiPoint.getZ()) }
-		});
-		//@formatter:on
+		SolvedEllipsoidResult ellipsoidResult = solver.solve();
 
 		List<Point3D> correctedPoints = rawPoints.stream().map(p -> {
 			// calculation of corrected values
-			double valX = p.getX() - bias.getX();
-			double valY = p.getY() - bias.getY();
-			double valZ = p.getZ() - bias.getZ();
+			double valX = p.getX() - solver.getCenter().getX();
+			double valY = p.getY() - solver.getCenter().getY();
+			double valZ = p.getZ() - solver.getCenter().getZ();
 
 			RealMatrix biasCompensatedPoint = new Array2DRowRealMatrix(1, 3);
 			biasCompensatedPoint.setRow(0, new double[] { valX, valY, valZ });
 
-			// RealMatrix resultMatrix =
-			RealMatrix resultMatrix = biasCompensatedPoint.multiply(transMatrix).multiply(gainMatrix);
-			double correctedX = resultMatrix.getEntry(0, 0);
-			double correctedY = resultMatrix.getEntry(0, 1);
-			double correctedZ = resultMatrix.getEntry(0, 2);
+			// rotate to XYZ axes
+			RealMatrix resultMatrix = biasCompensatedPoint.multiply(ellipsoidResult.getRotationMatrix());
+			double correctedX = (resultMatrix.getEntry(0, 0) / ellipsoidResult.getGain().getX() );
+			double correctedY = (resultMatrix.getEntry(0, 1) / ellipsoidResult.getGain().getY());
+			double correctedZ = (resultMatrix.getEntry(0, 2) / ellipsoidResult.getGain().getZ());
 
 			return new Point3D(correctedX, correctedY, correctedZ);
 		}).collect(Collectors.toList());
+
 		return VisualizationToolkit.scale(VisualizationToolkit.createNormalizedSpheres(correctedPoints, 1.5f, material),
 				1 / 100.0f);
 	}
