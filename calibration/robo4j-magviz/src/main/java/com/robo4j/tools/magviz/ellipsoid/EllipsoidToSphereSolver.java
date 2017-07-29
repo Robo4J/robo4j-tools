@@ -35,7 +35,7 @@ import javafx.geometry.Point3D;
  * 2Fyz + 2Gx + 2Hy + 2Iz = 1 determine the ellipsoidCenter and radii of the fit
  * ellipsoid.
  *
- * sources: inspired by article: Ellipsoid or sphere fitting for sensor
+ * sources: inspired by article: Ellipsoid or sphere fitting for sensor calibration https://goo.gl/v4XuQV
  *
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
@@ -53,13 +53,10 @@ public class EllipsoidToSphereSolver {
 			throw new SolverException("no data-points");
 		}
 
-		// Fit the points to Ax^2 + By^2 + Cz^2 + 2Dxy + 2Exz
-		// + 2Fyz + 2Gx + 2Hy + 2Iz = 1 and solve the system.
 		RealVector fittingVector = pointsToEquation(dataPoints);
 
 		RealMatrix algMatrix = formAlgebraicMatrix(fittingVector);
 
-		// Solve ellipsoid ellipsoidCenter. Will be used as the bias vector, (offset - o
 		RealVector solvedCenterOffset = solveCenter(algMatrix);
 
 		Point3D center = new Point3D(solvedCenterOffset.getEntry(0), solvedCenterOffset.getEntry(1),
@@ -69,14 +66,8 @@ public class EllipsoidToSphereSolver {
 		RealMatrix translatedMatrix4 = translateToCenter(solvedCenterOffset, algMatrix);
 
 		// [rotM ev]=eig(translatedMatrix4(1:3,1:3)/-translatedMatrix4[4x4]); %
-		// eigenvectors (rotation) and eigenvalues (gain)
-		// Generate a submatrix of translatedMatrix4 subTranslatedM[3x3] = represents
-		// Gain and Cross
 		RealMatrix subTranslatedM = translatedMatrix4.getSubMatrix(0, 2, 0, 2);
 		double divisor = -translatedMatrix4.getEntry(3, 3);
-		// subTranslatedM computed from eigenValues and vectors subTranslatedM[3x3]/
-		// (-translatedMatrix4(m33)[4x4])
-		// This is the rotationMatrix to use in Robo4J
 
 		EigenDecomposition solvedEigenVecors = new EigenDecomposition(divideMatrixByValue(subTranslatedM, divisor));
 		double[] eigenValues = new double[] { solvedEigenVecors.getRealEigenvalues()[2],
@@ -88,13 +79,11 @@ public class EllipsoidToSphereSolver {
 		rotationMatrix.setColumn(0, ev0.toArray());
 		rotationMatrix.setColumn(1, ev1.toArray());
 		rotationMatrix.setColumn(2, ev2.toArray());
-		// Find the radii of the ellipsoid, radii values are the square root fo the
-		// inverse of 3 eigen values
-		// a'' = a + b + c
-		double[] radiiArray = findRadii(eigenValues);
-		Point3D radii = new Point3D(radiiArray[0], radiiArray[1], radiiArray[2]);
 
-		return new SolvedEllipsoidResult(center, radii, rotationMatrix);
+		double[] gainArray = findGain(eigenValues);
+		Point3D gain = new Point3D(gainArray[0], gainArray[1], gainArray[2]);
+
+		return new SolvedEllipsoidResult(center, gain, rotationMatrix);
 	}
 
 	// Private Methods
@@ -115,7 +104,7 @@ public class EllipsoidToSphereSolver {
 	 *            the eigenvalues of the ellipsoid.
 	 * @return the radii of the ellipsoid.
 	 */
-	public static double[] findRadii(double[] eigenValues) {
+	private static double[] findGain(double[] eigenValues) {
 		double[] radii = new double[eigenValues.length];
 		for (int i = 0; i < eigenValues.length; i++) {
 			radii[i] = Math.sqrt(1 / eigenValues[i]);
@@ -144,15 +133,17 @@ public class EllipsoidToSphereSolver {
 		return tmtx.transpose().multiply(algM.multiply(tmtx));
 	}
 
+	/**
+	 * calculate ellipsoid center
+	 *
+	 * @param algMatrix alg matrix
+	 * @return center (offset)
+	 */
 	private RealVector solveCenter(RealMatrix algMatrix) {
 
-		// sub rotationMatrix 3x3
 		RealMatrix subA = algMatrix.getSubMatrix(0, 2, 0, 2).scalarMultiply(-1);
-
-		// Vghi = Vector[3x1]~(subA.row(3))
 		RealVector vectorGhi = algMatrix.getRowVector(3).getSubVector(0, 3);
 
-		// result (offset - o ) = ellipsoid offset : subA \ vectorGhi
 		return new SingularValueDecomposition(subA).getSolver().getInverse().operate(vectorGhi);
 	}
 
@@ -216,9 +207,7 @@ public class EllipsoidToSphereSolver {
 			designMatrix.setEntry(i, 8, z);
 		});
 
-		// s(D'*D)\(D'*ones(length(x),1)); % least square fitting
 		// v = (( d' * d )^-1) * ( d' * ones(Identity of size 9);
-		// Multiply: d' * d
 		RealMatrix dtd = designMatrix.transpose().multiply(designMatrix);
 		RealVector ones9 = new ArrayRealVector(dataPoints.size(), 1);
 		RealVector dtOnes = designMatrix.transpose().operate(ones9);
@@ -226,7 +215,6 @@ public class EllipsoidToSphereSolver {
 		// Find Inv(( d' * d )^-1)
 		RealMatrix dtdMatrix9 = new SingularValueDecomposition(dtd).getSolver().getInverse();
 
-		// result = (( d' * d )^-1) * ( d' * ones(Identity of size 9));
 		return dtdMatrix9.operate(dtOnes);
 
 	}
