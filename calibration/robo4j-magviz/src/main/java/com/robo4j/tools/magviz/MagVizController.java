@@ -307,9 +307,8 @@ public class MagVizController {
 
 	public void solveSphereMapping(List<Point3D> points) {
 		EllipsoidToSphereSolver solver = new EllipsoidToSphereSolver(points);
-		solver.solve();
-
-		RealMatrix matrix = solver.getRotationMatrix();
+		SolvedEllipsoidResult result = solver.solve();
+		RealMatrix matrix = result.getRotationMatrix();
 		m11.setText(String.valueOf(matrix.getEntry(0, 0)));
 		m12.setText(String.valueOf(matrix.getEntry(0, 1)));
 		m13.setText(String.valueOf(matrix.getEntry(0, 2)));
@@ -320,7 +319,7 @@ public class MagVizController {
 		m32.setText(String.valueOf(matrix.getEntry(2, 1)));
 		m33.setText(String.valueOf(matrix.getEntry(2, 2)));
 
-		Point3D bias = solver.getCenter();
+		Point3D bias = result.getOffset();
 		textBiasX.setText(String.valueOf(bias.getX()));
 		textBiasY.setText(String.valueOf(bias.getY()));
 		textBiasZ.setText(String.valueOf(bias.getZ()));
@@ -357,9 +356,9 @@ public class MagVizController {
 
 		List<Point3D> correctedPoints = rawPoints.stream().map(p -> {
 			// calculation of corrected values
-			double valX = p.getX() - solver.getCenter().getX();
-			double valY = p.getY() - solver.getCenter().getY();
-			double valZ = p.getZ() - solver.getCenter().getZ();
+			double valX = p.getX() - ellipsoidResult.getOffset().getX();
+			double valY = p.getY() - ellipsoidResult.getOffset().getY();
+			double valZ = p.getZ() - ellipsoidResult.getOffset().getZ();
 
 			RealMatrix biasCompensatedPoint = new Array2DRowRealMatrix(1, 3);
 			biasCompensatedPoint.setRow(0, new double[] { valX, valY, valZ });

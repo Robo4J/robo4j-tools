@@ -17,8 +17,6 @@
 
 package com.robo4j.tools.magviz.ellipsoid;
 
-import javafx.geometry.Point3D;
-
 /**
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
@@ -30,13 +28,9 @@ public class EllipsoidSolverMainTest {
 
         // Generates points for plots.
         EllipsoidToSphereSolver solver = new EllipsoidToSphereSolver(PointGenerator.generatePoints(1000, 100, 10));
-        solver.solve();
-        Point3D center = solver.getCenter();
-        
-        System.out.println("CENTER: " + center);
-        System.out.println("RADII: " + solver.getRadii());
-        System.out.println("eigen0: " + solver.getEigenVector0());
-        System.out.println("eigen1: " + solver.getEigenVector1());
-        System.out.println("eigen2: " + solver.getEigenVector2());
+        SolvedEllipsoidResult result  = solver.solve();
+
+        System.out.println("result: " + result);
+
     }
 }
