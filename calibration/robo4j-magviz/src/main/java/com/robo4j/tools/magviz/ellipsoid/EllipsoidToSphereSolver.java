@@ -92,7 +92,9 @@ public class EllipsoidToSphereSolver {
 						{ 0, 0, 1 / gainArray[2] }
 				});
 		//@formatter:on
-		RealMatrix gainCorrectedRotationMatrix = gainCorrectionMatrix.multiply(rotationMatrix);
+
+		// adjusting
+		RealMatrix gainCorrectedRotationMatrix = rotationMatrix.transpose().multiply(gainCorrectionMatrix).multiply(rotationMatrix);
 
 		return new SolvedEllipsoidResult(center, gainCorrectedRotationMatrix);
 	}
