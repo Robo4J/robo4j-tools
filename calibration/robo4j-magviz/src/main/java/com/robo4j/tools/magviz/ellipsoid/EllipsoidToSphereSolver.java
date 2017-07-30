@@ -191,7 +191,6 @@ public class EllipsoidToSphereSolver {
 	 */
 	private RealVector pointsToEquation(List<Point3D> dataPoints) {
 
-		double rad = 0.785398;
 		RealMatrix designMatrix = new Array2DRowRealMatrix(dataPoints.size(), 9);
 		IntStream.range(0, dataPoints.size()).forEach(i -> {
 			double xx = Math.pow(dataPoints.get(i).getX(), 2);
@@ -222,7 +221,7 @@ public class EllipsoidToSphereSolver {
 
 		// Find Inv(( d' * d )^-1)
 		RealMatrix dtdMatrix9 = new SingularValueDecomposition(dtd).getSolver().getInverse();
-		
+
 		return dtdMatrix9.operate(dtOnes);
 
 	}
