@@ -27,28 +27,24 @@ import javafx.geometry.Point3D;
  */
 public class SolvedEllipsoidResult {
 
-    private Point3D offset;
-    private RealMatrix rotationMatrix;
+	private Point3D offset;
+	private RealMatrix transformMatrix;
 
-    public SolvedEllipsoidResult(Point3D offset, RealMatrix rotationMatrix) {
-        this.offset = offset;
-        this.rotationMatrix = rotationMatrix;
-    }
+	public SolvedEllipsoidResult(Point3D offset, RealMatrix transformMatrix) {
+		this.offset = offset;
+		this.transformMatrix = transformMatrix;
+	}
 
-    public Point3D getOffset() {
-        return offset;
-    }
+	public Point3D getOffset() {
+		return offset;
+	}
 
+	public RealMatrix getTransformMatrix() {
+		return transformMatrix;
+	}
 
-    public RealMatrix getRotationMatrix() {
-        return rotationMatrix;
-    }
-
-    @Override
-    public String toString() {
-        return "{" +
-                "offset=" + offset +
-                ", rotationMatrix=" + rotationMatrix +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "{" + "offset=" + offset + ", transformMatrix=" + transformMatrix + '}';
+	}
 }

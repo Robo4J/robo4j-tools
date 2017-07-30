@@ -307,7 +307,7 @@ public class MagVizController {
 	public void solveSphereMapping(List<Point3D> points) {
 		EllipsoidToSphereSolver solver = new EllipsoidToSphereSolver(points);
 		SolvedEllipsoidResult result = solver.solve();
-		RealMatrix matrix = result.getRotationMatrix();
+		RealMatrix matrix = result.getTransformMatrix();
 		m11.setText(String.valueOf(matrix.getEntry(0, 0)));
 		m12.setText(String.valueOf(matrix.getEntry(0, 1)));
 		m13.setText(String.valueOf(matrix.getEntry(0, 2)));
@@ -351,7 +351,7 @@ public class MagVizController {
 	 */
 	public List<Node> createCorrectedSpheres(List<Point3D> rawPoints, float diameter, Material material) {
 		Point3D bias = getBiasFromFields();
-		RealMatrix rotationMatrix = getMatrixFromFields();
+		RealMatrix transformMatrix = getMatrixFromFields();
 
 		List<Point3D> correctedPoints = rawPoints.stream().map(p -> {
 			// calculation of corrected values
@@ -362,8 +362,8 @@ public class MagVizController {
 			RealMatrix biasCompensatedPoint = new Array2DRowRealMatrix(1, 3);
 			biasCompensatedPoint.setRow(0, new double[] { valX, valY, valZ });
 
-			// rotate to XYZ axes
-			RealMatrix resultMatrix = biasCompensatedPoint.multiply(rotationMatrix.transpose());
+			// mapping to sphere
+			RealMatrix resultMatrix = biasCompensatedPoint.multiply(transformMatrix.transpose());
 			double correctedX = (resultMatrix.getEntry(0, 0));
 			double correctedY = (resultMatrix.getEntry(0, 1));
 			double correctedZ = (resultMatrix.getEntry(0, 2));
