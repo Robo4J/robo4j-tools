@@ -352,7 +352,7 @@ public class MagVizController {
 		// It should be possible to have a bias vector and a 3x3 matrix to compensate for the hard and soft 
 		// iron effects. This is what must be taken from the UI. The code below does the calculations AGAIN, 
 		// not to mention requires the gain to be known for each axis. Obviously, this requires 
-		// yet another vector input to the magnetometer when in use (which should not be required.		
+		// yet another vector input to the magnetometer when in use (which should not be required).	
 		// Worst part is that this totally ignores any user input, so the user cannot experiment with custom bias 
 		// and matrix. Basically, this is currently all wrong.
 		// 
