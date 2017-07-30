@@ -35,7 +35,8 @@ import javafx.geometry.Point3D;
  * 2Fyz + 2Gx + 2Hy + 2Iz = 1 determine the ellipsoidCenter and radii of the fit
  * ellipsoid.
  *
- * sources: inspired by article: Ellipsoid or sphere fitting for sensor calibration https://goo.gl/v4XuQV
+ * sources: inspired by article: Ellipsoid or sphere fitting for sensor
+ * calibration https://goo.gl/v4XuQV
  *
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
@@ -83,11 +84,14 @@ public class EllipsoidToSphereSolver {
 		rotationMatrix.setRow(2, ev2.toArray());
 
 		double[] gainArray = findGain(eigenValues);
-		RealMatrix gainCorrectionMatrix = new Array2DRowRealMatrix(new double[][]{
-				{1/gainArray[0],0,0},
-				{0,1/gainArray[1],0},
-				{0,0,1/gainArray[2]}
-		});
+		//@formatter:off
+		RealMatrix gainCorrectionMatrix = new Array2DRowRealMatrix(
+				new double[][] {
+						{ 1 / gainArray[0], 0, 0 },
+						{ 0, 1 / gainArray[1], 0 },
+						{ 0, 0, 1 / gainArray[2] }
+				});
+		//@formatter:on
 		RealMatrix gainCorrectedRotationMatrix = gainCorrectionMatrix.multiply(rotationMatrix);
 
 		return new SolvedEllipsoidResult(center, gainCorrectedRotationMatrix);
@@ -143,7 +147,8 @@ public class EllipsoidToSphereSolver {
 	/**
 	 * calculate ellipsoid center
 	 *
-	 * @param algMatrix alg matrix
+	 * @param algMatrix
+	 *            alg matrix
 	 * @return center (offset)
 	 */
 	private RealVector solveCenter(RealMatrix algMatrix) {
@@ -164,17 +169,19 @@ public class EllipsoidToSphereSolver {
 	 */
 	private RealMatrix formAlgebraicMatrix(RealVector v) {
 		// a =
-		// [ Ax^2 	2Dxy 	2Exz 	2Gx ]
-		// [ 2Dxy 	By^2 	2Fyz 	2Hy ]
-		// [ 2Exz 	2Fyz 	Cz^2 	2Iz ]
-		// [ 2Gx 	2Hy 	2Iz 	-1 ] ]
+		// [ Ax^2 2Dxy 2Exz 2Gx ]
+		// [ 2Dxy By^2 2Fyz 2Hy ]
+		// [ 2Exz 2Fyz Cz^2 2Iz ]
+		// [ 2Gx 2Hy 2Iz -1 ] ]
 
+		//@formatter:off
 		double[][] data = {
 				{ v.getEntry(0), v.getEntry(3), v.getEntry(4), v.getEntry(6) },
 				{ v.getEntry(3), v.getEntry(1), v.getEntry(5), v.getEntry(7) },
 				{ v.getEntry(4), v.getEntry(5), v.getEntry(2), v.getEntry(8) },
-				{ v.getEntry(6), v.getEntry(7), v.getEntry(8), -1 } };
-
+				{ v.getEntry(6), v.getEntry(7), v.getEntry(8), -1 }
+		};
+		//@formatter:on
 
 		return new Array2DRowRealMatrix(data);
 	}

@@ -35,13 +35,16 @@ public class PointGenerator {
 	private final static Random RND = new Random();
 
 	public static List<Point3D> generatePoints(int noOfPoints, double startRadius, double gaussianNoise) {
+		//@formatter:off
 		return IntStream.range(0, noOfPoints)
 				.mapToObj(i -> generatePoint(startRadius, gaussianNoise))
 				.collect(Collectors.toList());
+		//@formatter:on
 	}
-	
+
 	public static List<Point3D> generatePoints(int noOfPoints, double startRadius, double gaussianNoise, Point3D bias, Point3D scale, Point3D rotAxis, double rotAngle) {
 		final List<Point3D> generatedPoints = generatePoints(noOfPoints, startRadius, gaussianNoise);
+		//@formatter:off
 		return generatedPoints.stream()
 				.map(p -> {
 					Point3D newPoint = new Point3D(p.getX() * scale.getX(), p.getY() * scale.getY(), p.getZ() * scale.getZ());
@@ -49,6 +52,7 @@ public class PointGenerator {
 					Point3D rotPoint = rotate.transform(newPoint);
 					return rotPoint.subtract(bias);})
 				.collect(Collectors.toList());
+		//@formatter:on
 	}
 
 	private static Point3D generatePoint(double r, double stddev) {
@@ -59,5 +63,5 @@ public class PointGenerator {
 		double y = radius * Math.sin(s) * Math.sin(t);
 		double z = radius * Math.cos(t);
 		return new Point3D(x, y, z);
-	}	
+	}
 }
