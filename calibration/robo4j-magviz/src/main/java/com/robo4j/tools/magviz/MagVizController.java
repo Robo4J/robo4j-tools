@@ -23,15 +23,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.robo4j.tools.magviz.ellipsoid.SolvedEllipsoidResult;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 
 import com.robo4j.tools.magviz.ellipsoid.EllipsoidToSphereSolver;
+import com.robo4j.tools.magviz.ellipsoid.SolvedEllipsoidResult;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
