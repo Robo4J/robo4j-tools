@@ -83,9 +83,14 @@ public class EllipsoidToSphereSolver {
 		rotationMatrix.setRow(2, ev2.toArray());
 
 		double[] gainArray = findGain(eigenValues);
-		Point3D gain = new Point3D(gainArray[0], gainArray[1], gainArray[2]);
+		RealMatrix gainCorrectionMatrix = new Array2DRowRealMatrix(new double[][]{
+				{1/gainArray[0],0,0},
+				{0,1/gainArray[1],0},
+				{0,0,1/gainArray[2]}
+		});
+		RealMatrix gainCorrectedRotationMatrix = gainCorrectionMatrix.multiply(rotationMatrix);
 
-		return new SolvedEllipsoidResult(center, gain, rotationMatrix);
+		return new SolvedEllipsoidResult(center, gainCorrectedRotationMatrix);
 	}
 
 	// Private Methods
@@ -217,8 +222,7 @@ public class EllipsoidToSphereSolver {
 
 		// Find Inv(( d' * d )^-1)
 		RealMatrix dtdMatrix9 = new SingularValueDecomposition(dtd).getSolver().getInverse();
-
-
+		
 		return dtdMatrix9.operate(dtOnes);
 
 	}

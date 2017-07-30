@@ -127,7 +127,6 @@ public class MagVizController {
 	private List<Node> lastCorrectedSpheres;
 	private List<Node> rawSpheres;
 	private File lastLoaded;
-	private Point3D gainVector;
 
 	public void initialize() {
 		sliderSphereSize.valueProperty().addListener(new ChangeListener<Number>() {
@@ -323,8 +322,6 @@ public class MagVizController {
 		textBiasX.setText(String.valueOf(bias.getX()));
 		textBiasY.setText(String.valueOf(bias.getY()));
 		textBiasZ.setText(String.valueOf(bias.getZ()));
-
-		gainVector = result.getGain();
 	}
 
 	/**
@@ -353,8 +350,6 @@ public class MagVizController {
 	 * @return list of Nodes for visualization
 	 */
 	public List<Node> createCorrectedSpheres(List<Point3D> rawPoints, float diameter, Material material) {
-		// FIXME(Marcus/Jul 30, 2017): check gainVector -> random.csv
-
 		Point3D bias = getBiasFromFields();
 		RealMatrix rotationMatrix = getMatrixFromFields();
 
@@ -369,9 +364,9 @@ public class MagVizController {
 
 			// rotate to XYZ axes
 			RealMatrix resultMatrix = biasCompensatedPoint.multiply(rotationMatrix.transpose());
-			double correctedX = (resultMatrix.getEntry(0, 0) / gainVector.getX());
-			double correctedY = (resultMatrix.getEntry(0, 1) / gainVector.getY());
-			double correctedZ = (resultMatrix.getEntry(0, 2) / gainVector.getZ());
+			double correctedX = (resultMatrix.getEntry(0, 0));
+			double correctedY = (resultMatrix.getEntry(0, 1));
+			double correctedZ = (resultMatrix.getEntry(0, 2));
 
 
 			return new Point3D(correctedX, correctedY, correctedZ);

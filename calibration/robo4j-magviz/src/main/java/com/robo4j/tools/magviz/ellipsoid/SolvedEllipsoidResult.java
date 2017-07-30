@@ -17,8 +17,9 @@
 
 package com.robo4j.tools.magviz.ellipsoid;
 
-import javafx.geometry.Point3D;
 import org.apache.commons.math3.linear.RealMatrix;
+
+import javafx.geometry.Point3D;
 
 /**
  * @author Marcus Hirt (@hirt)
@@ -27,12 +28,10 @@ import org.apache.commons.math3.linear.RealMatrix;
 public class SolvedEllipsoidResult {
 
     private Point3D offset;
-    private Point3D gain;
     private RealMatrix rotationMatrix;
 
-    public SolvedEllipsoidResult(Point3D offset, Point3D gain, RealMatrix rotationMatrix) {
+    public SolvedEllipsoidResult(Point3D offset, RealMatrix rotationMatrix) {
         this.offset = offset;
-        this.gain = gain;
         this.rotationMatrix = rotationMatrix;
     }
 
@@ -40,9 +39,6 @@ public class SolvedEllipsoidResult {
         return offset;
     }
 
-    public Point3D getGain() {
-        return gain;
-    }
 
     public RealMatrix getRotationMatrix() {
         return rotationMatrix;
@@ -52,7 +48,6 @@ public class SolvedEllipsoidResult {
     public String toString() {
         return "{" +
                 "offset=" + offset +
-                ", gain=" + gain +
                 ", rotationMatrix=" + rotationMatrix +
                 '}';
     }
