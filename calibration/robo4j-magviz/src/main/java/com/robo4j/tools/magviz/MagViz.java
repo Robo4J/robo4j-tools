@@ -21,10 +21,8 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 
-import com.robo4j.tools.magviz.ellipsoid.PointGenerator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Point3D;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
@@ -77,14 +75,7 @@ public class MagViz extends Application {
 			return null;
 		}
 
-//		File f = new File(params.get(0));
-		//1000 200 4 45,2,15 1,1.4,2 45,45,45 45
-
-		List<Point3D> points =  PointGenerator.generatePoints(1000, 200, 4,
-				new Point3D(45,2,15),new Point3D(1,1.4,2),new Point3D(45,45,45), 45);
-
-		File f = new File(getClass().getClassLoader().getResource("magnetometer2.csv").getFile());
-//		File f = new File(getClass().getClassLoader().getResource("random_generated.csv").getFile());
+		File f = new File(params.get(0));
 		if (!f.exists()) {
 			System.out.println("Warning - the csv file specified (" + f.getName() + ") does not exist!");
 			return null;

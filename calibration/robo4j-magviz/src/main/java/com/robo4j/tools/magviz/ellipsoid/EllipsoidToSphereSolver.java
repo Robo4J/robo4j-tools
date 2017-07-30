@@ -78,22 +78,14 @@ public class EllipsoidToSphereSolver {
 		RealVector ev2 = solvedEigenVecors.getEigenvector(0).mapMultiply(number);
 
 		RealMatrix rotationMatrix = new Array2DRowRealMatrix(3, 3);
-		rotationMatrix.setColumn(0, ev0.toArray());
-		rotationMatrix.setColumn(1, ev1.toArray());
-		rotationMatrix.setColumn(2, ev2.toArray());
-
-		double sinCos45 = -0.707;
-		RealMatrix rotation = new Array2DRowRealMatrix(new double[][]{
-				{sinCos45, -sinCos45, 0},
-				{sinCos45, sinCos45, 0},
-				{0, 0, 1}
-		});
-
+		rotationMatrix.setRow(0, ev0.toArray());
+		rotationMatrix.setRow(1, ev1.toArray());
+		rotationMatrix.setRow(2, ev2.toArray());
 
 		double[] gainArray = findGain(eigenValues);
 		Point3D gain = new Point3D(gainArray[0], gainArray[1], gainArray[2]);
 
-		return new SolvedEllipsoidResult(center, gain, rotationMatrix.multiply(rotation));
+		return new SolvedEllipsoidResult(center, gain, rotationMatrix);
 	}
 
 	// Private Methods
