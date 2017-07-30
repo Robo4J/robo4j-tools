@@ -28,6 +28,7 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.SingularValueDecomposition;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 
@@ -364,6 +365,8 @@ public class MagVizController {
 			biasCompensatedPoint.setRow(0, new double[] { valX, valY, valZ });
 
 			// rotate to XYZ axes
+
+
 			RealMatrix resultMatrix = biasCompensatedPoint.multiply(ellipsoidResult.getRotationMatrix());
 			double correctedX = (resultMatrix.getEntry(0, 0) / ellipsoidResult.getGain().getX() );
 			double correctedY = (resultMatrix.getEntry(0, 1) / ellipsoidResult.getGain().getY());

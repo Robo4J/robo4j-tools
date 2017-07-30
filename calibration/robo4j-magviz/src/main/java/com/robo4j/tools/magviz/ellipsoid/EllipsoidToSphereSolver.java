@@ -72,18 +72,28 @@ public class EllipsoidToSphereSolver {
 		EigenDecomposition solvedEigenVecors = new EigenDecomposition(divideMatrixByValue(subTranslatedM, divisor));
 		double[] eigenValues = new double[] { solvedEigenVecors.getRealEigenvalues()[2],
 				solvedEigenVecors.getRealEigenvalues()[1], solvedEigenVecors.getRealEigenvalues()[0] };
-		RealVector ev0 = solvedEigenVecors.getEigenvector(2).mapMultiply(-1);
-		RealVector ev1 = solvedEigenVecors.getEigenvector(1).mapMultiply(-1);
-		RealVector ev2 = solvedEigenVecors.getEigenvector(0).mapMultiply(-1);
+		double number = -1;
+		RealVector ev0 = solvedEigenVecors.getEigenvector(2).mapMultiply(number);
+		RealVector ev1 = solvedEigenVecors.getEigenvector(1).mapMultiply(number);
+		RealVector ev2 = solvedEigenVecors.getEigenvector(0).mapMultiply(number);
+
 		RealMatrix rotationMatrix = new Array2DRowRealMatrix(3, 3);
 		rotationMatrix.setColumn(0, ev0.toArray());
 		rotationMatrix.setColumn(1, ev1.toArray());
 		rotationMatrix.setColumn(2, ev2.toArray());
 
+		double sinCos45 = -0.707;
+		RealMatrix rotation = new Array2DRowRealMatrix(new double[][]{
+				{sinCos45, -sinCos45, 0},
+				{sinCos45, sinCos45, 0},
+				{0, 0, 1}
+		});
+
+
 		double[] gainArray = findGain(eigenValues);
 		Point3D gain = new Point3D(gainArray[0], gainArray[1], gainArray[2]);
 
-		return new SolvedEllipsoidResult(center, gain, rotationMatrix);
+		return new SolvedEllipsoidResult(center, gain, rotationMatrix.multiply(rotation));
 	}
 
 	// Private Methods
@@ -184,6 +194,7 @@ public class EllipsoidToSphereSolver {
 	 */
 	private RealVector pointsToEquation(List<Point3D> dataPoints) {
 
+		double rad = 0.785398;
 		RealMatrix designMatrix = new Array2DRowRealMatrix(dataPoints.size(), 9);
 		IntStream.range(0, dataPoints.size()).forEach(i -> {
 			double xx = Math.pow(dataPoints.get(i).getX(), 2);
@@ -214,6 +225,7 @@ public class EllipsoidToSphereSolver {
 
 		// Find Inv(( d' * d )^-1)
 		RealMatrix dtdMatrix9 = new SingularValueDecomposition(dtd).getSolver().getInverse();
+
 
 		return dtdMatrix9.operate(dtOnes);
 
