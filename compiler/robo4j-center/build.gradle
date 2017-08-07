@@ -18,12 +18,11 @@ repositories {
 //create a single Jar with all dependencies
 task fatJar(type: Jar) {
     manifest {
-        attributes 'Implementation-Title': 'robo4j-magviz',
+        attributes 'Implementation-Title': 'robo4j-center',
                 'Implementation-Version': version,
-                'Main-Class': 'com.robo4j.tools.magviz.MagViz'
+                'Main-Class': 'com.robo4j.tools.center.RoboCenter'
     }
-    //baseName = project.name + '-all'
-    baseName = 'robo4j-magviz'
+    baseName = 'robo4j-center'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
@@ -36,10 +35,10 @@ task wrapper(type: Wrapper) {
 sourceSets {
     main {
         java {
-            srcDirs = ['src/main/java', 'src/examples/java', 'src/test/java']
+            srcDirs = ['src/main/java', 'src/test/java']
         }
         resources {
-            srcDirs = ['src/main/resources', 'src/examples/resources', 'src/test/resources']
+            srcDirs = ['src/main/resources', 'src/test/resources']
         }
     }
 
@@ -54,7 +53,8 @@ sourceSets {
 }
 
 dependencies {
-    compile "org.apache.commons:commons-math3:${apacheCommonsMath3}"
+    compile "com.robo4j:robo4j-core:${robo4jVersion}"
+    compile "com.jcraft:jsch:${jschVersion}"
     testCompile "junit:junit:${junitVersion}@jar"
     testCompile "org.hamcrest:hamcrest-all:${hamcrestAllVersion}@jar"
     testCompile "org.mockito:mockito-all:${mockitoAllVersion}@jar"
