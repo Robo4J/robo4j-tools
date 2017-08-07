@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2017. Miroslav Kopecky
- * This RoboCenter.java  is part of robo4j.
- * path: /Users/miroslavkopecky/GiTHub_MiroKopecky/robo4j-tools/compiler/robo4j-center/src/main/java/com/robo4j/tools/center/RoboCenter.java
+ * This CompileTask.java  is part of robo4j.
+ * path: /Users/miroslavkopecky/GiTHub_MiroKopecky/robo4j-tools/compiler/robo4j-center/src/main/java/com/robo4j/tools/center/task/CompileTask.java
  * module: robo4j-center_main
  *
  * robo4j is free software: you can redistribute it and/or modify
@@ -18,13 +18,11 @@
  * along with robo4j .  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.robo4j.tools.center;
+package com.robo4j.tools.center.task;
 
 /**
- * RoboCenter allows to compile Robo4J project
- *
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
  */
-public class RoboCenter {
+public class CompileTask {
 }
