@@ -31,13 +31,17 @@ import com.robo4j.tools.center.enums.SupportedOS;
 public class TaskProperties {
 
 	private final SupportedOS detectedSystem;
+	private final String mainPackage;
+	private final String mainClass;
 	private final String robo4jLibrary;
 	private final String compiledFilename;
 	private final String outputDirectory;
 
-	public TaskProperties(SupportedOS detectedSystem, String robo4jLibrary, String compiledFilename,
+	public TaskProperties(SupportedOS detectedSystem, String mainPackage, String mainClass, String robo4jLibrary, String compiledFilename,
 						  String outputDirectory) {
 		this.detectedSystem = detectedSystem;
+		this.mainPackage = mainPackage;
+		this.mainClass = mainClass;
 		this.robo4jLibrary = robo4jLibrary;
 		this.compiledFilename = compiledFilename;
 		this.outputDirectory = outputDirectory;
@@ -45,6 +49,14 @@ public class TaskProperties {
 
 	public SupportedOS getDetectedSystem() {
 		return detectedSystem;
+	}
+
+	public String getMainPackage() {
+		return mainPackage;
+	}
+
+	public String getMainClass() {
+		return mainClass;
 	}
 
 	public String getSeparator() {
@@ -65,7 +77,13 @@ public class TaskProperties {
 
 	@Override
 	public String toString() {
-		return "TaskProperties{" + "robo4jLibrary='" + robo4jLibrary + '\'' + ", compiledFilename='"
-				+ compiledFilename + '\'' + ", outputDirectory='" + outputDirectory + '\'' + '}';
+		return "TaskProperties{" +
+				"detectedSystem=" + detectedSystem +
+				", mainPackage='" + mainPackage + '\'' +
+				", mainClass='" + mainClass + '\'' +
+				", robo4jLibrary='" + robo4jLibrary + '\'' +
+				", compiledFilename='" + compiledFilename + '\'' +
+				", outputDirectory='" + outputDirectory + '\'' +
+				'}';
 	}
 }

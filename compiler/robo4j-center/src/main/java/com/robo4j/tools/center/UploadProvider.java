@@ -69,8 +69,8 @@ public class UploadProvider {
 	}
 
 	public void uploadScp(final String uploadFileName, String host, String user, String pass, String path) {
-		String lfile = uploadFileName;
-		String rfile = uploadFileName;
+		String localFile = uploadFileName.concat(".jar");
+		String remoteFile = uploadFileName;
 
 		FileInputStream fis;
 		JSch jSch = new JSch();
@@ -85,9 +85,8 @@ public class UploadProvider {
 			session.connect();
 
 			boolean ptimestamp = true;
-            File file = Paths.get(lfile).toFile();
+            File file = Paths.get(localFile).toFile();
 
-			// exec 'scp -t rfile' remotely
 			String command = "scp " + (ptimestamp ? "-p" : "") + " -t " + path + "/" + file.getName();
 			Channel channel = session.openChannel("exec");
 			((ChannelExec) channel).setCommand(command);
@@ -122,10 +121,10 @@ public class UploadProvider {
 			// '/'
 			long filesize = file.length();
 			command = "C0644 " + filesize + " ";
-			if (lfile.lastIndexOf('/') > 0) {
-				command += lfile.substring(lfile.lastIndexOf('/') + 1);
+			if (localFile.lastIndexOf('/') > 0) {
+				command += localFile.substring(localFile.lastIndexOf('/') + 1);
 			} else {
-				command += lfile;
+				command += localFile;
 			}
 			command += "\n";
 			out.write(command.getBytes());
@@ -135,7 +134,7 @@ public class UploadProvider {
 			}
 
 			// send a content of lfile
-			fis = new FileInputStream(uploadFileName);
+			fis = new FileInputStream(localFile);
 			byte[] buf = new byte[1024];
 			while (true) {
 				int len = fis.read(buf, 0, buf.length);

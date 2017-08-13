@@ -32,7 +32,7 @@ public enum DeviceType {
 
 	//@formatter:off
     RPI     ("rpi", "/home/pi", "pi"),
-    LEGO    ("lego", "/home/lejos/samples", "root")
+    LEGO    ("lego", "/home/root/lejos/samples", "root")
     ;
     //@formatter:on
 
@@ -71,4 +71,12 @@ public enum DeviceType {
 		return Stream.of(values()).collect(Collectors.toMap(DeviceType::getName, e -> e));
 	}
 
+	@Override
+	public String toString() {
+		return "{" +
+				"name='" + name + '\'' +
+				", path='" + path + '\'' +
+				", user='" + user + '\'' +
+				'}';
+	}
 }
