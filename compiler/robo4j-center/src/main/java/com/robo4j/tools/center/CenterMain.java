@@ -20,13 +20,22 @@
 
 package com.robo4j.tools.center;
 
+import com.robo4j.tools.center.core.CenterBuilder;
 import com.robo4j.tools.center.enums.CenterCommand;
 import com.robo4j.tools.center.enums.DeviceType;
+import com.robo4j.tools.center.enums.SupportedConfigElements;
 import com.robo4j.tools.center.enums.SupportedOS;
+import com.robo4j.tools.center.model.CenterProperties;
 import com.robo4j.tools.center.util.TaskProperties;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,51 +46,65 @@ import java.util.stream.Stream;
  */
 public class CenterMain {
 
-    private final List<CenterCommand> actions;
-    private final String resultFileName;
-    private final String targetIp;
-    private final DeviceType device;
     private final SupportedOS os;
 
-	public static void main(String[] args) {
+    private final CenterProperties centerProperties;
+
+	public static void main(String[] args) throws Exception{
 		// [compile, upload], Result FileName, sourcePath, deviceType
-		if (args.length != 4) {
-			System.out.println("Usage: CenterMain [actions] result_fileName targetIp deviceType");
-			System.out
-					.println("Example: CenterMain compile,upload number42.jar <Device_IP> lego");
-            System.out.println("Example: CenterMain compile,upload number42.jar <Device_IP> rpi");
+
+        Path path = Paths.get(args[0]);
+        CenterProperties centerProperties = null;
+        if(path.toFile().exists()){
+            final InputStream isConfig = new FileInputStream(path.toFile());
+            CenterBuilder builder = new CenterBuilder().add(isConfig);
+            centerProperties = builder.build();
+
+        }
+        if (args.length != 4 && centerProperties == null) {
+            System.out.println("Usage1: CenterMain [actions] result_fileName targetIp deviceType");
+            System.out
+					.println("Example1: CenterMain compile,upload number42.jar <Device_IP> lego");
+            System.out.println("Exampl1e: CenterMain compile,upload number42.jar <Device_IP> rpi\n");
+            System.out.println("Usage2: resource contains robo4jCenter.xml");
+
 			System.exit(2);
-		}
+        }
 
 
-        CenterMain center = new CenterMain(getActions(args[0]), args[1], args[2], getDevice(args[3]));
+        if(centerProperties == null){
+            Map<SupportedConfigElements, String> configProperties = new HashMap<>();
+            configProperties.put(SupportedConfigElements.MAIN_PACKAGE, "com.robo4j.lego.j1kids.example");
+            configProperties.put(SupportedConfigElements.MAIN_CLASS, "Number42Main");
+            configProperties.put(SupportedConfigElements.ROBO4J_LIB,  "robo4j-units-lego-alpha-0.3.jar");
+            configProperties.put(SupportedConfigElements.OUT_DIR,  "out");
+            configProperties.put(SupportedConfigElements.ACTIONS,  args[0]);
+            configProperties.put(SupportedConfigElements.JAR_FILE_NAME,  args[1]);
+            configProperties.put(SupportedConfigElements.DEVICE_IP,  args[2]);
+            configProperties.put(SupportedConfigElements.DEVICE_TYPE,  args[3]);
+            centerProperties = new CenterProperties(configProperties);
+        }
+
+        CenterMain center = new CenterMain(centerProperties);
 		center.execute();
 
 	}
 
-	private CenterMain(List<CenterCommand> actions, String resultFileName, String targetIp, DeviceType device){
-        if(device == null){
-            throw new CenterException("no device");
-        }
-
-        this.actions = actions;
-        this.resultFileName = resultFileName;
-        this.targetIp = targetIp;
-        this.device = device;
+	private CenterMain(CenterProperties centerProperties){
+	    this.centerProperties = centerProperties;
         this.os = getOpSystem();
-
 
     }
 
     public void execute() {
-
-	    actions.forEach(action -> {
+	    getActions(centerProperties.getCenterActions()).forEach(action -> {
                 switch (action){
                     case COMPILE:
-                        String mainPackage = "com.robo4j.lego.j1kids.example";
-                        String mainClass = "Number42Main.java";
-                        String robo4jLibrary = "robo4j-units-lego-alpha-0.3.jar";
-                        String outDirectory = "out";
+                        String mainPackage = centerProperties.getMainPackage();
+                        String mainClass = centerProperties.getMainClass();
+                        String robo4jLibrary = centerProperties.getRobo4jLibrary();
+                        String outDirectory = centerProperties.getOutDirectory();
+                        String resultFileName = centerProperties.getJarFileName();
                         TaskProperties properties = new TaskProperties(os, mainPackage, mainClass, robo4jLibrary, resultFileName, outDirectory );
                         CompilerProvider compiler = new CompilerProvider(properties);
                         System.out.println("Compile STARTS");
@@ -93,21 +116,16 @@ public class CenterMain {
                         } catch (Exception e){
                             throw new CenterException("compile error", e);
                         }
-
                         break;
                     case UPLOAD:
                         UploadProvider uploadProvider = new UploadProvider();
-                        uploadProvider.uploadScp(resultFileName, targetIp, device.getUser(),"root", device.getPath());
+                        DeviceType device = DeviceType.getDeviceByName(centerProperties.getDeviceType());
+                        uploadProvider.uploadScp(centerProperties.getJarFileName(), centerProperties.getDeviceIP(), device.getUser(),"root", device.getPath());
                         break;
                     default:
                         throw new CenterException("not supported action: " + action);
                 }
         });
-
-
-
-
-
     }
 
     //private static
@@ -116,9 +134,6 @@ public class CenterMain {
         return SupportedOS.getOsByProperty(currentOs);
     }
 
-    private static DeviceType getDevice(String type){
-        return DeviceType.getDeviceByName(type);
-    }
 
     private static List<CenterCommand> getActions(String actions){
 
