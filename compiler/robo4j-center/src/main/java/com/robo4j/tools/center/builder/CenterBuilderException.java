@@ -18,7 +18,7 @@
  * along with robo4j .  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.robo4j.tools.center.core;
+package com.robo4j.tools.center.builder;
 
 /**
  * Exception throws from the CenterBuilder

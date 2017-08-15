@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2017. Miroslav Kopecky
- * This Uploader.java  is part of robo4j.
- * path: /Users/miroslavkopecky/GiTHub_MiroKopecky/robo4j-tools/compiler/robo4j-center/src/main/java/com/robo4j/tools/center/Uploader.java
+ * This UploadProvider.java  is part of robo4j.
+ * path: /Users/miroslavkopecky/GiTHub_MiroKopecky/robo4j-tools/compiler/robo4j-center/src/main/java/com/robo4j/tools/center/provider/UploadProvider.java
  * module: robo4j-center_main
  *
  * robo4j is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  * along with robo4j .  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.robo4j.tools.center;
+package com.robo4j.tools.center.provider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,6 +32,7 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import com.robo4j.tools.center.CenterException;
 
 /**
  * @author Marcus Hirt (@hirt)

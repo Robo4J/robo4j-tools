@@ -18,7 +18,7 @@
  * along with robo4j .  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.robo4j.tools.center.util;
+package com.robo4j.tools.center.property;
 
 /**
  * @author Marcus Hirt (@hirt)

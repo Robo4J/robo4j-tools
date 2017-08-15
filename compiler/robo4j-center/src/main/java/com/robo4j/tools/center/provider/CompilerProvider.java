@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2017. Miroslav Kopecky
- * This CompilerJavaProvider.java  is part of robo4j.
- * path: /Users/miroslavkopecky/GiTHub_MiroKopecky/robo4j-tools/compiler/robo4j-center/src/main/java/com/robo4j/tools/center/CompilerJavaProvider.java
+ * This CompilerProvider.java  is part of robo4j.
+ * path: /Users/miroslavkopecky/GiTHub_MiroKopecky/robo4j-tools/compiler/robo4j-center/src/main/java/com/robo4j/tools/center/provider/CompilerProvider.java
  * module: robo4j-center_main
  *
  * robo4j is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  * along with robo4j .  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.robo4j.tools.center;
+package com.robo4j.tools.center.provider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,8 +50,9 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
+import com.robo4j.tools.center.CenterException;
 import com.robo4j.tools.center.enums.SupportedOS;
-import com.robo4j.tools.center.util.TaskProperties;
+import com.robo4j.tools.center.property.TaskProperties;
 
 /**
  * @author Marcus Hirt (@hirt)

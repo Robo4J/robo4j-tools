@@ -22,7 +22,7 @@ package com.robo4j.tools.center;
 
 import org.junit.Test;
 
-import com.robo4j.tools.center.core.CenterBuilder;
+import com.robo4j.tools.center.builder.CenterBuilder;
 import com.robo4j.tools.center.model.CenterProperties;
 import com.sun.tools.javac.util.Assert;
 
