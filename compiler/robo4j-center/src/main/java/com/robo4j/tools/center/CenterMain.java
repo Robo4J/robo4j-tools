@@ -34,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -96,13 +97,14 @@ public class CenterMain {
 
 	}
 
-	private CenterMain(CenterProperties centerProperties){
+	CenterMain(CenterProperties centerProperties){
 	    this.centerProperties = centerProperties;
         this.os = getOpSystem();
 
     }
 
-    private void execute() {
+    List<String> execute() {
+	    List<String> result = new ArrayList<>();
 	    getActions(centerProperties.getCenterActions()).forEach(action -> {
                 switch (action){
                     case COMPILE:
@@ -122,16 +124,20 @@ public class CenterMain {
                         } catch (Exception e){
                             throw new CenterException("compile error", e);
                         }
+                        result.add(action.getName());
                         break;
                     case UPLOAD:
                         UploadProvider uploadProvider = new UploadProvider();
                         DeviceType device = DeviceType.getDeviceByName(centerProperties.getDeviceType());
                         uploadProvider.uploadScp(centerProperties.getJarFileName(), centerProperties.getDeviceIP(), device.getUser(),"root", device.getPath());
+                        result.add(action.getName());
                         break;
                     default:
                         throw new CenterException("not supported action: " + action);
                 }
         });
+        result.add("Done");
+        return result;
     }
 
     //private static
