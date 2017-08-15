@@ -34,7 +34,7 @@
          <children>
             <FlowPane alignment="CENTER" nodeOrientation="LEFT_TO_RIGHT" GridPane.columnIndex="1">
                <children>
-                  <Label text="Robo4J Center Utility">
+                  <Label text="Robo4J Center ">
                      <font>
                         <Font size="19.0" />
                      </font>
