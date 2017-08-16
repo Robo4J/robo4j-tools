@@ -82,6 +82,8 @@ public class CenterFxController {
 	@FXML
 	private TextField processActionsTF;
 
+	@FXML
+    private TextField statusTF;
 
 	@FXML
     private TextFlow outputProcessTF;
@@ -100,14 +102,15 @@ public class CenterFxController {
 		outDirTF.setText(properties.getOutDirectory());
 		jarNameTF.setText(properties.getJarFileName());
 		processActionsTF.setText(properties.getCenterActions());
+		deviceTypeCBox.setValue(DeviceType.getDeviceByName(properties.getDeviceType()).getName());
 
 
 	}
 
 	@FXML
 	private void buttonProcessClick(ActionEvent  event){
-
-	    outputProcessTF.getChildren().clear();
+        statusTF.setText("WAIT...");
+        outputProcessTF.getChildren().clear();
 	    CenterMain center = new CenterMain(properties);
 	    center.execute().forEach(e -> {
             Text text = new Text(e.concat(NEW_LINE));
@@ -116,6 +119,6 @@ public class CenterFxController {
             outputProcessTF.getChildren().add(text);
             System.out.println("ADDED text:" + text.getText());
         });
-        System.out.println("DONE");
+        statusTF.setText("DONE");
     }
 }

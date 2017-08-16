@@ -50,7 +50,7 @@ public class CenterFx extends Application {
 		BorderPane myPane = fxmlLoader.load();
 		CenterFxController controller = fxmlLoader.getController();
 		controller.init();
-		stage.setScene(new Scene(myPane, 800, 400));
+		stage.setScene(new Scene(myPane, 600, 400));
 		myPane.setStyle("-fx-border-color:black");
 		initializeStage(stage);
 		stage.show();
