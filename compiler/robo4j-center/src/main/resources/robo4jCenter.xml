@@ -27,4 +27,5 @@
     <centerActions>upload,compile</centerActions>
     <deviceIP>10.0.1.1</deviceIP>
     <deviceType>lego</deviceType>
+    <devicePass>no</devicePass>
 </robo4jCenter>

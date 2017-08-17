@@ -136,27 +136,6 @@ public class CenterFxController {
         });
 	}
 
-
-    private CenterProperties adjustTextFieldToProperties(){
-        Map<SupportedConfigElements, String> map = new HashMap<>();
-        map.put(SupportedConfigElements.MAIN_PACKAGE, mainPackageTF.getText());
-        map.put(SupportedConfigElements.MAIN_CLASS, mainClassTF.getText());
-        map.put(SupportedConfigElements.ROBO4J_LIB, roboLibTF.getText());
-        map.put(SupportedConfigElements.OUT_DIR, outDirTF.getText());
-        map.put(SupportedConfigElements.JAR_FILE_NAME, jarNameTF.getText());
-        map.put(SupportedConfigElements.DEVICE_IP, deviceIpTextField.getText());
-
-
-        DeviceType deviceType = DeviceType.getDeviceByName(deviceTypeCBox.getSelectionModel().getSelectedItem());
-        map.put(SupportedConfigElements.DEVICE_TYPE, deviceType.getName());
-        map.put(SupportedConfigElements.ACTIONS, processActionsTF.getText().trim());
-        if(deviceType.equals(DeviceType.RPI)){
-            map.put(SupportedConfigElements.DEVICE_PASS, passwordTF.getText().trim());
-        }
-
-        return new CenterProperties(map);
-    }
-
 	@FXML
 	private void buttonProcessClick(ActionEvent  event){
         outputProcessTF.getChildren().clear();
@@ -189,15 +168,36 @@ public class CenterFxController {
         DeviceType deviceType = DeviceType.getDeviceByName(properties.getDeviceType());
         switch (deviceType){
             case RPI:
-                devicePasswordElements(true);
+                passwordTF.setText(properties.getPassword());
                 break;
             case LEGO:
             default:
-                devicePasswordElements(false);
         }
         deviceTypeCBox.setValue(deviceType.getName());
         processActionsTF.setText(properties.getCenterActions());
         return properties;
+    }
+
+    private CenterProperties adjustTextFieldToProperties(){
+        Map<SupportedConfigElements, String> map = new HashMap<>();
+        map.put(SupportedConfigElements.MAIN_PACKAGE, mainPackageTF.getText());
+        map.put(SupportedConfigElements.MAIN_CLASS, mainClassTF.getText());
+        map.put(SupportedConfigElements.ROBO4J_LIB, roboLibTF.getText());
+        map.put(SupportedConfigElements.OUT_DIR, outDirTF.getText());
+        map.put(SupportedConfigElements.JAR_FILE_NAME, jarNameTF.getText());
+        map.put(SupportedConfigElements.DEVICE_IP, deviceIpTextField.getText());
+
+
+        DeviceType deviceType = DeviceType.getDeviceByName(deviceTypeCBox.getSelectionModel().getSelectedItem());
+        map.put(SupportedConfigElements.DEVICE_TYPE, deviceType.getName());
+        map.put(SupportedConfigElements.ACTIONS, processActionsTF.getText().trim());
+        if(deviceType.equals(DeviceType.RPI)){
+            map.put(SupportedConfigElements.DEVICE_PASS, passwordTF.getText().trim());
+        } else {
+            map.put(SupportedConfigElements.DEVICE_PASS, "");
+        }
+
+        return new CenterProperties(map);
     }
 
     private void devicePasswordElements(boolean status){

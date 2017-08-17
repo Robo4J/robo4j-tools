@@ -45,6 +45,7 @@ public class CenterBuilderTest {
         Assert.check(centerProperties.getCenterActions().equals("upload,compile"));
         Assert.check(centerProperties.getDeviceIP().equals("10.0.1.1"));
         Assert.check(centerProperties.getDeviceType().equals("lego"));
+        Assert.check(centerProperties.getPassword().equals("no"));
     }
 
 }

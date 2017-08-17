@@ -140,7 +140,7 @@ public class CenterMain {
                     case UPLOAD:
                         UploadProvider uploadProvider = new UploadProvider();
                         DeviceType device = DeviceType.getDeviceByName(centerProperties.getDeviceType());
-                        uploadProvider.uploadScp(centerProperties.getJarFileName(), centerProperties.getDeviceIP(), device.getUser(),centerProperties.getPassword(), device.getPath());
+                        uploadProvider.uploadScp(centerProperties.getJarFileName(), centerProperties.getDeviceIP(), device.getUser(), centerProperties.getPassword(), device.getPath());
                         result.add(action.getName());
                         break;
                     default:
