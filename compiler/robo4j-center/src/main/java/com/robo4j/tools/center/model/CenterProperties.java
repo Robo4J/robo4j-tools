@@ -82,6 +82,14 @@ public final class CenterProperties {
         return map.get(SupportedConfigElements.JAR_FILE_NAME);
     }
 
+    public String getPassword(){
+        return map.get(SupportedConfigElements.DEVICE_PASS);
+    }
+
+    public boolean isSet(){
+        return !(map.values().stream().filter(String::isEmpty).count() > 0);
+    }
+
     @Override
     public String toString() {
         return "CenterProperties{" +

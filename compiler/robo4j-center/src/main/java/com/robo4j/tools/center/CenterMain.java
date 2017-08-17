@@ -51,7 +51,8 @@ public class CenterMain {
 
     private static final String SPLITERATOR_COMMAND = ",";
     private static final int OPTION_FILE = 1;
-    private static final int OPTION_COMMAND_LINE = 4;
+    private static final int OPTION_COMMAND_LINE_NO_PASS = 4;
+    private static final int OPTION_COMMAND_LINE_PASS = 5;
     private final SupportedOS os;
 
     private final CenterProperties centerProperties;
@@ -70,22 +71,18 @@ public class CenterMain {
                     centerProperties = builder.build();
                 }
                 break;
-            case OPTION_COMMAND_LINE:
-                Map<SupportedConfigElements, String> configProperties = new HashMap<>();
-                configProperties.put(SupportedConfigElements.MAIN_PACKAGE, "com.robo4j.lego.j1kids.example");
-                configProperties.put(SupportedConfigElements.MAIN_CLASS, "Number42Main");
-                configProperties.put(SupportedConfigElements.ROBO4J_LIB,  "robo4j-units-lego-alpha-0.3.jar");
-                configProperties.put(SupportedConfigElements.OUT_DIR,  "out");
-                configProperties.put(SupportedConfigElements.ACTIONS,  args[0]);
-                configProperties.put(SupportedConfigElements.JAR_FILE_NAME,  args[1]);
-                configProperties.put(SupportedConfigElements.DEVICE_IP,  args[2]);
-                configProperties.put(SupportedConfigElements.DEVICE_TYPE,  args[3]);
-                centerProperties = new CenterProperties(configProperties);
+            case OPTION_COMMAND_LINE_NO_PASS:
+                centerProperties = new CenterProperties(setBasicMap(args));
+                break;
+            case OPTION_COMMAND_LINE_PASS:
+                Map<SupportedConfigElements, String> passProperties = setBasicMap(args);
+                passProperties.replace(SupportedConfigElements.DEVICE_PASS, args[4]);
+                centerProperties = new CenterProperties(passProperties);
                 break;
             default:
                 System.out.println("Usage1: CenterMain [actions] result_jarFileName deviceIp deviceType");
                 System.out.println("Example1: CenterMain compile,upload number42 <Device_IP> lego");
-                System.out.println("Example1: CenterMain compile,upload number42 <Device_IP> rpi\n");
+                System.out.println("Example1: CenterMain compile,upload number42 <Device_IP> rpi password\n");
                 System.out.println("Usage2: resource contains robo4jCenter.xml");
 
                 System.exit(2);
@@ -96,6 +93,20 @@ public class CenterMain {
 		center.execute();
 
 	}
+
+	private static Map<SupportedConfigElements, String> setBasicMap(String[] params){
+        Map<SupportedConfigElements, String> result = new HashMap<>();
+        result.put(SupportedConfigElements.MAIN_PACKAGE, "com.robo4j.lego.j1kids.example");
+        result.put(SupportedConfigElements.MAIN_CLASS, "Number42Main");
+        result.put(SupportedConfigElements.ROBO4J_LIB,  "robo4j-units-lego-alpha-0.3.jar");
+        result.put(SupportedConfigElements.OUT_DIR,  "out");
+        result.put(SupportedConfigElements.ACTIONS,  params[0]);
+        result.put(SupportedConfigElements.JAR_FILE_NAME,  params[1]);
+        result.put(SupportedConfigElements.DEVICE_IP,  params[2]);
+        result.put(SupportedConfigElements.DEVICE_TYPE,  params[3]);
+        result.put(SupportedConfigElements.DEVICE_PASS, "");
+        return result;
+    }
 
 	CenterMain(CenterProperties centerProperties){
 	    this.centerProperties = centerProperties;
@@ -129,7 +140,7 @@ public class CenterMain {
                     case UPLOAD:
                         UploadProvider uploadProvider = new UploadProvider();
                         DeviceType device = DeviceType.getDeviceByName(centerProperties.getDeviceType());
-                        uploadProvider.uploadScp(centerProperties.getJarFileName(), centerProperties.getDeviceIP(), device.getUser(),"root", device.getPath());
+                        uploadProvider.uploadScp(centerProperties.getJarFileName(), centerProperties.getDeviceIP(), device.getUser(),centerProperties.getPassword(), device.getPath());
                         result.add(action.getName());
                         break;
                     default:

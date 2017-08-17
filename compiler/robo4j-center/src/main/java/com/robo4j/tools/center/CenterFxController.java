@@ -20,19 +20,27 @@
 
 package com.robo4j.tools.center;
 
-import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.robo4j.tools.center.builder.CenterBuilder;
 import com.robo4j.tools.center.enums.DeviceType;
+import com.robo4j.tools.center.enums.SupportedConfigElements;
 import com.robo4j.tools.center.model.CenterProperties;
 
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -48,6 +56,9 @@ public class CenterFxController {
 
     private static final String DEFAULT_OPTION = "Select";
     private static final String NEW_LINE = "\n";
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
     @FXML
 	private TextField deviceIpTextField;
 
@@ -57,11 +68,20 @@ public class CenterFxController {
 	@FXML
     public void initialize(){
 	    deviceTypeCBox.getItems().removeAll(deviceTypeCBox.getItems());
-        List<String> options = new ArrayList<>();
-        options.add(DEFAULT_OPTION);
-        options.addAll(Stream.of(DeviceType.values()).map(DeviceType::getName).collect(Collectors.toList()));
-	    deviceTypeCBox.getItems().addAll(options);
+        ObservableList<String> observableDeviceValues = FXCollections.observableArrayList(DEFAULT_OPTION);
+        observableDeviceValues.addAll(Stream.of(DeviceType.values()).map(DeviceType::getName).collect(Collectors.toList()));
+
+	    deviceTypeCBox.getItems().addAll(observableDeviceValues);
 	    deviceTypeCBox.getSelectionModel().select(0);
+
+	    deviceTypeCBox.valueProperty().addListener((obs, oldValue, newValue) -> {
+            boolean state = false;
+            if(!oldValue.equals(newValue) && newValue.equals(DeviceType.RPI.getName())){
+               state = true;
+            }
+            devicePasswordElements(state);
+        });
+
     }
 
 	@FXML
@@ -88,37 +108,101 @@ public class CenterFxController {
 	@FXML
     private TextFlow outputProcessTF;
 
-	private CenterProperties properties;
+	@FXML
+    private CheckBox editCB;
 
-	public void init() throws Exception {
-        final InputStream isConfig = getClass().getClassLoader().getResourceAsStream("robo4jCenter.xml");
-		CenterBuilder builder = new CenterBuilder().add(isConfig);
-		properties = builder.build();
+	@FXML
+    private TextField passwordTF;
 
-		deviceIpTextField.setText(properties.getDeviceIP());
-		mainPackageTF.setText(properties.getMainPackage());
-		mainClassTF.setText(properties.getMainClass());
-		roboLibTF.setText(properties.getRobo4jLibrary());
-		outDirTF.setText(properties.getOutDirectory());
-		jarNameTF.setText(properties.getJarFileName());
-		processActionsTF.setText(properties.getCenterActions());
-		deviceTypeCBox.setValue(DeviceType.getDeviceByName(properties.getDeviceType()).getName());
+	@FXML
+    private Label passwordL;
 
+	private List<TextField> mainTextFields;
 
+	public void init(CenterProperties properties) throws Exception {
+
+	    mainTextFields = Arrays.asList(mainPackageTF, mainClassTF, roboLibTF, outDirTF);
+	    if(properties.isSet()){
+            adjustEditableMainFields(false);
+            adjustPropertiesToTextFields(properties);
+        }
+
+        editCB.selectedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) ->{
+            if(newValue){
+                adjustEditableMainFields(true);
+            } else {
+                adjustEditableMainFields(false);
+            }
+        });
 	}
+
+
+    private CenterProperties adjustTextFieldToProperties(){
+        Map<SupportedConfigElements, String> map = new HashMap<>();
+        map.put(SupportedConfigElements.MAIN_PACKAGE, mainPackageTF.getText());
+        map.put(SupportedConfigElements.MAIN_CLASS, mainClassTF.getText());
+        map.put(SupportedConfigElements.ROBO4J_LIB, roboLibTF.getText());
+        map.put(SupportedConfigElements.OUT_DIR, outDirTF.getText());
+        map.put(SupportedConfigElements.JAR_FILE_NAME, jarNameTF.getText());
+        map.put(SupportedConfigElements.DEVICE_IP, deviceIpTextField.getText());
+
+
+        DeviceType deviceType = DeviceType.getDeviceByName(deviceTypeCBox.getSelectionModel().getSelectedItem());
+        map.put(SupportedConfigElements.DEVICE_TYPE, deviceType.getName());
+        map.put(SupportedConfigElements.ACTIONS, processActionsTF.getText().trim());
+        if(deviceType.equals(DeviceType.RPI)){
+            map.put(SupportedConfigElements.DEVICE_PASS, passwordTF.getText().trim());
+        }
+
+        return new CenterProperties(map);
+    }
 
 	@FXML
 	private void buttonProcessClick(ActionEvent  event){
-        statusTF.setText("WAIT...");
         outputProcessTF.getChildren().clear();
+        CenterProperties properties = adjustTextFieldToProperties();
 	    CenterMain center = new CenterMain(properties);
 	    center.execute().forEach(e -> {
             Text text = new Text(e.concat(NEW_LINE));
             text.setFill(Color.DARKGREEN);
             text.setFont(Font.font("Helvetica", FontPosture.REGULAR, 14));
             outputProcessTF.getChildren().add(text);
-            System.out.println("ADDED text:" + text.getText());
         });
         statusTF.setText("DONE");
     }
+
+    //Private Methods
+    private void adjustEditableMainFields(boolean state){
+        mainTextFields.forEach(tf -> {
+            tf.setEditable(state);
+            tf.setDisable(!state);
+        });
+    }
+
+    private CenterProperties adjustPropertiesToTextFields(CenterProperties properties){
+        mainPackageTF.setText(properties.getMainPackage());
+        mainClassTF.setText(properties.getMainClass());
+        roboLibTF.setText(properties.getRobo4jLibrary());
+        outDirTF.setText(properties.getOutDirectory());
+        jarNameTF.setText(properties.getJarFileName());
+        deviceIpTextField.setText(properties.getDeviceIP());
+        DeviceType deviceType = DeviceType.getDeviceByName(properties.getDeviceType());
+        switch (deviceType){
+            case RPI:
+                devicePasswordElements(true);
+                break;
+            case LEGO:
+            default:
+                devicePasswordElements(false);
+        }
+        deviceTypeCBox.setValue(deviceType.getName());
+        processActionsTF.setText(properties.getCenterActions());
+        return properties;
+    }
+
+    private void devicePasswordElements(boolean status){
+        passwordL.setVisible(status);
+        passwordTF.setVisible(status);
+    }
+
 }

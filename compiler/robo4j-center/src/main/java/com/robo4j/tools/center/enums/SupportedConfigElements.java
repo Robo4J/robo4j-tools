@@ -39,7 +39,8 @@ public enum  SupportedConfigElements {
     ACTIONS         ("centerActions"),
     JAR_FILE_NAME   ("jarFileName"),
     DEVICE_IP       ("deviceIp"),
-    DEVICE_TYPE     ("deviceType")
+    DEVICE_TYPE     ("deviceType"),
+    DEVICE_PASS     ("devicePass")
     ;
 
     String name;
