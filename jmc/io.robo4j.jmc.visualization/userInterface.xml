@@ -265,7 +265,7 @@
                                     <componentDescriptor>
                                        <guid>424C-181A</guid>
                                        <identifier>scanVisualizer</identifier>
-                                       <typeIdentifier>io.robo4j.jmc.visualization.scan</typeIdentifier>
+                                       <typeIdentifier>com.robo4j.jmc.visualization.scan</typeIdentifier>
                                        <name>
                                           <default>ScanVisualizer</default>
                                           <l10nKey>1A51-8264-C811-6AF4</l10nKey>

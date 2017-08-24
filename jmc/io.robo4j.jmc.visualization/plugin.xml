@@ -4,11 +4,11 @@
    <extension
          point="com.jrockit.mc.components.ui.component">
        	<component
-             class="io.robo4j.jmc.visualization.jfr.ScanComponent"
+             class="com.robo4j.jmc.visualization.jfr.ScanComponent"
              defaultIdentifier="myScanVisualizationComponent"
              description="Displays Coffee Scan results in coffe local coordinate system points"
              icon="icons/scan16.png"
-             id="io.robo4j.jmc.visualization.scan"
+             id="com.robo4j.jmc.visualization.scan"
              name="ScanVisualizer"
           	 requiredServices="com.jrockit.mc.flightrecorder.FlightRecording"
              type="other">
@@ -20,14 +20,14 @@
  			userInterfaceFile="/userInterface.xml">
    		</userInterface>
    </extension>
-   
-   <extension point="com.jrockit.mc.core.formpage">
+   <!-- Note: Should break this out into a separate plug-in specific for Coff-E -->
+   <!-- <extension point="com.jrockit.mc.core.formpage">
       <formPage
             hostEditorId="com.jrockit.mc.console.ui.editor"
             icon="icons/robo4j32.png"
-            class="io.robo4j.jmc.visualization.jmx.CoffePage"
+            class="com.robo4j.jmc.visualization.jmx.CoffePage"
             title="Coff-E"
-            id="io.robo4j.jmc.visualization.jmx.formpage">
+            id="com.robo4j.jmc.visualization.jmx.formpage">
       </formPage>
-   </extension> 
+   </extension> -->
  </plugin>
