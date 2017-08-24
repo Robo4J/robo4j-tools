@@ -28,13 +28,13 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 
-import se.hirt.coffee.visualization.jfr.scan.CurvaturePoint;
-import se.hirt.coffee.visualization.jfr.scan.FeatureExtraction;
-import se.hirt.coffee.visualization.jfr.scan.FeatureSet;
-import se.hirt.coffee.visualization.jfr.scan.Line;
-import se.hirt.coffee.visualization.jfr.scan.PointXY;
-import se.hirt.coffee.visualization.jfr.scan.ScanResult;
-import se.hirt.coffee.visualization.jfr.scan.ScanResultImpl;
+import io.robo4j.jmc.visualization.scan.CurvaturePoint;
+import io.robo4j.jmc.visualization.scan.FeatureExtraction;
+import io.robo4j.jmc.visualization.scan.FeatureSet;
+import io.robo4j.jmc.visualization.scan.Line;
+import io.robo4j.jmc.visualization.scan.PointXY;
+import io.robo4j.jmc.visualization.scan.ScanResult;
+import io.robo4j.jmc.visualization.scan.ScanResultImpl;
 
 /**
  * Canvas for drawing a scan.

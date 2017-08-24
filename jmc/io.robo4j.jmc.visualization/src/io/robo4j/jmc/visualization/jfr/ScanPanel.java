@@ -30,8 +30,8 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.jrockit.mc.flightrecorder.spi.IEvent;
 
-import se.hirt.coffee.visualization.jfr.scan.PointXY;
-import se.hirt.coffee.visualization.jfr.scan.ScanResultImpl;
+import io.robo4j.jmc.visualization.scan.PointXY;
+import io.robo4j.jmc.visualization.scan.ScanResultImpl;
 
 /**
  * The SWT component for showig scan data.

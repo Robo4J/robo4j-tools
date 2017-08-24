@@ -14,27 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with Robo4J. If not, see <http://www.gnu.org/licenses/>.
  */
-package se.hirt.coffee.visualization.jfr.scan;
+package io.robo4j.jmc.visualization.scan;
+
+import java.util.List;
 
 /**
- * TODO(Marcus/Mar 9, 2017): Should at some point just depend on math. 
+ * TODO(Marcus/Mar 9, 2017): Should at some point just depend on math.
  * 
  * @author Marcus Hirt (@hirt)
  * @author Miroslav Wengner (@miragemiko)
  */
-public class CurvaturePoint extends PointXY {
-	private final float curvature;
-
-	public CurvaturePoint(float x, float y, float curvature) {
-		super(x, y);
-		this.curvature = curvature;
-	}
-
-	public CurvaturePoint(PointXY pointXY, float totalPhi) {
-		this(pointXY.getX(), pointXY.getY(), totalPhi);
-	}
-
-	public float getCurvature() {
-		return curvature;
-	}
+public interface ScanResult {
+	public List<PointXY> getPoints();
+	public PointXY getNearestPoint();
+	public PointXY getFarthestPoint();
+	public PointXY getTargetPoint();
+	public PointXY getGoalPoint();
+	public double getMaxX();
+	public double getMinX();
+	public double getMaxY();
+	public double getMinY();
+	public int getScanID();
 }

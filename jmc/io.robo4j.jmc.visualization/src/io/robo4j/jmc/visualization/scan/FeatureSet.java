@@ -14,25 +14,29 @@
  * You should have received a copy of the GNU General Public License
  * along with Robo4J. If not, see <http://www.gnu.org/licenses/>.
  */
-package se.hirt.coffee.visualization.jfr.scan;
+package io.robo4j.jmc.visualization.scan;
 
 import java.util.List;
-
 /**
  * TODO(Marcus/Mar 9, 2017): Should at some point just depend on math.
  * 
  * @author Marcus Hirt (@hirt)
  * @author Miroslav Wengner (@miragemiko)
  */
-public interface ScanResult {
-	public List<PointXY> getPoints();
-	public PointXY getNearestPoint();
-	public PointXY getFarthestPoint();
-	public PointXY getTargetPoint();
-	public PointXY getGoalPoint();
-	public double getMaxX();
-	public double getMinX();
-	public double getMaxY();
-	public double getMinY();
-	public int getScanID();
+public class FeatureSet {
+	private final List<Line> lines;
+	private final List<CurvaturePoint> corners;
+	
+	public FeatureSet(List<Line> lines, List<CurvaturePoint> corners) {
+		this.lines = lines;
+		this.corners = corners;
+	}
+
+	public List<Line> getLines() {
+		return lines;
+	}
+	
+	public final List<CurvaturePoint> getCorners() {
+		return corners;
+	}
 }
