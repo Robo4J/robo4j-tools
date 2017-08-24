@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Robo4J. If not, see <http://www.gnu.org/licenses/>.
  */
-package io.robo4j.jmc.visualization.jmx;
+package com.robo4j.jmc.visualization.jmx;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;

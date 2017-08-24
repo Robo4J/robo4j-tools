@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Robo4J. If not, see <http://www.gnu.org/licenses/>.
  */
-package io.robo4j.jmc.visualization.jfr;
+package com.robo4j.jmc.visualization.jfr;
 
 import java.util.Iterator;
 
@@ -29,9 +29,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.jrockit.mc.flightrecorder.spi.IEvent;
-
-import io.robo4j.jmc.visualization.scan.PointXY;
-import io.robo4j.jmc.visualization.scan.ScanResultImpl;
+import com.robo4j.jmc.visualization.scan.PointXY;
+import com.robo4j.jmc.visualization.scan.ScanResultImpl;
 
 /**
  * The SWT component for showig scan data.

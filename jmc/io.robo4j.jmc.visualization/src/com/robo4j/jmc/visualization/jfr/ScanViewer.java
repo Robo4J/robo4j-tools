@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Robo4J. If not, see <http://www.gnu.org/licenses/>.
  */
-package io.robo4j.jmc.visualization.jfr;
+package com.robo4j.jmc.visualization.jfr;
 
 import java.util.Iterator;
 import java.util.List;
@@ -28,13 +28,13 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 
-import io.robo4j.jmc.visualization.scan.CurvaturePoint;
-import io.robo4j.jmc.visualization.scan.FeatureExtraction;
-import io.robo4j.jmc.visualization.scan.FeatureSet;
-import io.robo4j.jmc.visualization.scan.Line;
-import io.robo4j.jmc.visualization.scan.PointXY;
-import io.robo4j.jmc.visualization.scan.ScanResult;
-import io.robo4j.jmc.visualization.scan.ScanResultImpl;
+import com.robo4j.jmc.visualization.scan.CurvaturePoint;
+import com.robo4j.jmc.visualization.scan.FeatureExtraction;
+import com.robo4j.jmc.visualization.scan.FeatureSet;
+import com.robo4j.jmc.visualization.scan.Line;
+import com.robo4j.jmc.visualization.scan.PointXY;
+import com.robo4j.jmc.visualization.scan.ScanResult;
+import com.robo4j.jmc.visualization.scan.ScanResultImpl;
 
 /**
  * Canvas for drawing a scan.

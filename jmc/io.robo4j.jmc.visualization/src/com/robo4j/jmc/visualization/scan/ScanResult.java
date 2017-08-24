@@ -14,21 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with Robo4J. If not, see <http://www.gnu.org/licenses/>.
  */
-package io.robo4j.jmc.visualization.jfr;
+package com.robo4j.jmc.visualization.scan;
+
+import java.util.List;
 
 /**
- * Constants for the scan events.
+ * TODO(Marcus/Mar 9, 2017): Should at some point just depend on math.
  * 
  * @author Marcus Hirt (@hirt)
  * @author Miroslav Wengner (@miragemiko)
  */
-public final class ScanConstants {
-	public static final String FIELD_X = "x";
-	public static final String FIELD_Y = "y";
-	public static final String SCAN_ID = "scanID";
-
-	public static final String TYPE_SCAN = "scan";
-	public static final String TYPE_SCAN_POINT = "scan point 2d";
-	public static final String TYPE_TARGET = "target point";
-	public static final String TYPE_GOAL = "goal point";
+public interface ScanResult {
+	public List<PointXY> getPoints();
+	public PointXY getNearestPoint();
+	public PointXY getFarthestPoint();
+	public PointXY getTargetPoint();
+	public PointXY getGoalPoint();
+	public double getMaxX();
+	public double getMinX();
+	public double getMaxY();
+	public double getMinY();
+	public int getScanID();
 }

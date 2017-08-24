@@ -14,9 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Robo4J. If not, see <http://www.gnu.org/licenses/>.
  */
-package io.robo4j.jmc.visualization.scan;
-
-import java.util.List;
+package com.robo4j.jmc.visualization.scan;
 
 /**
  * TODO(Marcus/Mar 9, 2017): Should at some point just depend on math.
@@ -24,15 +22,20 @@ import java.util.List;
  * @author Marcus Hirt (@hirt)
  * @author Miroslav Wengner (@miragemiko)
  */
-public interface ScanResult {
-	public List<PointXY> getPoints();
-	public PointXY getNearestPoint();
-	public PointXY getFarthestPoint();
-	public PointXY getTargetPoint();
-	public PointXY getGoalPoint();
-	public double getMaxX();
-	public double getMinX();
-	public double getMaxY();
-	public double getMinY();
-	public int getScanID();
+public class Line {
+	private final PointXY p1;
+	private final PointXY p2;
+	
+	public Line(PointXY p1, PointXY p2) {
+		this.p1 = p1;
+		this.p2 = p2;
+	}
+
+	public PointXY getP1() {
+		return p1;
+	}
+
+	public PointXY getP2() {
+		return p2;
+	}
 }

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Robo4J. If not, see <http://www.gnu.org/licenses/>.
  */
-package io.robo4j.jmc.visualization.jmx;
+package com.robo4j.jmc.visualization.jmx;
 
 import java.io.IOException;
 import java.util.concurrent.Executors;
@@ -52,8 +52,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.jrockit.mc.rjmx.IConnectionHandle;
-
-import io.robo4j.jmc.visualization.Activator;
+import com.robo4j.jmc.visualization.Activator;
 
 /**
  * TODO(Marcus/Mar 9, 2017): Will fix this later... Currently Coff-E only
