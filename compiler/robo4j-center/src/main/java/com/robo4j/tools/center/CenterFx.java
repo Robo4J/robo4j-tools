@@ -64,7 +64,7 @@ public class CenterFx extends Application {
 	}
 
     private void initializeStage(Stage stage) {
-		stage.setTitle("Magnetometer Calibration Utility");
+		stage.setTitle("Robo4J Center");
 		stage.getIcons().add(createIcon("robo4j256.png"));
 		stage.getIcons().add(createIcon("robo4j128.png"));
 		stage.getIcons().add(createIcon("robo4j64.png"));
