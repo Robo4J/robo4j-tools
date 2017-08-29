@@ -207,7 +207,7 @@
                             <graphic>
                                 <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
-                                        <Image url="@robo4j256.png" />
+                                        <Image url="@robo4j256text.png" />
                                     </image>
                                 </ImageView>
                             </graphic>
