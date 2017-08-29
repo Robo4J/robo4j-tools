@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.net.URL;
 
 import com.robo4j.tools.center.builder.CenterBuilder;
-import com.robo4j.tools.center.model.CenterProperties;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -64,7 +63,7 @@ public class CenterFx extends Application {
 	}
 
     private void initializeStage(Stage stage) {
-		stage.setTitle("Magnetometer Calibration Utility");
+		stage.setTitle("Robo4J Center");
 		stage.getIcons().add(createIcon("robo4j256.png"));
 		stage.getIcons().add(createIcon("robo4j128.png"));
 		stage.getIcons().add(createIcon("robo4j64.png"));
