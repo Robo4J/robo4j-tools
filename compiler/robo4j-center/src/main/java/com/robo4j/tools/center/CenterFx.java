@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.net.URL;
 
 import com.robo4j.tools.center.builder.CenterBuilder;
-import com.robo4j.tools.center.model.CenterProperties;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
