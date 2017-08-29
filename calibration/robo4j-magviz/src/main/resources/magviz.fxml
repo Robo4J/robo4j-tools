@@ -200,14 +200,14 @@
                 </BorderPane>
                 <FlowPane alignment="CENTER" GridPane.columnIndex="1">
                     <children>
-                        <Label text="Robo4J Magnetometer Calibration Utility">
+                        <Label text="Magnetometer Calibration Utility">
                             <font>
                                 <Font size="19.0" />
                             </font>
                             <graphic>
                                 <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
-                                        <Image url="@robo4j256text.png" />
+                                        <Image url="@robo4j64text.png" />
                                     </image>
                                 </ImageView>
                             </graphic>
