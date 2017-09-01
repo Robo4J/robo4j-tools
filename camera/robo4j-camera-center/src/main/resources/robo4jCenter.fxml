@@ -52,7 +52,7 @@
          <children>
             <FlowPane alignment="CENTER_LEFT" maxHeight="480.0" maxWidth="640.0" minHeight="97.0" minWidth="403.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="97.0" prefWidth="626.0" GridPane.columnIndex="1">
                <children>
-                  <Label text="Robo4J Camera Center ">
+                  <Label text="Camera Center ">
                      <font>
                         <Font size="19.0" />
                      </font>
@@ -83,13 +83,13 @@
                           </rowConstraints>
                            <children>
                               <Label text="Name:" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                              <TextField fx:id="imageNameTextField" GridPane.columnIndex="1" />
+                              <TextField fx:id="imageNameTextField" text="snapshot" GridPane.columnIndex="1" />
                               <Button fx:id="saveButton" mnemonicParsing="false" onAction="#saveButtonAction" text="Save" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                            </children>
                         </GridPane>
                      </content>
                   </TitledPane>
-                  <TitledPane animated="false" prefHeight="123.0" prefWidth="100.0" text="Report">
+                  <TitledPane animated="false" prefHeight="123.0" prefWidth="100.0" text="Control">
                      <content>
                         <GridPane prefHeight="50.0" prefWidth="100.0">
                           <columnConstraints>

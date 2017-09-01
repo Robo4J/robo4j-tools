@@ -22,7 +22,7 @@ task fatJar(type: Jar) {
                 'Implementation-Version': version,
                 'Main-Class': 'com.robo4j.tools.camera.CenterMain'
     }
-    baseName = 'robo4j-center'
+    baseName = 'robo4j-camera-center'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
