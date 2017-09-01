@@ -1,5 +1,5 @@
 ## Robo4J RaspberryPi Camera client 
-Modular framework for rapid development of interconnected hardware and robots.
+Simple Robo4J server for handling and displaying Image Messages. Example allows to store image in PNG format.
 
 ## Requirements
 * [Git][] 
