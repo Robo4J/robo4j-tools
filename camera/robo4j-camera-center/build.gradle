@@ -1,0 +1,61 @@
+group 'com.robo4j'
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'maven'
+
+apply from: 'libraries.gradle'
+
+version "${robo4jVersion}"
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+//create a single Jar with all dependencies
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'robo4j-camera-center',
+                'Implementation-Version': version,
+                'Main-Class': 'com.robo4j.tools.camera.CenterMain'
+    }
+    baseName = 'robo4j-camera-center'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "${roboGradleVersion}"
+}
+
+//sources
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+        resources {
+            srcDirs = ['src/main/resources']
+        }
+    }
+
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+        resources {
+            srcDirs = ['src/test/resources']
+        }
+    }
+}
+
+dependencies {
+    compile "com.robo4j:robo4j-core:${robo4jVersion}"
+    compile "com.robo4j:robo4j-socket-http:${robo4jVersion}"
+    testCompile "junit:junit:${junitVersion}@jar"
+    testCompile "org.hamcrest:hamcrest-all:${hamcrestAllVersion}@jar"
+    testCompile "org.mockito:mockito-all:${mockitoAllVersion}@jar"
+}
