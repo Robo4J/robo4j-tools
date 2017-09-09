@@ -19,22 +19,35 @@ package com.robo4j.tools.camera;
 
 import com.robo4j.core.RoboContext;
 import com.robo4j.core.logging.SimpleLoggingUtil;
+import com.robo4j.socket.http.util.JsonUtil;
 import com.robo4j.tools.camera.processor.CameraViewProcessor;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author Marcus Hirt (@hirt)
@@ -62,13 +75,22 @@ public class CenterFxController {
     @FXML
     private TextField imageNameTextField;
 
+    @FXML
+    private Label stateL;
 
-    void init(RoboContext roboSystem) {
+    @FXML
+    private TableView<RawUnit> systemTV;
+
+    private String clientAddress;
+
+
+    void init(RoboContext roboSystem, String clientAddress) {
         this.roboSystem = roboSystem;
+        this.clientAddress = clientAddress;
     }
 
     @FXML
-    public void initialize(){
+    public void initialize() {
         Image image = new Image(Thread.currentThread().getContextClassLoader().getResourceAsStream(NO_SIGNAL_IMAGE));
         cameraImageView.setImage(image);
         cameraImageView.setFitWidth(CAMERA_IMAGE_WIDTH);
@@ -78,26 +100,70 @@ public class CenterFxController {
     }
 
     @FXML
-    private void buttonActionClick(ActionEvent event){
+    private void buttonActionClick(ActionEvent event) {
         if (cameraActive) {
             SimpleLoggingUtil.print(getClass(), "scheduler active");
         } else {
+            stateL.setText(BUTTON_ACTIVATED);
             buttonActive.setText(BUTTON_ACTIVATED);
             roboSystem.getScheduler().scheduleAtFixedRate(new CameraViewProcessor(roboSystem.getReference(IMAGE_PROCESSOR),
-                    cameraImageView), 1, 400, TimeUnit.MILLISECONDS);
+                    cameraImageView), 1, 200, TimeUnit.MILLISECONDS);
+            Map<String, Object> configurationMap = getSystemConfigurationMap(clientAddress);
+            createRoboSystemTableView(configurationMap);
+            cameraActive = true;
         }
     }
 
     @FXML
-    private void saveButtonAction(ActionEvent event){
+    private void saveButtonAction(ActionEvent event) {
         String fileName = imageNameTextField.getText().isEmpty() ? DEFAULT_NONAME : imageNameTextField.getText();
         Path path = Paths.get(fileName.concat(".").concat(IMAGE_FORMAT));
         BufferedImage bImage = SwingFXUtils.fromFXImage(cameraImageView.getImage(), null);
         try {
-            ImageIO.write(bImage, IMAGE_FORMAT, path.toFile() );
-        } catch (IOException e){
+            ImageIO.write(bImage, IMAGE_FORMAT, path.toFile());
+        } catch (IOException e) {
             SimpleLoggingUtil.error(getClass(), "image error", e);
         }
+    }
 
+    //Private Methods
+    @SuppressWarnings("unchecked")
+    private void createRoboSystemTableView(Map<String, Object> configurationMap) {
+        ObservableList<RawUnit> data = FXCollections.observableArrayList(configurationMap.entrySet().stream()
+                .map(e -> new RawUnit(e.getKey(), e.getValue().toString())).collect(Collectors.toList()));
+
+
+        TableColumn roboUnitCol = new TableColumn("RoboUnit");
+        roboUnitCol.setMinWidth(200);
+        roboUnitCol.setCellValueFactory(
+                new PropertyValueFactory<RawUnit, String>("name"));
+
+        TableColumn stateCol = new TableColumn("Status");
+        stateCol.setMinWidth(100);
+        stateCol.setCellValueFactory(
+                new PropertyValueFactory<RawUnit, String>("state"));
+
+        systemTV.setItems(data);
+        systemTV.getColumns().addAll(roboUnitCol, stateCol);
+    }
+
+    private Map<String, Object> getSystemConfigurationMap(String address) {
+        try {
+            final URL apiEndpoint = new URL(address);
+            final HttpURLConnection connection = (HttpURLConnection) apiEndpoint.openConnection();
+            connection.setRequestMethod("GET");
+            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+            br.close();
+            connection.disconnect();
+            return JsonUtil.getMapNyJson(sb.toString());
+        } catch (IOException e) {
+            SimpleLoggingUtil.error(getClass(), "error: " + e);
+        }
+        return Collections.EMPTY_MAP;
     }
 }

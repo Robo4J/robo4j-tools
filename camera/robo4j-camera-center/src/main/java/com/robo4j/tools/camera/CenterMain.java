@@ -56,7 +56,7 @@ public class CenterMain extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(file);
         BorderPane myPane = fxmlLoader.load();
         CenterFxController controller = fxmlLoader.getController();
-        controller.init(roboSystem);
+        controller.init(roboSystem, "http://192.168.178.67:8025/");
 
         stage.setScene(new Scene(myPane, 800, 600));
         myPane.setStyle("-fx-border-color:black");

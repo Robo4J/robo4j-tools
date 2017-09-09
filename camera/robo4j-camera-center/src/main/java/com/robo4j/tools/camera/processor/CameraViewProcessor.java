@@ -32,11 +32,11 @@ import java.util.concurrent.ExecutionException;
  */
 public class CameraViewProcessor implements Runnable {
     private static final String ATTRIBUTE_IMAGE = "image";
-    private final RoboReference<?> cameraProcessor;
+    private final RoboReference<?> imageProcessor;
     private volatile ImageView imageView;
 
-    public CameraViewProcessor(RoboReference<?> cameraProcessor, ImageView imageView) {
-        this.cameraProcessor = cameraProcessor;
+    public CameraViewProcessor(RoboReference<?> imageProcessor, ImageView imageView) {
+        this.imageProcessor = imageProcessor;
         this.imageView = imageView;
     }
 
@@ -44,7 +44,7 @@ public class CameraViewProcessor implements Runnable {
     public void run() {
         DefaultAttributeDescriptor<Image> descriptor = DefaultAttributeDescriptor.create(Image.class, ATTRIBUTE_IMAGE);
         try {
-            Image image = cameraProcessor.getAttribute(descriptor).get();
+            Image image = imageProcessor.getAttribute(descriptor).get();
             imageView.setImage(image);
         } catch (InterruptedException | ExecutionException e) {
             SimpleLoggingUtil.error(getClass(), "image failure", e);
