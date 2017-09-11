@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: JMC Visualization for Coffe
+Bundle-Name: JMC Visualization for Robo4J
 Bundle-SymbolicName: com.robo4j.jmc.visualization;singleton:=true
 Bundle-Version: 0.0.1.qualifier
 Bundle-Vendor: hirt.se
