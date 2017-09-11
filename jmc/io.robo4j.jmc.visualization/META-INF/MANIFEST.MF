@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: JMC Visualization for Robo4J
 Bundle-SymbolicName: com.robo4j.jmc.visualization;singleton:=true
 Bundle-Version: 0.0.1.qualifier
-Bundle-Vendor: hirt.se
+Bundle-Vendor: Robo4J
 Require-Bundle: com.jrockit.mc.flightrecorder,
  com.jrockit.mc.components.ui,
  com.jrockit.mc.flightrecorder.ui;bundle-version="5.5.0",
