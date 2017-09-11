@@ -37,6 +37,7 @@ import java.net.URL;
  */
 public class CenterMain extends Application {
 
+    private static final String CLIENT_IP = "192.168.178.38";
     private static final String ROBO4J_CENTER_FXML = "robo4jCenter.fxml";
     private RoboContext roboSystem;
 
@@ -56,7 +57,7 @@ public class CenterMain extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(file);
         BorderPane myPane = fxmlLoader.load();
         CenterFxController controller = fxmlLoader.getController();
-        controller.init(roboSystem, "http://192.168.178.67:8025/");
+        controller.init(roboSystem, "http://"+ CLIENT_IP + ":8025/");
 
         stage.setScene(new Scene(myPane, 800, 600));
         myPane.setStyle("-fx-border-color:black");
