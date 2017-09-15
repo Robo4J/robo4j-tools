@@ -116,6 +116,7 @@ public class CenterFxController {
             roboSystem.start();
             stateL.setText(BUTTON_ACTIVATED);
             buttonActive.setText(BUTTON_ACTIVATED);
+
             Map<String, Object> configurationMap = getSystemConfigurationMap(clientAddress);
             createRoboSystemTableView(configurationMap);
             cameraActive = true;
