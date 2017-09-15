@@ -17,10 +17,13 @@
 
 package com.robo4j.tools.camera;
 
+import com.robo4j.core.RoboBuilder;
+import com.robo4j.core.RoboBuilderException;
 import com.robo4j.core.RoboContext;
 import com.robo4j.core.logging.SimpleLoggingUtil;
+import com.robo4j.core.util.SystemUtil;
 import com.robo4j.socket.http.util.JsonUtil;
-import com.robo4j.tools.camera.processor.CameraViewProcessor;
+import com.robo4j.tools.camera.processor.ImageProcessor;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
@@ -46,7 +49,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -54,12 +56,12 @@ import java.util.stream.Collectors;
  * @author Miro Wengner (@miragemiko)
  */
 public class CenterFxController {
-    private static final String IMAGE_PROCESSOR = "imageProcessor";
     private static final String NO_SIGNAL_IMAGE = "20161021_NoSignal_640.png";
     private static final int CAMERA_IMAGE_WIDTH = 640;
     private static final int CAMERA_IMAGE_HEIGHT = 480;
     private static final String BUTTON_ACTIVATED = "Activated";
     private static final String IMAGE_FORMAT = "png";
+    private static final String IMAGE_PROCESSOR1 = "imageProcessor";
     public static final String DEFAULT_NONAME = "noname";
 
     private RoboContext roboSystem;
@@ -84,8 +86,15 @@ public class CenterFxController {
     private String clientAddress;
 
 
-    void init(RoboContext roboSystem, String clientAddress) {
-        this.roboSystem = roboSystem;
+    void init(RoboBuilder roboBuilder, String clientAddress) {
+        ImageProcessor imageProcessor = new ImageProcessor(roboBuilder.getContext(), IMAGE_PROCESSOR1);
+        imageProcessor.setImageView(cameraImageView);
+        try {
+            roboBuilder.add(imageProcessor);
+        } catch (RoboBuilderException e){
+            SimpleLoggingUtil.error(getClass(), "error" + e);
+        }
+        this.roboSystem = roboBuilder.build();
         this.clientAddress = clientAddress;
     }
 
@@ -104,10 +113,9 @@ public class CenterFxController {
         if (cameraActive) {
             SimpleLoggingUtil.print(getClass(), "scheduler active");
         } else {
+            roboSystem.start();
             stateL.setText(BUTTON_ACTIVATED);
             buttonActive.setText(BUTTON_ACTIVATED);
-            roboSystem.getScheduler().scheduleAtFixedRate(new CameraViewProcessor(roboSystem.getReference(IMAGE_PROCESSOR),
-                    cameraImageView), 1, 200, TimeUnit.MILLISECONDS);
             Map<String, Object> configurationMap = getSystemConfigurationMap(clientAddress);
             createRoboSystemTableView(configurationMap);
             cameraActive = true;
@@ -124,6 +132,12 @@ public class CenterFxController {
         } catch (IOException e) {
             SimpleLoggingUtil.error(getClass(), "image error", e);
         }
+    }
+
+    public void stop(){
+        System.out.println("State after stop:");
+        System.out.println(SystemUtil.printStateReport(roboSystem));
+        roboSystem.shutdown();
     }
 
     //Private Methods

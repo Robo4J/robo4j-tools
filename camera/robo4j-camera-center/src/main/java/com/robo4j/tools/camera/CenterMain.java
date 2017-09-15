@@ -18,8 +18,6 @@
 package com.robo4j.tools.camera;
 
 import com.robo4j.core.RoboBuilder;
-import com.robo4j.core.RoboContext;
-import com.robo4j.core.util.SystemUtil;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -37,9 +35,9 @@ import java.net.URL;
  */
 public class CenterMain extends Application {
 
-    private static final String CLIENT_IP = "192.168.178.38";
+    private static final String CLIENT_IP = "192.168.0.5";
     private static final String ROBO4J_CENTER_FXML = "robo4jCenter.fxml";
-    private RoboContext roboSystem;
+    private CenterFxController controller;
 
     public static void main(String[] args) throws Exception {
         Application.launch(args);
@@ -49,15 +47,13 @@ public class CenterMain extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         URL file = Thread.currentThread().getContextClassLoader().getResource(ROBO4J_CENTER_FXML);
-        RoboBuilder builder = new RoboBuilder(Thread.currentThread().getContextClassLoader().getResourceAsStream("robo4jSystem.xml"));
+        RoboBuilder builder = new RoboBuilder();
         builder.add(Thread.currentThread().getContextClassLoader().getResourceAsStream("robo4jUnits.xml"));
-        roboSystem = builder.build();
-        roboSystem.start();
 
         FXMLLoader fxmlLoader = new FXMLLoader(file);
         BorderPane myPane = fxmlLoader.load();
-        CenterFxController controller = fxmlLoader.getController();
-        controller.init(roboSystem, "http://"+ CLIENT_IP + ":8025/");
+        controller = fxmlLoader.getController();
+        controller.init(builder, "http://"+ CLIENT_IP + ":8025/");
 
         stage.setScene(new Scene(myPane, 800, 600));
         myPane.setStyle("-fx-border-color:black");
@@ -68,9 +64,7 @@ public class CenterMain extends Application {
     @Override
     public void stop() throws Exception {
         super.stop();
-        roboSystem.stop();
-        System.out.println("State after stop:");
-        System.out.println(SystemUtil.printStateReport(roboSystem));
+        controller.stop();
     }
 
     private void initializeStage(Stage stage) {

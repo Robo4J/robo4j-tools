@@ -17,14 +17,12 @@
 
 package com.robo4j.tools.camera.processor;
 
-import com.robo4j.core.AttributeDescriptor;
-import com.robo4j.core.ConfigurationException;
-import com.robo4j.core.DefaultAttributeDescriptor;
 import com.robo4j.core.RoboContext;
 import com.robo4j.core.RoboUnit;
-import com.robo4j.core.configuration.Configuration;
+import com.robo4j.core.logging.SimpleLoggingUtil;
 import com.robo4j.socket.http.codec.CameraMessage;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
@@ -34,37 +32,24 @@ import java.util.Base64;
  * @author Miro Wengner (@miragemiko)
  */
 public class ImageProcessor extends RoboUnit<CameraMessage> {
-    private static final String NO_SIGNAL_IMAGE = "robo4j256.png";
-    private static final AttributeDescriptor<Image> ATTRIBUTE_IMAGE = DefaultAttributeDescriptor.create(Image.class, "image");
-    private String output;
-    private volatile Image image;
+    private volatile ImageView imageView;
 
     public ImageProcessor(RoboContext context, String id) {
         super(CameraMessage.class, context, id);
     }
-
-    @Override
-    protected void onInitialization(Configuration configuration) throws ConfigurationException {
-        output = configuration.getString("output", null);
-        if (output == null) {
-            throw ConfigurationException.createMissingConfigNameException("output");
-        }
-        image = new Image(ClassLoader.getSystemResourceAsStream(NO_SIGNAL_IMAGE));
-
+    public void setImageView(ImageView imageView){
+        this.imageView = imageView;
     }
 
     @Override
     public void onMessage(CameraMessage message) {
         final byte[] bytes = Base64.getDecoder().decode(message.getImage());
-        image = new Image(new ByteArrayInputStream(bytes));
+        if(imageView != null){
+            Image image = new Image(new ByteArrayInputStream(bytes));
+            imageView.setImage(image);
+        } else {
+            SimpleLoggingUtil.error(getClass(), "no imageView");
+        }
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    protected <R> R onGetAttribute(AttributeDescriptor<R> descriptor) {
-        if (descriptor.getAttributeName().equals("image") && descriptor.getAttributeType() == Image.class) {
-            return (R) image;
-        }
-        return super.onGetAttribute(descriptor);
-    }
 }
