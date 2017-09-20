@@ -32,7 +32,7 @@ import org.osgi.framework.BundleContext;
  * @author Miroslav Wengner (@miragemiko)
  */
 public class Activator extends AbstractUIPlugin {
-	public static final String PLUGIN_ID = "se.hirt.coffe.visualization";
+	public static final String PLUGIN_ID = "com.robo4j.jmc.visualization";
 	public static final String STOP_ID = "stop";
 	private static Activator plugin;
 

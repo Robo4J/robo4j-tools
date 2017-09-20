@@ -17,7 +17,7 @@
 
 package com.robo4j.tools.camera;
 
-import com.robo4j.core.RoboBuilder;
+import com.robo4j.RoboBuilder;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -35,7 +35,6 @@ import java.net.URL;
  */
 public class CenterMain extends Application {
 
-    private static final String CLIENT_IP = "192.168.0.5";
     private static final String ROBO4J_CENTER_FXML = "robo4jCenter.fxml";
     private CenterFxController controller;
 
@@ -53,7 +52,7 @@ public class CenterMain extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(file);
         BorderPane myPane = fxmlLoader.load();
         controller = fxmlLoader.getController();
-        controller.init(builder, "http://"+ CLIENT_IP + ":8025/");
+        controller.init(builder);
 
         stage.setScene(new Scene(myPane, 800, 600));
         myPane.setStyle("-fx-border-color:black");

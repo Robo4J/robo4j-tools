@@ -17,9 +17,9 @@
 
 package com.robo4j.tools.camera.processor;
 
-import com.robo4j.core.RoboContext;
-import com.robo4j.core.RoboUnit;
-import com.robo4j.core.logging.SimpleLoggingUtil;
+import com.robo4j.RoboContext;
+import com.robo4j.RoboUnit;
+import com.robo4j.logging.SimpleLoggingUtil;
 import com.robo4j.socket.http.codec.CameraMessage;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -43,10 +43,13 @@ public class ImageProcessor extends RoboUnit<CameraMessage> {
 
     @Override
     public void onMessage(CameraMessage message) {
-        final byte[] bytes = Base64.getDecoder().decode(message.getImage());
-        if(imageView != null){
-            Image image = new Image(new ByteArrayInputStream(bytes));
-            imageView.setImage(image);
+        if(message.getImage() != null){
+            System.out.println(getClass() + "image is available");
+            final byte[] bytes = Base64.getDecoder().decode(message.getImage());
+            if(imageView != null){
+                Image image = new Image(new ByteArrayInputStream(bytes));
+                imageView.setImage(image);
+            }
         } else {
             SimpleLoggingUtil.error(getClass(), "no imageView");
         }
