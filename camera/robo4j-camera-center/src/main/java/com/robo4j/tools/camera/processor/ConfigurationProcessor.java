@@ -21,6 +21,7 @@ import com.robo4j.BlockingTrait;
 import com.robo4j.RoboContext;
 import com.robo4j.RoboUnit;
 import com.robo4j.logging.SimpleLoggingUtil;
+import com.robo4j.socket.http.dto.ResponseUnitDTO;
 import com.robo4j.socket.http.util.JsonUtil;
 import com.robo4j.tools.camera.RawUnit;
 import javafx.collections.FXCollections;
@@ -33,6 +34,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -65,8 +67,11 @@ public class ConfigurationProcessor extends RoboUnit<String> {
             br.close();
             connection.disconnect();
 
-            ObservableList<RawUnit> data = FXCollections.observableArrayList(JsonUtil.getMapNyJson(sb.toString()).entrySet().stream()
-                    .map(e -> new RawUnit(e.getKey(), e.getValue().toString())).collect(Collectors.toList()));
+
+            List<ResponseUnitDTO> unitDTOs = JsonUtil.getListByUnitJsonArray(sb.toString());
+
+            ObservableList<RawUnit> data = FXCollections.observableArrayList(unitDTOs.stream()
+                    .map(e -> new RawUnit(e.getId(), e.getState().getLocalizedName())).collect(Collectors.toList()));
 
 
             TableColumn roboUnitCol = new TableColumn("RoboUnit");

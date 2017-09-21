@@ -25,21 +25,28 @@ import com.robo4j.util.StringConstants;
 import com.robo4j.util.SystemUtil;
 import com.robo4j.tools.camera.processor.ConfigurationProcessor;
 import com.robo4j.tools.camera.processor.ImageProcessor;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Marcus Hirt (@hirt)
@@ -80,11 +87,11 @@ public class CenterFxController {
     void init(RoboBuilder roboBuilder) {
         ImageProcessor imageProcessor = new ImageProcessor(roboBuilder.getContext(), IMAGE_PROCESSOR1);
         imageProcessor.setImageView(cameraImageView);
-//        ConfigurationProcessor configurationProcessor = new ConfigurationProcessor(roboBuilder.getContext(), CONFIGURATION_PROCESSOR);
-//        configurationProcessor.setTableView(systemTV);
+        ConfigurationProcessor configurationProcessor = new ConfigurationProcessor(roboBuilder.getContext(), CONFIGURATION_PROCESSOR);
+        configurationProcessor.setTableView(systemTV);
         try {
             roboBuilder.add(imageProcessor);
-//            roboBuilder.add(configurationProcessor);
+            roboBuilder.add(configurationProcessor);
         } catch (RoboBuilderException e){
             SimpleLoggingUtil.error(getClass(), "error" + e);
         }
@@ -111,7 +118,7 @@ public class CenterFxController {
             buttonActive.setText(BUTTON_ACTIVATED);
 
             cameraActive = true;
-//            roboSystem.getReference("configurationProcessor").sendMessage(CAMERA_CLIENT);
+            roboSystem.getReference("configurationProcessor").sendMessage(CAMERA_CLIENT);
         }
     }
 
@@ -132,45 +139,4 @@ public class CenterFxController {
         System.out.println(SystemUtil.printStateReport(roboSystem));
         roboSystem.shutdown();
     }
-
-//    //Private Methods
-//    @SuppressWarnings("unchecked")
-//    private void createRoboSystemTableView(Map<String, Object> configurationMap) {
-//        ObservableList<RawUnit> data = FXCollections.observableArrayList(configurationMap.entrySet().stream()
-//                .map(e -> new RawUnit(e.getKey(), e.getValue().toString())).collect(Collectors.toList()));
-//
-//
-//        TableColumn roboUnitCol = new TableColumn("RoboUnit");
-//        roboUnitCol.setMinWidth(200);
-//        roboUnitCol.setCellValueFactory(
-//                new PropertyValueFactory<RawUnit, String>("name"));
-//
-//        TableColumn stateCol = new TableColumn("Status");
-//        stateCol.setMinWidth(100);
-//        stateCol.setCellValueFactory(
-//                new PropertyValueFactory<RawUnit, String>("state"));
-//
-//        systemTV.setItems(data);
-//        systemTV.getColumns().addAll(roboUnitCol, stateCol);
-//    }
-
-//    private Map<String, Object> getSystemConfigurationMap(String address) {
-//        try {
-//            final URL apiEndpoint = new URL(address);
-//            final HttpURLConnection connection = (HttpURLConnection) apiEndpoint.openConnection();
-//            connection.setRequestMethod("GET");
-//            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-//            StringBuilder sb = new StringBuilder();
-//            String line;
-//            while ((line = br.readLine()) != null) {
-//                sb.append(line);
-//            }
-//            br.close();
-//            connection.disconnect();
-//            return JsonUtil.getMapNyJson(sb.toString());
-//        } catch (IOException e) {
-//            SimpleLoggingUtil.error(getClass(), "error: " + e);
-//        }
-//        return Collections.EMPTY_MAP;
-//    }
 }

@@ -44,7 +44,6 @@ public class ImageProcessor extends RoboUnit<CameraMessage> {
     @Override
     public void onMessage(CameraMessage message) {
         if(message.getImage() != null){
-            System.out.println(getClass() + "image is available");
             final byte[] bytes = Base64.getDecoder().decode(message.getImage());
             if(imageView != null){
                 Image image = new Image(new ByteArrayInputStream(bytes));
