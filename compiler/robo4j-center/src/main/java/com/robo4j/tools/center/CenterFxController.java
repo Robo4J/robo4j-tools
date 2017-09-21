@@ -29,10 +29,17 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.robo4j.RoboBuilder;
+import com.robo4j.RoboBuilderException;
+import com.robo4j.RoboContext;
+import com.robo4j.logging.SimpleLoggingUtil;
+import com.robo4j.socket.http.dto.ResponseUnitDTO;
 import com.robo4j.tools.center.enums.DeviceType;
 import com.robo4j.tools.center.enums.SupportedConfigElements;
 import com.robo4j.tools.center.model.CenterProperties;
 
+import com.robo4j.tools.center.processor.ConfigurationProcessor;
+import com.robo4j.util.SystemUtil;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -41,6 +48,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -56,6 +64,8 @@ public class CenterFxController {
 
     private static final String DEFAULT_OPTION = "Select";
     private static final String NEW_LINE = "\n";
+    private static final String CONFIGURATION_PROCESSOR = "configurationProcessor";
+    private static final String LEGO_CLIENT = "http://10.0.1.1:8025/";
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -117,9 +127,13 @@ public class CenterFxController {
 	@FXML
     private Label passwordL;
 
-	private List<TextField> mainTextFields;
+    @FXML
+    private TableView<ResponseUnitDTO> systemTV;
 
-	public void init(CenterProperties properties) throws Exception {
+	private List<TextField> mainTextFields;
+    private RoboContext roboSystem;
+
+	public void init(CenterProperties properties, RoboBuilder roboBuilder) throws Exception {
 
 	    mainTextFields = Arrays.asList(mainPackageTF, mainClassTF, roboLibTF, outDirTF);
 	    if(properties.isSet()){
@@ -134,7 +148,25 @@ public class CenterFxController {
                 adjustEditableMainFields(false);
             }
         });
+
+        ConfigurationProcessor configurationProcessor = new ConfigurationProcessor(roboBuilder.getContext(), CONFIGURATION_PROCESSOR);
+        configurationProcessor.setTableView(systemTV);
+        try {
+            roboBuilder.add(configurationProcessor);
+        } catch (RoboBuilderException e){
+            SimpleLoggingUtil.error(getClass(), "error" + e);
+        }
+        this.roboSystem = roboBuilder.build();
+        roboSystem.start();
+        roboSystem.getReference("configurationProcessor").sendMessage(LEGO_CLIENT);
+
 	}
+
+    public void stop(){
+        System.out.println("State after stop:");
+        System.out.println(SystemUtil.printStateReport(roboSystem));
+        roboSystem.shutdown();
+    }
 
 	@FXML
 	private void buttonProcessClick(ActionEvent  event){

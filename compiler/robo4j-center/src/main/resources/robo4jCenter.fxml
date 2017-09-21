@@ -6,6 +6,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.image.Image?>
@@ -142,6 +143,11 @@
                         <TextFlow fx:id="outputProcessTF" prefHeight="162.0" prefWidth="402.0" />
                      </content>
                 </Tab>
+                  <Tab text="System">
+                     <content>
+                        <TableView fx:id="systemTV" editable="true" prefHeight="248.0" prefWidth="309.0" />
+                     </content>
+                  </Tab>
               </tabs>
             </TabPane>
          </children>
