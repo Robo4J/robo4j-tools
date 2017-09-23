@@ -87,6 +87,7 @@ public class ConfigurationProcessor extends RoboUnit<String> {
             stateCol.setCellValueFactory(
                     new PropertyValueFactory<ResponseUnitDTO, String>("state"));
 
+            tableView.getColumns().clear();
             tableView.setItems(data);
             tableView.getColumns().addAll(roboUnitCol, stateCol);
         } catch (Exception e){

@@ -44,12 +44,15 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -132,6 +135,7 @@ public class CenterFxController {
 
 	private List<TextField> mainTextFields;
     private RoboContext roboSystem;
+    private boolean systemTabSelected = false;
 
 	public void init(CenterProperties properties, RoboBuilder roboBuilder) throws Exception {
 
@@ -158,8 +162,6 @@ public class CenterFxController {
         }
         this.roboSystem = roboBuilder.build();
         roboSystem.start();
-        roboSystem.getReference("configurationProcessor").sendMessage(LEGO_CLIENT);
-
 	}
 
     public void stop(){
@@ -180,6 +182,15 @@ public class CenterFxController {
             outputProcessTF.getChildren().add(text);
         });
         statusTF.setText("DONE");
+    }
+
+    @FXML
+    private void systemChangeTab(Event event){
+        Tab selectedTab = (Tab) event.getTarget();
+        if(!systemTabSelected && selectedTab.getId().equals("systemTab")){
+            systemTabSelected = true;
+            roboSystem.getReference(CONFIGURATION_PROCESSOR).sendMessage(LEGO_CLIENT);
+        }
     }
 
     //Private Methods

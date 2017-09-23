@@ -20,7 +20,7 @@ task fatJar(type: Jar) {
     manifest {
         attributes 'Implementation-Title': 'robo4j-center',
                 'Implementation-Version': version,
-                'Main-Class': 'com.robo4j.tools.center.CenterMain'
+                'Main-Class': 'com.robo4j.tools.center.CenterFx'
     }
     baseName = 'robo4j-center'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }

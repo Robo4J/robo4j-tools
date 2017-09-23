@@ -105,7 +105,7 @@
             </VBox>
             <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="325.0" prefWidth="409.0" tabClosingPolicy="UNAVAILABLE" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="1" GridPane.valignment="TOP">
               <tabs>
-                <Tab text="Project">
+                <Tab fx:id="projectTab" text="Project">
                      <content>
                         <GridPane prefHeight="145.0" prefWidth="433.0">
                           <columnConstraints>
@@ -138,12 +138,12 @@
                         </GridPane>
                      </content>
                 </Tab>
-                <Tab text="Advanced">
+                <Tab fx:id="advancedTab" text="Advanced">
                      <content>
                         <TextFlow fx:id="outputProcessTF" prefHeight="162.0" prefWidth="402.0" />
                      </content>
                 </Tab>
-                  <Tab text="System">
+                  <Tab fx:id="systemTab" onSelectionChanged="#systemChangeTab" text="System">
                      <content>
                         <TableView fx:id="systemTV" editable="true" prefHeight="248.0" prefWidth="309.0" />
                      </content>

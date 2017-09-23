@@ -22,10 +22,14 @@ package com.robo4j.tools.center;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
 
 import com.robo4j.RoboBuilder;
 import com.robo4j.tools.center.builder.CenterBuilder;
 
+import com.robo4j.tools.center.model.CenterProperties;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -42,9 +46,20 @@ import javafx.stage.Stage;
 public class CenterFx extends Application {
 
 	private static final String ROBO4J_CENTER_FXML = "robo4jCenter.fxml";
-	private CenterFxController controller;
+	private static final String ROBO4J_CENTER_CONFIGURATION = "robo4jCenter.xml";
+	private static String centerConfigurationFileName;
 
+	private CenterFxController controller;
 	public static void main(String[] args) throws Exception {
+		switch (args.length){
+			case 1:
+				centerConfigurationFileName = args[0];
+				break;
+			default:
+				centerConfigurationFileName = ROBO4J_CENTER_CONFIGURATION;
+				break;
+		}
+
 		Application.launch(args);
 	}
 
@@ -52,13 +67,16 @@ public class CenterFx extends Application {
 	public void start(Stage stage) throws Exception {
 		RoboBuilder roboBuilder = new RoboBuilder();
 		URL file = Thread.currentThread().getContextClassLoader().getResource(ROBO4J_CENTER_FXML);
-		InputStream isConfig = Thread.currentThread().getContextClassLoader().getResourceAsStream("robo4jCenter.xml");
+		InputStream isConfig = centerConfigurationFileName == null ?
+				Thread.currentThread().getContextClassLoader().getResourceAsStream(centerConfigurationFileName) :
+				Files.newInputStream(Paths.get(centerConfigurationFileName));
 		CenterBuilder builder = new CenterBuilder().add(isConfig);
 
 		FXMLLoader fxmlLoader = new FXMLLoader(file);
 		BorderPane myPane = fxmlLoader.load();
 		controller = fxmlLoader.getController();
-		controller.init(builder.build(), roboBuilder);
+		CenterProperties properties = builder.build();
+		controller.init(properties, roboBuilder);
 		stage.setScene(new Scene(myPane, 600, 400));
 		myPane.setStyle("-fx-border-color:black");
 		initializeStage(stage);

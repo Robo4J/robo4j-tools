@@ -26,6 +26,7 @@
     <jarFileName>Number42Robot</jarFileName>
     <centerActions>upload,compile</centerActions>
     <deviceIP>10.0.1.1</deviceIP>
+    <devicePort>8025</devicePort>
     <deviceType>lego</deviceType>
     <devicePass>no</devicePass>
 </robo4jCenter>
