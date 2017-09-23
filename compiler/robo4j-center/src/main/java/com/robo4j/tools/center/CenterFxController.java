@@ -68,12 +68,12 @@ public class CenterFxController {
     private static final String DEFAULT_OPTION = "Select";
     private static final String NEW_LINE = "\n";
     private static final String CONFIGURATION_PROCESSOR = "configurationProcessor";
-    private static final String LEGO_CLIENT = "http://10.0.1.1:8025/";
-
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @FXML
 	private TextField deviceIpTextField;
+
+    @FXML
+    private TextField devicePortTextField;
 
 	@FXML
 	private ComboBox<String> deviceTypeCBox;
@@ -136,6 +136,7 @@ public class CenterFxController {
 	private List<TextField> mainTextFields;
     private RoboContext roboSystem;
     private boolean systemTabSelected = false;
+    private String systemClientUrl;
 
 	public void init(CenterProperties properties, RoboBuilder roboBuilder) throws Exception {
 
@@ -189,7 +190,7 @@ public class CenterFxController {
         Tab selectedTab = (Tab) event.getTarget();
         if(!systemTabSelected && selectedTab.getId().equals("systemTab")){
             systemTabSelected = true;
-            roboSystem.getReference(CONFIGURATION_PROCESSOR).sendMessage(LEGO_CLIENT);
+            roboSystem.getReference(CONFIGURATION_PROCESSOR).sendMessage(systemClientUrl);
         }
     }
 
@@ -208,6 +209,8 @@ public class CenterFxController {
         outDirTF.setText(properties.getOutDirectory());
         jarNameTF.setText(properties.getJarFileName());
         deviceIpTextField.setText(properties.getDeviceIP());
+        devicePortTextField.setText(properties.getDevicePort());
+        systemClientUrl = "http://" + properties.getDeviceIP() + ":" + properties.getDevicePort() ;
         DeviceType deviceType = DeviceType.getDeviceByName(properties.getDeviceType());
         switch (deviceType){
             case RPI:

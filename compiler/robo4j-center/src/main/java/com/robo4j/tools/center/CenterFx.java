@@ -56,7 +56,7 @@ public class CenterFx extends Application {
 				centerConfigurationFileName = args[0];
 				break;
 			default:
-				centerConfigurationFileName = ROBO4J_CENTER_CONFIGURATION;
+				centerConfigurationFileName = null;
 				break;
 		}
 
@@ -68,7 +68,7 @@ public class CenterFx extends Application {
 		RoboBuilder roboBuilder = new RoboBuilder();
 		URL file = Thread.currentThread().getContextClassLoader().getResource(ROBO4J_CENTER_FXML);
 		InputStream isConfig = centerConfigurationFileName == null ?
-				Thread.currentThread().getContextClassLoader().getResourceAsStream(centerConfigurationFileName) :
+				Thread.currentThread().getContextClassLoader().getResourceAsStream(ROBO4J_CENTER_CONFIGURATION) :
 				Files.newInputStream(Paths.get(centerConfigurationFileName));
 		CenterBuilder builder = new CenterBuilder().add(isConfig);
 

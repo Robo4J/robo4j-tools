@@ -25,7 +25,10 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Camera Utility
@@ -35,10 +38,20 @@ import java.net.URL;
  */
 public class CenterMain extends Application {
 
+    private static final String ROBO4J_CONFIGURATION = "robo4jUnits.xml";
     private static final String ROBO4J_CENTER_FXML = "robo4jCenter.fxml";
     private CenterFxController controller;
+    private static String configurationFileName;
 
     public static void main(String[] args) throws Exception {
+        switch (args.length) {
+            case 1:
+                configurationFileName = args[0];
+                break;
+            default:
+                System.out.println("default configuration");
+                break;
+        }
         Application.launch(args);
     }
 
@@ -46,8 +59,13 @@ public class CenterMain extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         URL file = Thread.currentThread().getContextClassLoader().getResource(ROBO4J_CENTER_FXML);
+
+        InputStream isConfig = configurationFileName == null ?
+                Thread.currentThread().getContextClassLoader().getResourceAsStream(ROBO4J_CONFIGURATION) :
+                Files.newInputStream(Paths.get(configurationFileName));
+
         RoboBuilder builder = new RoboBuilder();
-        builder.add(Thread.currentThread().getContextClassLoader().getResourceAsStream("robo4jUnits.xml"));
+        builder.add(isConfig);
 
         FXMLLoader fxmlLoader = new FXMLLoader(file);
         BorderPane myPane = fxmlLoader.load();
