@@ -21,32 +21,25 @@ import com.robo4j.RoboBuilder;
 import com.robo4j.RoboBuilderException;
 import com.robo4j.RoboContext;
 import com.robo4j.logging.SimpleLoggingUtil;
-import com.robo4j.util.StringConstants;
-import com.robo4j.util.SystemUtil;
+import com.robo4j.tools.camera.model.CameraCenterProperties;
 import com.robo4j.tools.camera.processor.ConfigurationProcessor;
 import com.robo4j.tools.camera.processor.ImageProcessor;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import com.robo4j.util.SystemUtil;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author Marcus Hirt (@hirt)
@@ -61,11 +54,11 @@ public class CenterFxController {
     private static final String IMAGE_FORMAT = "png";
     private static final String IMAGE_PROCESSOR1 = "imageProcessor";
     private static final String CONFIGURATION_PROCESSOR = "configurationProcessor";
-    private static final String CAMERA_CLIENT = "http://192.168.178.67:8025/";
     public static final String DEFAULT_NONAME = "noname";
 
     private RoboContext roboSystem;
     private boolean cameraActive = false;
+    private String cameraClientUrl;
 
     @FXML
     private Button buttonActive;
@@ -84,7 +77,7 @@ public class CenterFxController {
     private TableView<RawUnit> systemTV;
 
 
-    void init(RoboBuilder roboBuilder) {
+    void init(CameraCenterProperties properties, RoboBuilder roboBuilder) {
         ImageProcessor imageProcessor = new ImageProcessor(roboBuilder.getContext(), IMAGE_PROCESSOR1);
         imageProcessor.setImageView(cameraImageView);
         ConfigurationProcessor configurationProcessor = new ConfigurationProcessor(roboBuilder.getContext(), CONFIGURATION_PROCESSOR);
@@ -92,10 +85,12 @@ public class CenterFxController {
         try {
             roboBuilder.add(imageProcessor);
             roboBuilder.add(configurationProcessor);
-        } catch (RoboBuilderException e){
+        } catch (RoboBuilderException e) {
             SimpleLoggingUtil.error(getClass(), "error" + e);
         }
         this.roboSystem = roboBuilder.build();
+
+        cameraClientUrl = "http://" + properties.getDeviceIP() + ":" + properties.getDevicePort();
     }
 
     @FXML
@@ -118,7 +113,7 @@ public class CenterFxController {
             buttonActive.setText(BUTTON_ACTIVATED);
 
             cameraActive = true;
-            roboSystem.getReference("configurationProcessor").sendMessage(CAMERA_CLIENT);
+            roboSystem.getReference("configurationProcessor").sendMessage(cameraClientUrl);
         }
     }
 
@@ -134,7 +129,7 @@ public class CenterFxController {
         }
     }
 
-    public void stop(){
+    public void stop() {
         System.out.println("State after stop:");
         System.out.println(SystemUtil.printStateReport(roboSystem));
         roboSystem.shutdown();

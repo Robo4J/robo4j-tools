@@ -18,6 +18,8 @@
 package com.robo4j.tools.camera;
 
 import com.robo4j.RoboBuilder;
+import com.robo4j.tools.camera.builder.CenterBuilder;
+import com.robo4j.tools.camera.model.CameraCenterProperties;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -39,17 +41,27 @@ import java.nio.file.Paths;
 public class CenterMain extends Application {
 
     private static final String ROBO4J_CONFIGURATION = "robo4jUnits.xml";
+    private static final String CAM_CENTER_CONFIGURATION = "robo4jConfigCenter.xml";
     private static final String ROBO4J_CENTER_FXML = "robo4jCenter.fxml";
+    public static final int ROBO4J_CONFIG = 1;
+    public static final int ROBO4J_CENTER_CONFIG = 2;
     private CenterFxController controller;
-    private static String configurationFileName;
+    private static String robo4jConfigFileName;
+    private static String cameraCenterConfigFileName;
 
     public static void main(String[] args) throws Exception {
         switch (args.length) {
-            case 1:
-                configurationFileName = args[0];
+            case ROBO4J_CONFIG:
+                System.out.println("configuration: robo4j");
+                robo4jConfigFileName = args[0];
+                break;
+            case ROBO4J_CENTER_CONFIG:
+                System.out.println("configuration: robo4j, center");
+                robo4jConfigFileName = args[0];
+                cameraCenterConfigFileName = args[1];
                 break;
             default:
-                System.out.println("default configuration");
+                System.out.println("configuration: default");
                 break;
         }
         Application.launch(args);
@@ -60,17 +72,22 @@ public class CenterMain extends Application {
     public void start(Stage stage) throws Exception {
         URL file = Thread.currentThread().getContextClassLoader().getResource(ROBO4J_CENTER_FXML);
 
-        InputStream isConfig = configurationFileName == null ?
-                Thread.currentThread().getContextClassLoader().getResourceAsStream(ROBO4J_CONFIGURATION) :
-                Files.newInputStream(Paths.get(configurationFileName));
+        final InputStream robo4jConfig = robo4jConfigFileName == null ?
+                getClass().getClassLoader().getResourceAsStream(ROBO4J_CONFIGURATION) :
+                Files.newInputStream(Paths.get(robo4jConfigFileName));
 
-        RoboBuilder builder = new RoboBuilder();
-        builder.add(isConfig);
+        final InputStream camCenterConfig = cameraCenterConfigFileName == null ?
+                getClass().getClassLoader().getResourceAsStream(CAM_CENTER_CONFIGURATION) :
+                Files.newInputStream(Paths.get(cameraCenterConfigFileName));
 
-        FXMLLoader fxmlLoader = new FXMLLoader(file);
+        final RoboBuilder builder = new RoboBuilder();
+        builder.add(robo4jConfig);
+        CameraCenterProperties properties = new CenterBuilder().add(camCenterConfig).build();
+
+        final FXMLLoader fxmlLoader = new FXMLLoader(file);
         BorderPane myPane = fxmlLoader.load();
         controller = fxmlLoader.getController();
-        controller.init(builder);
+        controller.init(properties, builder);
 
         stage.setScene(new Scene(myPane, 800, 600));
         myPane.setStyle("-fx-border-color:black");
