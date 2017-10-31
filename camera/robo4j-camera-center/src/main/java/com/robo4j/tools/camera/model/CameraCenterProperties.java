@@ -41,6 +41,10 @@ public final class CameraCenterProperties {
         return map.get(SupportedConfigElements.DEVICE_PORT);
     }
 
+    public String getTitle(){
+        return map.get(SupportedConfigElements.TITLE);
+    }
+
     @Override
     public String toString() {
         return "CameraCenterProperties{" +

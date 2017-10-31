@@ -32,6 +32,7 @@ public enum SupportedConfigElements {
     //@formatter:off
     DEVICE_IP       ("deviceIp"),
     DEVICE_PORT     ("devicePort"),
+    TITLE           ("title"),
     ;
     //@formatter:on
 

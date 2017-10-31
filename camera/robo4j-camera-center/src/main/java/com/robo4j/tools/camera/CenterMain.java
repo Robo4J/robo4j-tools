@@ -89,9 +89,10 @@ public class CenterMain extends Application {
         controller = fxmlLoader.getController();
         controller.init(properties, builder);
 
+//        stage.setScene(new Scene(myPane, 800, 600));
         stage.setScene(new Scene(myPane, 800, 600));
         myPane.setStyle("-fx-border-color:black");
-        initializeStage(stage);
+        CameraCenterUtil.initializeStage(stage, properties);
         stage.show();
     }
 
@@ -101,16 +102,4 @@ public class CenterMain extends Application {
         controller.stop();
     }
 
-    private void initializeStage(Stage stage) {
-        stage.setTitle("Robo4J Center");
-        stage.getIcons().add(createIcon("robo4j256.png"));
-        stage.getIcons().add(createIcon("robo4j128.png"));
-        stage.getIcons().add(createIcon("robo4j64.png"));
-        stage.getIcons().add(createIcon("robo4j32.png"));
-        stage.getIcons().add(createIcon("robo4j16.png"));
-    }
-
-    private Image createIcon(String iconName) {
-        return new Image(getClass().getClassLoader().getResourceAsStream(iconName));
-    }
 }

@@ -1,0 +1,5 @@
+<robo4jCameraCenter>
+    <title>CameraBoot</title>
+    <deviceIP>127.0.0.1</deviceIP>
+    <devicePort>8029</devicePort>
+</robo4jCameraCenter>

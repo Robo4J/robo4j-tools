@@ -40,6 +40,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Collectors;
 
 /**
  * @author Marcus Hirt (@hirt)
@@ -54,7 +55,7 @@ public class CenterFxController {
     private static final String IMAGE_FORMAT = "png";
     private static final String IMAGE_PROCESSOR1 = "imageProcessor";
     private static final String CONFIGURATION_PROCESSOR = "configurationProcessor";
-    public static final String DEFAULT_NONAME = "noname";
+    private static final String DEFAULT_NONAME = "noname";
 
     private RoboContext roboSystem;
     private boolean cameraActive = false;
@@ -80,11 +81,11 @@ public class CenterFxController {
     void init(CameraCenterProperties properties, RoboBuilder roboBuilder) {
         ImageProcessor imageProcessor = new ImageProcessor(roboBuilder.getContext(), IMAGE_PROCESSOR1);
         imageProcessor.setImageView(cameraImageView);
-        ConfigurationProcessor configurationProcessor = new ConfigurationProcessor(roboBuilder.getContext(), CONFIGURATION_PROCESSOR);
-        configurationProcessor.setTableView(systemTV);
+//        ConfigurationProcessor configurationProcessor = new ConfigurationProcessor(roboBuilder.getContext(), CONFIGURATION_PROCESSOR);
+//        configurationProcessor.setTableView(systemTV);
         try {
             roboBuilder.add(imageProcessor);
-            roboBuilder.add(configurationProcessor);
+//            roboBuilder.add(configurationProcessor);
         } catch (RoboBuilderException e) {
             SimpleLoggingUtil.error(getClass(), "error" + e);
         }
@@ -107,14 +108,19 @@ public class CenterFxController {
     private void buttonActionClick(ActionEvent event) {
         if (cameraActive) {
             SimpleLoggingUtil.print(getClass(), "scheduler active");
+            sendRequestForClientConfiguration();
         } else {
             roboSystem.start();
             stateL.setText(LABEL_READY);
             buttonActive.setText(BUTTON_ACTIVATED);
 
             cameraActive = true;
-            roboSystem.getReference("configurationProcessor").sendMessage(cameraClientUrl);
+            sendRequestForClientConfiguration();
         }
+    }
+
+    private void sendRequestForClientConfiguration(){
+//        roboSystem.getReference("configurationProcessor").sendMessage(cameraClientUrl);
     }
 
     @FXML
