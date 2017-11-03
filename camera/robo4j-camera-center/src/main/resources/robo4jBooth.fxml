@@ -64,7 +64,11 @@
                            <children>
                               <Label text="Name:" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
                               <TextField fx:id="imageNameTextField" text="boothShot" GridPane.columnIndex="1" />
-                              <Button fx:id="saveButton" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#saveButtonAction" text="Save" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                 <children>
+                                    <Button fx:id="saveButton" alignment="TOP_LEFT" layoutX="48.0" layoutY="1.0" mnemonicParsing="false" onAction="#saveButtonAction" text="Save" />
+                                 </children>
+                              </Pane>
                            </children>
                         </GridPane>
                      </content>
