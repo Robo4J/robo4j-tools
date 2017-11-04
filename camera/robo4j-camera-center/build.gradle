@@ -17,7 +17,7 @@ apply plugin: 'org.javafxports.jfxmobile'
 
 apply from: 'libraries.gradle'
 
-mainClassName = "com.robo4j.tools.camera.CamBoothMain"
+mainClassName = "com.robo4j.tools.camera.CenterMain"
 
 version "${robo4jVersion}"
 

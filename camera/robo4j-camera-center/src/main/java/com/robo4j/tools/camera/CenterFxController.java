@@ -81,11 +81,11 @@ public class CenterFxController {
     void init(CameraCenterProperties properties, RoboBuilder roboBuilder) {
         ImageProcessor imageProcessor = new ImageProcessor(roboBuilder.getContext(), IMAGE_PROCESSOR1);
         imageProcessor.setImageView(cameraImageView);
-//        ConfigurationProcessor configurationProcessor = new ConfigurationProcessor(roboBuilder.getContext(), CONFIGURATION_PROCESSOR);
-//        configurationProcessor.setTableView(systemTV);
+        ConfigurationProcessor configurationProcessor = new ConfigurationProcessor(roboBuilder.getContext(), CONFIGURATION_PROCESSOR);
+        configurationProcessor.setTableView(systemTV);
         try {
             roboBuilder.add(imageProcessor);
-//            roboBuilder.add(configurationProcessor);
+            roboBuilder.add(configurationProcessor);
         } catch (RoboBuilderException e) {
             SimpleLoggingUtil.error(getClass(), "error" + e);
         }
@@ -110,7 +110,7 @@ public class CenterFxController {
             SimpleLoggingUtil.print(getClass(), "scheduler active");
             sendRequestForClientConfiguration();
         } else {
-            roboSystem.start();
+            start();
             stateL.setText(LABEL_READY);
             buttonActive.setText(BUTTON_ACTIVATED);
 
@@ -120,7 +120,7 @@ public class CenterFxController {
     }
 
     private void sendRequestForClientConfiguration(){
-//        roboSystem.getReference("configurationProcessor").sendMessage(cameraClientUrl);
+        roboSystem.getReference("configurationProcessor").sendMessage(cameraClientUrl);
     }
 
     @FXML
@@ -137,7 +137,12 @@ public class CenterFxController {
 
     public void stop() {
         System.out.println("State after stop:");
-        System.out.println(SystemUtil.printStateReport(roboSystem));
         roboSystem.shutdown();
+        System.out.println(SystemUtil.printStateReport(roboSystem));
+    }
+
+    private void start(){
+        roboSystem.start();
+        System.out.println(SystemUtil.printStateReport(roboSystem));
     }
 }
