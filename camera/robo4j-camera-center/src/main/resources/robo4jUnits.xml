@@ -9,4 +9,12 @@
             <value name="targetUnits" type="String">{"imageProcessor":"POST"}</value>
         </config>
     </roboUnit>
+    <roboUnit id="httpClient">
+        <class>com.robo4j.socket.http.units.HttpClientDescriptorUnit</class>
+        <config name="com.robo4j.root">
+            <value name="address" type="String">192.168.0.2</value>
+            <value name="port" type="int">8035</value>
+            <value name="targetUnits" type="String">[{"":["GET", "configurationProcessor"]}]</value>
+        </config>
+    </roboUnit>
 </robo4j>

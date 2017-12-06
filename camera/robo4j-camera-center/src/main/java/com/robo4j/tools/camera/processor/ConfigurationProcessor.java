@@ -30,10 +30,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,25 +51,9 @@ public class ConfigurationProcessor extends RoboUnit<String> {
     public void onMessage(String message) {
 
         try {
-            final URL apiEndpoint = new URL(message);
-            final HttpURLConnection connection = (HttpURLConnection) apiEndpoint.openConnection();
-            connection.setRequestMethod("GET");
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-            br.close();
-            connection.disconnect();
-
-
-            List<ResponseUnitDTO> unitDTOs = JsonUtil.getListByUnitJsonArray(sb.toString());
-
+            List<ResponseUnitDTO> unitDTOs = JsonUtil.convertJsonToResponseUnitList(message);
             ObservableList<RawUnit> data = FXCollections.observableArrayList(unitDTOs.stream()
                     .map(e -> new RawUnit(e.getId(), e.getState().getLocalizedName())).collect(Collectors.toList()));
-
-
             TableColumn roboUnitCol = new TableColumn("RoboUnit");
             roboUnitCol.setMinWidth(200);
             roboUnitCol.setCellValueFactory(
@@ -86,13 +66,13 @@ public class ConfigurationProcessor extends RoboUnit<String> {
 
             tableView.setItems(data);
             tableView.getColumns().addAll(roboUnitCol, stateCol);
-        } catch (Exception e){
+        } catch (Exception e) {
             SimpleLoggingUtil.error(getClass(), "error: " + e);
         }
 
     }
 
-    public void setTableView(TableView<RawUnit> tableView){
+    public void setTableView(TableView<RawUnit> tableView) {
         this.tableView = tableView;
     }
 }
