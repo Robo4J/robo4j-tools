@@ -24,12 +24,10 @@ import com.robo4j.logging.SimpleLoggingUtil;
 import com.robo4j.socket.http.HttpMethod;
 import com.robo4j.socket.http.HttpVersion;
 import com.robo4j.socket.http.message.HttpRequestDescriptor;
-import com.robo4j.socket.http.util.JsonUtil;
-import com.robo4j.socket.http.util.RoboHttpUtils;
+import com.robo4j.socket.http.util.RequestDenominator;
 import com.robo4j.tools.camera.model.CameraCenterProperties;
 import com.robo4j.tools.camera.processor.ConfigurationProcessor;
 import com.robo4j.tools.camera.processor.ImageProcessor;
-import com.robo4j.util.StringConstants;
 import com.robo4j.util.SystemUtil;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -46,7 +44,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 
 /**
  * @author Marcus Hirt (@hirt)
@@ -126,11 +123,8 @@ public class CenterFxController {
     }
 
     private void sendRequestForClientConfiguration() {
-        final HttpRequestDescriptor request = new HttpRequestDescriptor(new HashMap<>(), HttpMethod.GET,
-                HttpVersion.HTTP_1_1.getValue(), JsonUtil.DEFAULT_PATH);
-        final String message = RoboHttpUtils.createRequest(HttpMethod.GET, RoboHttpUtils.createHostWithPort(properties.getDeviceIP(),
-                properties.getDevicePort()), JsonUtil.DEFAULT_PATH, StringConstants.EMPTY);
-        request.addMessage(message);
+        final RequestDenominator denominator = new RequestDenominator(HttpMethod.GET, HttpVersion.HTTP_1_1);
+        final HttpRequestDescriptor request = new HttpRequestDescriptor(denominator);
         roboSystem.getReference("httpClient").sendMessage(request);
     }
 
