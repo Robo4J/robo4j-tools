@@ -21,10 +21,12 @@ import com.robo4j.RoboBuilder;
 import com.robo4j.RoboBuilderException;
 import com.robo4j.RoboContext;
 import com.robo4j.logging.SimpleLoggingUtil;
+import com.robo4j.socket.http.HttpHeaderFieldNames;
 import com.robo4j.socket.http.HttpMethod;
 import com.robo4j.socket.http.HttpVersion;
 import com.robo4j.socket.http.message.HttpRequestDescriptor;
 import com.robo4j.socket.http.util.RequestDenominator;
+import com.robo4j.socket.http.util.RoboHttpUtils;
 import com.robo4j.tools.camera.model.CameraCenterProperties;
 import com.robo4j.tools.camera.processor.ConfigurationProcessor;
 import com.robo4j.tools.camera.processor.ImageProcessor;
@@ -125,6 +127,8 @@ public class CenterFxController {
     private void sendRequestForClientConfiguration() {
         final RequestDenominator denominator = new RequestDenominator(HttpMethod.GET, HttpVersion.HTTP_1_1);
         final HttpRequestDescriptor request = new HttpRequestDescriptor(denominator);
+        request.addHeaderElement(HttpHeaderFieldNames.HOST, RoboHttpUtils.createHost("192.168.0.14", 8035));
+        request.addCallback("configurationProcessor");
         roboSystem.getReference("httpClient").sendMessage(request);
     }
 
