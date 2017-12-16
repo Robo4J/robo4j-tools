@@ -23,7 +23,8 @@ import com.robo4j.RoboUnit;
 import com.robo4j.logging.SimpleLoggingUtil;
 import com.robo4j.socket.http.dto.ResponseUnitDTO;
 import com.robo4j.socket.http.util.JsonUtil;
-import com.robo4j.tools.camera.RawUnit;
+import com.robo4j.tools.camera.model.RawElement;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
 @BlockingTrait
 public class ConfigurationProcessor extends RoboUnit<String> {
 
-    private TableView<RawUnit> tableView;
+    private TableView<RawElement> tableView;
 
     public ConfigurationProcessor(RoboContext context, String id) {
         super(String.class, context, id);
@@ -51,28 +52,31 @@ public class ConfigurationProcessor extends RoboUnit<String> {
     public void onMessage(String message) {
 
         try {
-            List<ResponseUnitDTO> unitDTOs = JsonUtil.convertJsonToResponseUnitList(message);
-            ObservableList<RawUnit> data = FXCollections.observableArrayList(unitDTOs.stream()
-                    .map(e -> new RawUnit(e.getId(), e.getState().getLocalizedName())).collect(Collectors.toList()));
-            TableColumn roboUnitCol = new TableColumn("RoboUnit");
-            roboUnitCol.setMinWidth(200);
-            roboUnitCol.setCellValueFactory(
-                    new PropertyValueFactory<RawUnit, String>("name"));
+            if(Bindings.isEmpty(tableView.getItems()).get()){
+                List<ResponseUnitDTO> unitDTOs = JsonUtil.convertJsonToResponseUnitList(message);
+                ObservableList<RawElement> data = FXCollections.observableArrayList(unitDTOs.stream()
+                        .map(e -> new RawElement(e.getId(), e.getState().getLocalizedName())).collect(Collectors.toList()));
+                TableColumn roboUnitCol = new TableColumn("RoboUnit");
+                roboUnitCol.setMinWidth(200);
+                roboUnitCol.setCellValueFactory(
+                        new PropertyValueFactory<RawElement, String>("name"));
 
-            TableColumn stateCol = new TableColumn("Status");
-            stateCol.setMinWidth(100);
-            stateCol.setCellValueFactory(
-                    new PropertyValueFactory<RawUnit, String>("state"));
+                TableColumn stateCol = new TableColumn("Status");
+                stateCol.setMinWidth(100);
+                stateCol.setCellValueFactory(
+                        new PropertyValueFactory<RawElement, String>("state"));
 
-            tableView.setItems(data);
-            tableView.getColumns().addAll(roboUnitCol, stateCol);
+                tableView.setItems(data);
+                tableView.getColumns().addAll(roboUnitCol, stateCol);
+            }
+
         } catch (Exception e) {
             SimpleLoggingUtil.error(getClass(), "error: " + e);
         }
 
     }
 
-    public void setTableView(TableView<RawUnit> tableView) {
+    public void setTableView(TableView<RawElement> tableView) {
         this.tableView = tableView;
     }
 }

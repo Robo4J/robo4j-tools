@@ -20,6 +20,7 @@ package com.robo4j.tools.camera;
 import com.robo4j.RoboBuilder;
 import com.robo4j.tools.camera.builder.CenterBuilder;
 import com.robo4j.tools.camera.model.CameraCenterProperties;
+import com.robo4j.tools.camera.utils.CameraCenterUtils;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -61,7 +62,7 @@ public class CamBoothMain extends Application {
 
         stage.setScene(new Scene(myPane, 800, 480));
         myPane.setStyle("-fx-border-color:black");
-        CameraCenterUtil.initializeStage(stage, properties);
+        CameraCenterUtils.initializeStage(stage, properties);
         stage.show();
     }
 

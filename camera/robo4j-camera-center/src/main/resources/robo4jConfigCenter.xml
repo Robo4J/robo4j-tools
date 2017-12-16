@@ -1,5 +1,5 @@
 <robo4jCameraCenter>
     <title>Camera Center</title>
-    <deviceIP>192.168.0.2</deviceIP>
+    <deviceIP>192.168.0.14</deviceIP>
     <devicePort>8035</devicePort>
 </robo4jCameraCenter>

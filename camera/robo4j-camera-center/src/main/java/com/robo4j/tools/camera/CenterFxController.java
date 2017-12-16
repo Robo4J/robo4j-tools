@@ -21,37 +21,46 @@ import com.robo4j.RoboBuilder;
 import com.robo4j.RoboBuilderException;
 import com.robo4j.RoboContext;
 import com.robo4j.logging.SimpleLoggingUtil;
-import com.robo4j.socket.http.HttpHeaderFieldNames;
-import com.robo4j.socket.http.HttpMethod;
-import com.robo4j.socket.http.HttpVersion;
-import com.robo4j.socket.http.message.HttpDecoratedRequest;
-import com.robo4j.socket.http.util.RequestDenominator;
-import com.robo4j.socket.http.util.RoboHttpUtils;
 import com.robo4j.tools.camera.model.CameraCenterProperties;
+import com.robo4j.tools.camera.model.CameraDevice;
+import com.robo4j.tools.camera.model.RawElement;
 import com.robo4j.tools.camera.processor.ConfigurationProcessor;
 import com.robo4j.tools.camera.processor.ImageProcessor;
+import com.robo4j.tools.camera.utils.CameraCenterUtils;
+import com.robo4j.units.rpi.camera.RpiCameraProperty;
 import com.robo4j.util.SystemUtil;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.util.Callback;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 /**
+ * Single camera application controller
+ *
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
  */
-public class CenterFxController {
+public class CenterFxController implements CenterController {
     private static final String NO_SIGNAL_IMAGE = "20161021_NoSignal_640.png";
     private static final int CAMERA_IMAGE_WIDTH = 640;
     private static final int CAMERA_IMAGE_HEIGHT = 480;
@@ -60,15 +69,15 @@ public class CenterFxController {
     private static final String IMAGE_FORMAT = "png";
     private static final String IMAGE_PROCESSOR1 = "imageProcessor";
     private static final String CONFIGURATION_PROCESSOR = "configurationProcessor";
+    private static final String HTTP_CLIENT = "httpClient";
     private static final String DEFAULT_NONAME = "noname";
 
     private RoboContext roboSystem;
-    private boolean cameraActive = false;
     private CameraCenterProperties properties;
+    private boolean cameraActive = false;
 
     @FXML
     private Button buttonActive;
-
 
     @FXML
     private ImageView cameraImageView;
@@ -80,12 +89,15 @@ public class CenterFxController {
     private Label stateL;
 
     @FXML
-    private TableView<RawUnit> systemTV;
+    private TableView<RawElement> systemTV;
 
     @FXML
-    private TableView<RawUnit> configImageTV;
+    private TableView<RawElement> configImageTV;
 
-    void init(CameraCenterProperties properties, RoboBuilder roboBuilder) {
+    private CameraDevice cameraDevice;
+
+    @Override
+    public void init(CameraCenterProperties properties, RoboBuilder roboBuilder) {
         ImageProcessor imageProcessor = new ImageProcessor(roboBuilder.getContext(), IMAGE_PROCESSOR1);
         imageProcessor.setImageView(cameraImageView);
         ConfigurationProcessor configurationProcessor = new ConfigurationProcessor(roboBuilder.getContext(), CONFIGURATION_PROCESSOR);
@@ -98,7 +110,9 @@ public class CenterFxController {
         }
         this.roboSystem = roboBuilder.build();
         this.properties = properties;
+        cameraDevice = new CameraDevice(properties.getDeviceIP(), Integer.valueOf(properties.getDevicePort()));
 
+        CameraCenterUtils.initCameraConfigTV(configImageTV);
     }
 
     @FXML
@@ -115,28 +129,18 @@ public class CenterFxController {
     private void buttonActionClick(ActionEvent event) {
         if (cameraActive) {
             SimpleLoggingUtil.print(getClass(), "scheduler active");
-            sendRequestForClientConfiguration();
         } else {
             start();
             stateL.setText(LABEL_READY);
             buttonActive.setText(BUTTON_ACTIVATED);
-
             cameraActive = true;
-            sendRequestForClientConfiguration();
         }
-    }
-
-    private void sendRequestForClientConfiguration() {
-        final RequestDenominator denominator = new RequestDenominator(HttpMethod.GET, HttpVersion.HTTP_1_1);
-        final HttpDecoratedRequest request = new HttpDecoratedRequest(denominator);
-        request.addHeaderElement(HttpHeaderFieldNames.HOST, RoboHttpUtils.createHost("192.168.0.14", 8035));
-        request.addCallback("configurationProcessor");
-        roboSystem.getReference("httpClient").sendMessage(request);
+        CameraCenterUtils.sendRequestForClientConfiguration(roboSystem, CONFIGURATION_PROCESSOR, HTTP_CLIENT, cameraDevice);
     }
 
     @FXML
-    private void onConfigImageButtonAction(ActionEvent event){
-
+    private void onConfigImageButtonAction(ActionEvent event) {
+        CameraCenterUtils.buttonImageConfigClick(roboSystem, HTTP_CLIENT, configImageTV, cameraDevice);
     }
 
     @FXML
@@ -151,14 +155,17 @@ public class CenterFxController {
         }
     }
 
+    @Override
     public void stop() {
         System.out.println("State after stop:");
         roboSystem.shutdown();
         System.out.println(SystemUtil.printStateReport(roboSystem));
     }
 
-    private void start() {
+    @Override
+    public void start() {
         roboSystem.start();
         System.out.println(SystemUtil.printStateReport(roboSystem));
     }
+
 }
