@@ -17,7 +17,6 @@
 
 package com.robo4j.tools.camera.processor;
 
-import com.robo4j.BlockingTrait;
 import com.robo4j.RoboContext;
 import com.robo4j.RoboUnit;
 import com.robo4j.logging.SimpleLoggingUtil;
@@ -38,7 +37,6 @@ import java.util.stream.Collectors;
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
  */
-@BlockingTrait
 public class ConfigurationProcessor extends RoboUnit<String> {
 
     private TableView<RawElement> tableView;
@@ -52,8 +50,8 @@ public class ConfigurationProcessor extends RoboUnit<String> {
     public void onMessage(String message) {
 
         try {
-            if(Bindings.isEmpty(tableView.getItems()).get()){
-                List<ResponseUnitDTO> unitDTOs = JsonUtil.convertJsonToResponseUnitList(message);
+            if (Bindings.isEmpty(tableView.getItems()).get()) {
+                List<ResponseUnitDTO> unitDTOs = JsonUtil.jsonToList(ResponseUnitDTO.class, message);
                 ObservableList<RawElement> data = FXCollections.observableArrayList(unitDTOs.stream()
                         .map(e -> new RawElement(e.getId(), e.getState().getLocalizedName())).collect(Collectors.toList()));
                 TableColumn roboUnitCol = new TableColumn("RoboUnit");
@@ -61,7 +59,7 @@ public class ConfigurationProcessor extends RoboUnit<String> {
                 roboUnitCol.setCellValueFactory(
                         new PropertyValueFactory<RawElement, String>("name"));
 
-                TableColumn stateCol = new TableColumn("Status");
+                TableColumn stateCol = new TableColumn("State");
                 stateCol.setMinWidth(100);
                 stateCol.setCellValueFactory(
                         new PropertyValueFactory<RawElement, String>("state"));

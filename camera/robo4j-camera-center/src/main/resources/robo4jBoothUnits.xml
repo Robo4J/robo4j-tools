@@ -17,7 +17,6 @@
         <class>com.robo4j.socket.http.units.HttpServerUnit</class>
         <config name="com.robo4j.root">
             <value name="port" type="int">8025</value>
-            <value name="keepAlive" type="boolean">true</value>
         </config>
     </roboUnit>
 </robo4j>

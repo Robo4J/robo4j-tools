@@ -80,7 +80,7 @@ public class CenterMain extends Application {
                 getClass().getClassLoader().getResourceAsStream(CAM_CENTER_CONFIGURATION) :
                 Files.newInputStream(Paths.get(cameraCenterConfigFileName));
 
-        final RoboBuilder builder = new RoboBuilder();
+        final RoboBuilder builder = new RoboBuilder(getClass().getClassLoader().getResourceAsStream("robo4jSystem.xml"));
         builder.add(robo4jConfig);
         final CameraCenterProperties properties = new CenterBuilder().add(camCenterConfig).build();
         final FXMLLoader fxmlLoader = new FXMLLoader(file);

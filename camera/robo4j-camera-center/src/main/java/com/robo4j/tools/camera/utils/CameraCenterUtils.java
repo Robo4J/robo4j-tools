@@ -18,7 +18,6 @@
 package com.robo4j.tools.camera.utils;
 
 import com.robo4j.RoboContext;
-import com.robo4j.RoboReference;
 import com.robo4j.socket.http.HttpHeaderFieldNames;
 import com.robo4j.socket.http.HttpMethod;
 import com.robo4j.socket.http.HttpVersion;
@@ -26,7 +25,6 @@ import com.robo4j.socket.http.message.HttpDecoratedRequest;
 import com.robo4j.socket.http.util.JsonUtil;
 import com.robo4j.socket.http.util.RequestDenominator;
 import com.robo4j.socket.http.util.RoboHttpUtils;
-import com.robo4j.tools.camera.CenterFxController;
 import com.robo4j.tools.camera.model.CameraCenterProperties;
 import com.robo4j.tools.camera.model.CameraDevice;
 import com.robo4j.tools.camera.model.EditableCell;
@@ -61,20 +59,22 @@ public final class CameraCenterUtils {
         stage.getIcons().add(createIcon("robo4j16.png"));
     }
 
-    public static  void sendRequestForClientConfiguration(RoboContext system, String callBackUnitName, String httpClientName, CameraDevice cameraDevice) {
+    public static void sendRequestForClientConfiguration(RoboContext system, String callBackUnitName, String httpClientName, CameraDevice cameraDevice) {
         final RequestDenominator denominator = new RequestDenominator(HttpMethod.GET, HttpVersion.HTTP_1_1);
         final HttpDecoratedRequest request = new HttpDecoratedRequest(denominator);
-        request.addHeaderElement(HttpHeaderFieldNames.HOST, RoboHttpUtils.createHost(cameraDevice.getAddress(), cameraDevice.getPort()));
         request.addCallback(callBackUnitName);
         system.getReference(httpClientName).sendMessage(request);
     }
 
-    public static void buttonImageConfigClick(RoboContext system, String httpClientUnitName, TableView<RawElement> configImageTV, CameraDevice cameraDevice){
+    // TODO: 1/26/18 (miro) separate unit and use codec
+    public static void buttonImageConfigClick(RoboContext system, String httpClientUnitName, TableView<RawElement> configImageTV, CameraDevice cameraDevice) {
         final String path = "/units/cameraConfig";
         final Map<String, Object> entities = configImageTV.getItems()
                 .stream()
-                .collect(Collectors.toMap(RawElement::getName, e -> Integer.valueOf(e.getState())));
-        final String message = JsonUtil.getJsonByMap(entities);
+                .collect(Collectors.toMap(RawElement::getName, RawElement::getState));
+
+        final String message = JsonUtil.toJsonMapObject(entities);
+
         final RequestDenominator denominator = new RequestDenominator(HttpMethod.POST, path, HttpVersion.HTTP_1_1);
         final HttpDecoratedRequest request = new HttpDecoratedRequest(denominator);
         request.addHeaderElement(HttpHeaderFieldNames.HOST, RoboHttpUtils.createHost(cameraDevice.getAddress(), cameraDevice.getPort()));
