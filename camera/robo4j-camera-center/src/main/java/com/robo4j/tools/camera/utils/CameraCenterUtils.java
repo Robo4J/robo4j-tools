@@ -62,6 +62,10 @@ public final class CameraCenterUtils {
     public static void sendRequestForClientConfiguration(RoboContext system, String callBackUnitName, String httpClientName, CameraDevice cameraDevice) {
         final RequestDenominator denominator = new RequestDenominator(HttpMethod.GET, HttpVersion.HTTP_1_1);
         final HttpDecoratedRequest request = new HttpDecoratedRequest(denominator);
+        request.setHost(cameraDevice.getAddress());
+        request.setPort(cameraDevice.getPort());
+        request.addHostHeader();
+
         request.addCallback(callBackUnitName);
         system.getReference(httpClientName).sendMessage(request);
     }
@@ -103,7 +107,7 @@ public final class CameraCenterUtils {
         nameCol.setCellValueFactory(
                 new PropertyValueFactory<RawElement, String>("name"));
 
-        TableColumn stateCol = new TableColumn("Status");
+        TableColumn stateCol = new TableColumn("State");
         stateCol.setMinWidth(100);
         stateCol.setCellValueFactory(
                 new PropertyValueFactory<RawElement, String>("state"));
