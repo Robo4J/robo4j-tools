@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension point="org.openjdk.jmc.flightrecorder.ui.datapage">
+		<factory
+			class="com.robo4j.jmc.jfr.visualization.pages.ScansPage$ScansPageFactory"
+			id="com.robo4j.jmc.jfr.visualization.pages.ScansPage">
+		</factory>
+	</extension>
+	<extension point="org.openjdk.jmc.flightrecorder.ui.datapage">
+		<pages weight="100" file="robo4jpages.xml" /> 
+	</extension>
+</plugin>
+

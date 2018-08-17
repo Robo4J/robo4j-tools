@@ -39,6 +39,10 @@ public class MagViz extends Application {
 	private static final String MAGVIZ_FXML = "magviz.fxml";
 
 	public static void main(String[] args) {
+		if (args.length == 0) {
+			System.out.println("This utility requires you to provide a csv file with magnetometer readings as the first argument.\nExiting...");
+			System.exit(2);
+		}
 		Application.launch(args);
 	}
 

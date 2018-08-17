@@ -74,6 +74,10 @@ public final class CenterProperties {
         return map.get(SupportedConfigElements.DEVICE_IP);
     }
 
+    public String getDevicePort(){
+        return map.get(SupportedConfigElements.DEVICE_PORT);
+    }
+
     public String getDeviceType() {
         return map.get(SupportedConfigElements.DEVICE_TYPE);
     }

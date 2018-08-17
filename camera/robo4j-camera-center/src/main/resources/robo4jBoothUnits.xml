@@ -1,0 +1,22 @@
+<robo4j>
+    <roboUnit id="raspistillUnit">
+        <class>com.robo4j.units.rpi.camera.RaspistillUnit</class>
+        <config name="com.robo4j.root">
+            <value name="targetOut" type="String">imageProcessor</value>
+            <value name="width" type="String">640</value>
+            <value name="height" type="String">480</value>
+            <!--<value name="rotation" type="String">180</value>-->
+            <!--<value name="exposure" type="String">auto</value>-->
+            <!--<value name="brightness" type="String">80</value>-->
+            <!--<value name="contrast" type="String">0</value>-->
+            <value name="timeout" type="String">1</value>
+            <value name="timelapse" type="String">100</value>
+        </config>
+    </roboUnit>
+    <roboUnit id="httpServer">
+        <class>com.robo4j.socket.http.units.HttpServerUnit</class>
+        <config name="com.robo4j.root">
+            <value name="port" type="int">8025</value>
+        </config>
+    </roboUnit>
+</robo4j>

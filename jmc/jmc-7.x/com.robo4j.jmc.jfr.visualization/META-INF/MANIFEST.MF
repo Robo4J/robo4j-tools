@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Robo4J JFR Visualization
+Bundle-SymbolicName: com.robo4j.jmc.jfr.visualization;singleton:=true
+Bundle-Version: 0.0.1.qualifier
+Bundle-Vendor: Robo4J.io
+Automatic-Module-Name: com.robo4j.jmc.jfr.visualization
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.openjdk.jmc.common;bundle-version="7.0.0",
+ org.openjdk.jmc.flightrecorder.ui;bundle-version="7.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: com.robo4j.jmc.jfr.visualization.Activator
+Bundle-ClassPath: lib/robo4j-math-alpha-0.3.jar,
+ .

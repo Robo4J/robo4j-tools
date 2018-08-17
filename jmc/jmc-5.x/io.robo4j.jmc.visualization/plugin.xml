@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.jrockit.mc.components.ui.component">
+       	<component
+             class="com.robo4j.jmc.visualization.jfr.ScanComponent"
+             defaultIdentifier="myScanVisualizationComponent"
+             description="Displays Coffee Scan results in coffe local coordinate system points"
+             icon="icons/scan16.png"
+             id="com.robo4j.jmc.visualization.scan"
+             name="ScanVisualizer"
+          	 requiredServices="com.jrockit.mc.flightrecorder.FlightRecording"
+             type="other">
+       	</component>
+   </extension>
+   <extension point="com.jrockit.mc.components.ui.userInterface">
+		<userInterface
+ 			containerIdentifier="com.jrockit.mc.flightrecorder.ui.FlightRecordingEditor"
+ 			userInterfaceFile="/userInterface.xml">
+   		</userInterface>
+   </extension>
+   <!-- Note: Should break this out into a separate plug-in specific for Coff-E -->
+   <!-- <extension point="com.jrockit.mc.core.formpage">
+      <formPage
+            hostEditorId="com.jrockit.mc.console.ui.editor"
+            icon="icons/robo4j32.png"
+            class="com.robo4j.jmc.visualization.jmx.CoffePage"
+            title="Coff-E"
+            id="com.robo4j.jmc.visualization.jmx.formpage">
+      </formPage>
+   </extension> -->
+ </plugin>

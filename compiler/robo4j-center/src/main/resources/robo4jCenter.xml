@@ -25,7 +25,8 @@
     <outDirectory>out</outDirectory>
     <jarFileName>Number42Robot</jarFileName>
     <centerActions>upload,compile</centerActions>
-    <deviceIP>10.0.1.1</deviceIP>
+    <deviceIP>192.168.0.6</deviceIP>
+    <devicePort>8042</devicePort>
     <deviceType>lego</deviceType>
     <devicePass>no</devicePass>
 </robo4jCenter>

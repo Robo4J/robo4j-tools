@@ -2,16 +2,17 @@
 
 This project contains tools and plug-ins to make it easier to design robots with Robo4J.
 
-###### list:
-1. Magnetometer calibration visualiser
-2. MissionControl: Flight Recorder plugin
+The tools are for now:
+
+1. A magnetometer calibration tool named MagViz
+2. A Java Mission Control plug-in for visualizing Robo4J Flight Recorder events
 3. RoboCenter for compiling projects
 
-#Magnetometer Calibration visualiser
-Project is Gradle/JavaFX application with start main class: MagViz
+# Magnetometer calibration tool
+This is a JavaFX application which visualizes magnetometer data, and which will calculate the bias vector and matrix necessary to compensate for hard and soft iron effects. Simply run the com.robo4j.tools.magviz.MagViz class with the file containing calibration data as argument. See http://hirt.se/blog/?p=796 for more information.
 
 
-#Mission Control Integration
+# Java Mission Control integration
 To get started with the Mission Control integration, do the following:
 
 1. Start the latest version of Eclipse.

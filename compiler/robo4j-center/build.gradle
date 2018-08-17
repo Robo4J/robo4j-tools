@@ -20,7 +20,7 @@ task fatJar(type: Jar) {
     manifest {
         attributes 'Implementation-Title': 'robo4j-center',
                 'Implementation-Version': version,
-                'Main-Class': 'com.robo4j.tools.center.CenterMain'
+                'Main-Class': 'com.robo4j.tools.center.CenterFx'
     }
     baseName = 'robo4j-center'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
@@ -53,6 +53,8 @@ sourceSets {
 }
 
 dependencies {
+    compile "com.robo4j:robo4j-core:${robo4jVersion}"
+    compile "com.robo4j:robo4j-socket-http:${robo4jVersion}"
     compile "com.jcraft:jsch:${jschVersion}"
     testCompile "junit:junit:${junitVersion}@jar"
     testCompile "org.hamcrest:hamcrest-all:${hamcrestAllVersion}@jar"

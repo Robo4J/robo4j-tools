@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.robo4j.tools.camera.CenterFxMultipleController">
+   <top>
+      <GridPane prefHeight="775.0" prefWidth="1024.0" BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="594.0" minWidth="10.0" prefWidth="594.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="512.0" minWidth="10.0" prefWidth="430.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="251.0" minHeight="0.0" prefHeight="50.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="512.0" minHeight="10.0" prefHeight="350.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="466.0" minHeight="10.0" prefHeight="363.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Pane prefHeight="42.0" prefWidth="594.0">
+               <children>
+                  <ImageView fitHeight="55.0" fitWidth="55.0" layoutX="14.0" layoutY="4.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@robo4j256.png" />
+                     </image>
+                  </ImageView>
+                  <Label layoutX="104.0" layoutY="20.0" text="Image Streaming Center ">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Label>
+               </children>
+            </Pane>
+            <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" GridPane.columnIndex="1" GridPane.rowIndex="1">
+              <tabs>
+                <Tab text="System">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <Pane layoutY="3.0" prefHeight="300.0" prefWidth="429.0">
+                                 <children>
+                                    <GridPane layoutX="8.0" layoutY="8.0" prefHeight="292.0" prefWidth="421.0">
+                                      <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                      </columnConstraints>
+                                      <rowConstraints>
+                                        <RowConstraints maxHeight="282.0" minHeight="10.0" prefHeight="261.0" vgrow="SOMETIMES" />
+                                        <RowConstraints maxHeight="142.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
+                                      </rowConstraints>
+                                       <children>
+                                          <TableView fx:id="systemTV1" prefHeight="200.0" prefWidth="200.0" />
+                                          <Button fx:id="activateB1" mnemonicParsing="false" text="Activate" GridPane.rowIndex="1" />
+                                       </children>
+                                    </GridPane>
+                                 </children>
+                              </Pane>
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </Tab>
+                <Tab text="Image">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <Pane layoutX="1.0" prefHeight="302.0" prefWidth="427.0">
+                                 <children>
+                                    <GridPane layoutY="8.0" prefHeight="285.0" prefWidth="427.0">
+                                      <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                      </columnConstraints>
+                                      <rowConstraints>
+                                        <RowConstraints maxHeight="252.0" minHeight="10.0" prefHeight="252.0" vgrow="SOMETIMES" />
+                                        <RowConstraints maxHeight="142.0" minHeight="10.0" prefHeight="33.0" vgrow="SOMETIMES" />
+                                      </rowConstraints>
+                                       <children>
+                                          <TableView fx:id="configImageTV1" prefHeight="254.0" prefWidth="427.0" />
+                                          <Button mnemonicParsing="false" onAction="#imageProcessButton1" text="Process" GridPane.rowIndex="1" />
+                                       </children>
+                                    </GridPane>
+                                 </children>
+                              </Pane>
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </Tab>
+              </tabs>
+            </TabPane>
+            <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" GridPane.columnIndex="1" GridPane.rowIndex="2">
+              <tabs>
+                <Tab text="System">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <Pane layoutX="1.0" layoutY="4.0" prefHeight="338.0" prefWidth="428.0">
+                                 <children>
+                                    <GridPane layoutX="2.0" layoutY="2.0" prefHeight="334.0" prefWidth="425.0">
+                                      <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                      </columnConstraints>
+                                      <rowConstraints>
+                                        <RowConstraints maxHeight="299.0" minHeight="10.0" prefHeight="299.0" vgrow="SOMETIMES" />
+                                        <RowConstraints maxHeight="163.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                                      </rowConstraints>
+                                       <children>
+                                          <TableView fx:id="systemTV2" prefHeight="280.0" prefWidth="425.0" />
+                                          <Button fx:id="activateB2" mnemonicParsing="false" text="Activate" GridPane.rowIndex="1" />
+                                       </children>
+                                    </GridPane>
+                                 </children>
+                              </Pane>
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </Tab>
+                <Tab text="Image">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <Pane layoutX="1.0" layoutY="3.0" prefHeight="336.0" prefWidth="428.0">
+                                 <children>
+                                    <GridPane layoutX="2.0" layoutY="2.0" prefHeight="319.0" prefWidth="426.0">
+                                      <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                      </columnConstraints>
+                                      <rowConstraints>
+                                        <RowConstraints maxHeight="296.0" minHeight="10.0" prefHeight="283.0" vgrow="SOMETIMES" />
+                                        <RowConstraints maxHeight="162.0" minHeight="10.0" prefHeight="36.0" vgrow="SOMETIMES" />
+                                      </rowConstraints>
+                                       <children>
+                                          <TableView fx:id="configImageTV2" prefHeight="200.0" prefWidth="200.0" />
+                                          <Button mnemonicParsing="false" onAction="#imageProcessButton2" text="Process" GridPane.rowIndex="1" />
+                                       </children>
+                                    </GridPane>
+                                 </children>
+                              </Pane>
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </Tab>
+              </tabs>
+            </TabPane>
+            <Pane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
+               <children>
+                  <ImageView fx:id="cameraIV1" fitHeight="343.0" fitWidth="582.0" layoutX="8.0" layoutY="6.0" pickOnBounds="true" preserveRatio="true" />
+               </children>
+            </Pane>
+            <Pane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="2">
+               <children>
+                  <ImageView fx:id="cameraIV2" fitHeight="355.0" fitWidth="587.0" layoutX="4.0" layoutY="4.0" pickOnBounds="true" preserveRatio="true" />
+               </children>
+            </Pane>
+         </children>
+      </GridPane>
+   </top>
+</BorderPane>

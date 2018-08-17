@@ -6,6 +6,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.image.Image?>
@@ -52,7 +53,7 @@
             </Pane>
             <VBox id="leftVBox" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="170.0" prefWidth="170.0" GridPane.rowIndex="1">
                <children>
-                  <TitledPane animated="false" prefHeight="150.0" prefWidth="150.0" text="Device">
+                  <TitledPane animated="false" prefHeight="196.0" prefWidth="170.0" text="Device">
                      <content>
                         <GridPane prefHeight="54.0" prefWidth="100.0">
                           <columnConstraints>
@@ -61,25 +62,28 @@
                           </columnConstraints>
                           <rowConstraints>
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             <RowConstraints maxHeight="35.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="35.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="35.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
                               <Label text="IP" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                              <Label text="Type" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                              <Label text="Type" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
                               <TextField fx:id="deviceIpTextField" GridPane.columnIndex="1" />
-                              <ComboBox fx:id="deviceTypeCBox" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                              <CheckBox fx:id="editCB" mnemonicParsing="false" text="Edit" GridPane.rowIndex="2" />
-                              <Label fx:id="passwordL" text="Pass:" GridPane.rowIndex="3" />
-                              <TextField fx:id="passwordTF" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                              <ComboBox fx:id="deviceTypeCBox" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <CheckBox fx:id="editCB" mnemonicParsing="false" text="Edit" GridPane.rowIndex="3" />
+                              <Label fx:id="passwordL" text="Pass:" GridPane.rowIndex="4" />
+                              <TextField fx:id="passwordTF" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                              <Label contentDisplay="CENTER" prefHeight="17.0" prefWidth="43.0" text="PORT" GridPane.rowIndex="1" />
+                              <TextField fx:id="devicePortTextField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                            </children>
                         </GridPane>
                      </content>
                   </TitledPane>
-                  <TitledPane animated="false" prefHeight="123.0" prefWidth="100.0" text="Result">
+                  <TitledPane animated="false" prefHeight="127.0" prefWidth="170.0" text="Result">
                      <content>
-                        <GridPane prefHeight="50.0" prefWidth="100.0">
+                        <GridPane prefHeight="67.0" prefWidth="168.0">
                           <columnConstraints>
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -104,7 +108,7 @@
             </VBox>
             <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="325.0" prefWidth="409.0" tabClosingPolicy="UNAVAILABLE" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="1" GridPane.valignment="TOP">
               <tabs>
-                <Tab text="Project">
+                <Tab fx:id="projectTab" text="Project">
                      <content>
                         <GridPane prefHeight="145.0" prefWidth="433.0">
                           <columnConstraints>
@@ -137,11 +141,16 @@
                         </GridPane>
                      </content>
                 </Tab>
-                <Tab text="Advanced">
+                <Tab fx:id="advancedTab" text="Advanced">
                      <content>
                         <TextFlow fx:id="outputProcessTF" prefHeight="162.0" prefWidth="402.0" />
                      </content>
                 </Tab>
+                  <Tab fx:id="systemTab" onSelectionChanged="#systemChangeTab" text="System">
+                     <content>
+                        <TableView fx:id="systemTV" editable="true" prefHeight="248.0" prefWidth="309.0" />
+                     </content>
+                  </Tab>
               </tabs>
             </TabPane>
          </children>

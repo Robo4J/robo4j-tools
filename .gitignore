@@ -12,3 +12,6 @@
 hs_err_pid*
 calibration/robo4j-magviz/out
 compiler/robo4j-center/out
+camera/robo4j-camera-center/out
+/camera/robo4j-camera-center/.nb-gradle/
+/calibration/robo4j-magviz/.nb-gradle/

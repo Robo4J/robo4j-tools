@@ -244,7 +244,7 @@ public class CompilerProvider {
                 if (targetPath.toFile().exists() && targetPath.toFile().isFile()) {
                     Files.delete(targetPath);
                     Files.copy(path, targetPath);
-                } else if(targetPath.toFile().isFile()){
+                } else if(path.toFile().isFile()){
                     Files.copy(path, targetPath);
                 }
             }
