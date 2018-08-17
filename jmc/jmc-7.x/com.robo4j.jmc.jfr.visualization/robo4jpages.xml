@@ -1,0 +1,14 @@
+<pages>
+	<page factory="com.robo4j.jmc.jfr.visualization.pages.ScansPage" id="com.robo4j.jmc.jfr.visualization.pages.ScansPage">
+		<state>
+			<scansTable sortColumn="scanID">
+				<column id="itemhistogram.key" width="75" />
+				<column id="duration" sortAscending="false" width="100" />
+				<column id="itemhistogram.count" hidden="false" sortAscending="false" width="75" />
+				<column id="(thread).javaThreadId" hidden="true" sortAscending="false" width="75" />
+				<column id="scanLeftRight" hidden="false" sortAscending="false" width="100" />
+				<column id="scanInfo" hidden="false" sortAscending="false" width="200" />
+			</scansTable>
+		</state>
+	</page>
+</pages>
