@@ -10,3 +10,5 @@ Require-Bundle: org.openjdk.jmc.common;bundle-version="7.0.0",
  org.openjdk.jmc.flightrecorder.ui;bundle-version="7.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: com.robo4j.jmc.jfr.visualization.Activator
+Bundle-ClassPath: lib/robo4j-math-alpha-0.3.jar,
+ .

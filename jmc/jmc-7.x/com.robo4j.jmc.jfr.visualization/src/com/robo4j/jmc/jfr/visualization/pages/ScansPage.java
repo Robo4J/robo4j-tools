@@ -93,8 +93,7 @@ public class ScansPage extends AbstractDataPage {
 		}
 
 		private ItemHistogram createTable(Composite tableComposite, IState state) {
-			return HISTOGRAM.buildWithoutBorder(tableComposite, Robo4JAttributes.SCAN_ID,
-					getScansTableSettings(state.getChild(SCANS_TABLE)));
+			return HISTOGRAM.build(tableComposite, Robo4JAttributes.SCAN_ID, getScansTableSettings(state.getChild(SCANS_TABLE)));
 		}
 
 		private TableSettings getScansTableSettings(IState state) {
