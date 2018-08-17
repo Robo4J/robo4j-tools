@@ -36,7 +36,6 @@ import com.robo4j.math.geometry.CurvaturePoint2f;
 import com.robo4j.math.geometry.Line2f;
 import com.robo4j.math.geometry.Point2f;
 import com.robo4j.math.geometry.ScanResult2D;
-import com.robo4j.math.geometry.impl.ScanResultImpl;
 
 /**
  * Canvas for drawing a scan.
