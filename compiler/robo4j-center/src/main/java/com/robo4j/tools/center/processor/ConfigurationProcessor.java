@@ -71,7 +71,7 @@ public class ConfigurationProcessor extends RoboUnit<String> {
             connection.disconnect();
 
 
-            List<ResponseUnitDTO> unitDTOs = JsonUtil.getListByUnitJsonArray(sb.toString());
+            List<ResponseUnitDTO> unitDTOs = JsonUtil.jsonToList(ResponseUnitDTO.class,sb.toString());
 
             ObservableList<ResponseUnitDTO> data = FXCollections.observableArrayList(unitDTOs.stream()
                     .map(e -> new ResponseUnitDTO(e.getId(), e.getState())).collect(Collectors.toList()));

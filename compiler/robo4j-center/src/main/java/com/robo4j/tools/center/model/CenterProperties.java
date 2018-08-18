@@ -20,10 +20,12 @@
 
 package com.robo4j.tools.center.model;
 
-import com.robo4j.tools.center.enums.SupportedConfigElements;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import com.robo4j.tools.center.CenterMain;
+import com.robo4j.tools.center.enums.ProjectTypeEnum;
+import com.robo4j.tools.center.enums.SupportedConfigElements;
 
 /**
  *
@@ -32,72 +34,86 @@ import java.util.Map;
  */
 public final class CenterProperties {
 
-    private final Map<SupportedConfigElements, String> map;
+	private final Map<SupportedConfigElements, String> map;
 
-    public CenterProperties() {
-        map = new HashMap<>();
-        map.put(SupportedConfigElements.MAIN_PACKAGE, "com.robo4j.lego.j1kids.example");
-        map.put(SupportedConfigElements.MAIN_CLASS, "Number42Main.java");
-        map.put(SupportedConfigElements.ROBO4J_LIB, "robo4j-units-lego-alpha-0.3.jar");
-        map.put(SupportedConfigElements.OUT_DIR, "out");
-        map.put(SupportedConfigElements.JAR_FILE_NAME, "Number42Robot");
-        map.put(SupportedConfigElements.ACTIONS, "compile,upload");
-        map.put(SupportedConfigElements.DEVICE_IP, "10.0.1.1");
-        map.put(SupportedConfigElements.DEVICE_TYPE, "lego");
-    }
+	public CenterProperties() {
+		map = new HashMap<>();
+		map.put(SupportedConfigElements.PROJECT_TYPE, CenterMain.PROJECT_MAVEN_TYPE);
+		map.put(SupportedConfigElements.MAIN_SRC_PATH, ProjectTypeEnum.MAVEN.getSrcPath());
+		map.put(SupportedConfigElements.MAIN_RESOURCE_PATH, ProjectTypeEnum.MAVEN.getResourcesPath());
+		map.put(SupportedConfigElements.MAIN_PACKAGE, "com.robo4j.lego.j1kids.example");
+		map.put(SupportedConfigElements.MAIN_CLASS, "Number42Main.java");
+		map.put(SupportedConfigElements.ROBO4J_LIB, "robo4j-units-lego-alpha-0.3.jar");
+		map.put(SupportedConfigElements.OUT_DIR, "out");
+		map.put(SupportedConfigElements.JAR_FILE_NAME, "Number42Robot");
+		map.put(SupportedConfigElements.ACTIONS, "compile,upload");
+		map.put(SupportedConfigElements.DEVICE_IP, "10.0.1.1");
+		map.put(SupportedConfigElements.DEVICE_TYPE, "lego");
+		map.put(SupportedConfigElements.EXCLUDED_PATHS, "excluded.paths");
+	}
 
-    public CenterProperties(Map<SupportedConfigElements, String> map) {
-        this.map = map;
-    }
+	public CenterProperties(Map<SupportedConfigElements, String> map) {
+		this.map = map;
+	}
 
-    public String getMainPackage() {
-        return map.get(SupportedConfigElements.MAIN_PACKAGE);
-    }
+	public String getProjectType() {
+		return map.get(SupportedConfigElements.PROJECT_TYPE);
+	}
 
-    public String getMainClass() {
-        return map.get(SupportedConfigElements.MAIN_CLASS);
-    }
+	public String getSrcPath() {
+		return map.get(SupportedConfigElements.MAIN_SRC_PATH);
+	}
 
-    public String getRobo4jLibrary() {
-        return map.get(SupportedConfigElements.ROBO4J_LIB);
-    }
+	public String getResourcePath() {
+		return map.get(SupportedConfigElements.MAIN_RESOURCE_PATH);
+	}
 
-    public String getOutDirectory() {
-        return map.get(SupportedConfigElements.OUT_DIR);
-    }
+	public String getMainPackage() {
+		return map.get(SupportedConfigElements.MAIN_PACKAGE);
+	}
 
-    public String getCenterActions() {
-        return map.get(SupportedConfigElements.ACTIONS);
-    }
+	public String getMainClass() {
+		return map.get(SupportedConfigElements.MAIN_CLASS);
+	}
 
-    public String getDeviceIP() {
-        return map.get(SupportedConfigElements.DEVICE_IP);
-    }
+	public String getRobo4jLibrary() {
+		return map.get(SupportedConfigElements.ROBO4J_LIB);
+	}
 
-    public String getDevicePort(){
-        return map.get(SupportedConfigElements.DEVICE_PORT);
-    }
+	public String getOutDirectory() {
+		return map.get(SupportedConfigElements.OUT_DIR);
+	}
 
-    public String getDeviceType() {
-        return map.get(SupportedConfigElements.DEVICE_TYPE);
-    }
+	public String getCenterActions() {
+		return map.get(SupportedConfigElements.ACTIONS);
+	}
 
-    public String getJarFileName(){
-        return map.get(SupportedConfigElements.JAR_FILE_NAME);
-    }
+	public String getDeviceIP() {
+		return map.get(SupportedConfigElements.DEVICE_IP);
+	}
 
-    public String getPassword(){
-        return map.get(SupportedConfigElements.DEVICE_PASS);
-    }
+	public String getDevicePort() {
+		return map.get(SupportedConfigElements.DEVICE_PORT);
+	}
 
-    public boolean isSet(){
-        return !(map.values().stream().filter(String::isEmpty).count() > 0);
-    }
+	public String getDeviceType() {
+		return map.get(SupportedConfigElements.DEVICE_TYPE);
+	}
 
-    @Override
-    public String toString() {
-        return "CenterProperties{" +
-                "map=" + map +
-                '}';
-    }
+	public String getJarFileName() {
+		return map.get(SupportedConfigElements.JAR_FILE_NAME);
+	}
+
+	public String getPassword() {
+		return map.get(SupportedConfigElements.DEVICE_PASS);
+	}
+
+	public String getExcludedPaths() {
+		return map.get(SupportedConfigElements.EXCLUDED_PATHS);
+	}
+
+	@Override
+	public String toString() {
+		return "CenterProperties{" + "map=" + map + '}';
+	}
 }
