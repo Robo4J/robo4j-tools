@@ -59,6 +59,7 @@ public class ScanViewer extends Canvas {
 			new Color(null, 0, 255, 255), new Color(null, 190, 190, 190), new Color(null, 255, 165, 0), new Color(null, 255, 0, 255) };
 
 	private volatile List<ScanResult2D> results = new ArrayList<>();
+	private volatile Point2f goalPoint;
 
 	public ScanViewer(Composite parent, int style) {
 		super(parent, style);
@@ -115,7 +116,7 @@ public class ScanViewer extends Canvas {
 		int centerX = width / 2;
 		gc.setForeground(getColor(ColorIndex.black));
 		gc.drawLine(centerX, height, centerX, 0);
-		Point2f goalPoint = null;
+		goalPoint = null;
 
 		// FIXME(Marcus/17 aug. 2018): This must be fixed - we cannot assume
 		// that we do not have skipped points
@@ -145,25 +146,6 @@ public class ScanViewer extends Canvas {
 			paintCircle(gc, x, y, 2, ColorIndex.green);
 		}
 
-		Point2f p = null; // scan.getTargetPoint();
-		if (p != null) {
-			int x = toPaintCoordinateX(centerX, scale, p);
-			int y = toPaintCoordinateY(height, scale, p);
-			paintCircle(gc, x, y, 2, ColorIndex.blue);
-			gc.setBackground(getColor(ColorIndex.grey));
-			gc.drawLine(x, y, toPaintCoordinateX(centerX, scale, ORIGO), toPaintCoordinateY(height, scale, ORIGO));
-			gc.setBackground(getColor(ColorIndex.white));
-		}
-		p = scan.getNearestPoint();
-		if (p != null) {
-			paintCircle(gc, toPaintCoordinateX(centerX, scale, p), toPaintCoordinateY(height, scale, p), 5, ColorIndex.red);
-		}
-
-		p = scan.getFarthestPoint();
-		if (p != null) {
-			paintCircle(gc, toPaintCoordinateX(centerX, scale, p), toPaintCoordinateY(height, scale, p), 2, ColorIndex.orange);
-		}
-
 		if (renderFeatures) {
 			gc.setBackground(getColor(ColorIndex.white));
 
@@ -189,7 +171,8 @@ public class ScanViewer extends Canvas {
 		}
 	}
 
-	private static void paintPointsAsLineFromOrigo(List<Point2f> raycastFull, GC gc, int weight, ColorIndex c, int centerX, int height, double scale) {
+	private static void paintPointsAsLineFromOrigo(List<Point2f> raycastFull, GC gc, int weight, ColorIndex c, int centerX, int height,
+			double scale) {
 		for (Point2f rayPoint : raycastFull) {
 			Line2f ray = new Line2f(ORIGO, rayPoint);
 			drawLine(gc, ray, weight, c, centerX, height, scale);
@@ -327,5 +310,9 @@ public class ScanViewer extends Canvas {
 			}
 		}
 		return defaultNoGoRadius;
+	}
+
+	public Point2f getGoalPoint() {
+		return goalPoint;
 	}
 }

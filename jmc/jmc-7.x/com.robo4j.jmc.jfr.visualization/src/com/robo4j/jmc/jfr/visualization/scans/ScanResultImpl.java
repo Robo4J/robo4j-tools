@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 
 import com.robo4j.math.geometry.Point2f;
 import com.robo4j.math.geometry.ScanResult2D;
@@ -35,6 +36,8 @@ public class ScanResultImpl implements ScanResult2D {
 	private static final PointComparator POINT_COMPARATOR = new PointComparator();
 	private final List<Point2f> points = new ArrayList<>();
 
+	private final Predicate<Point2f> filter;
+	
 	private double maxX;
 	private double minX;
 	private double maxY;
@@ -43,16 +46,25 @@ public class ScanResultImpl implements ScanResult2D {
 
 	private Point2f farthestPoint;
 	private Point2f closestPoint;
+	private Point2f targetPoint;
 
 	private float angularResolution = Float.NaN;
 
-	public ScanResultImpl(int scanID) {
-		this.scanID = scanID;
+	private static class PointComparator implements Comparator<Point2f> {
+		@Override
+		public int compare(Point2f o1, Point2f o2) {
+			return Float.compare(o1.getAngle(), o2.getAngle());
+		}
+	}
+	
+	public ScanResultImpl(int scanID, Predicate<Point2f> filter) {
+		this(scanID, Float.NaN, filter);
 	}
 
-	public ScanResultImpl(int scanID, float angularResolution) {
+	public ScanResultImpl(int scanID, float angularResolution, Predicate<Point2f> filter) {
 		this.scanID = scanID;
 		this.angularResolution = angularResolution;
+		this.filter = filter;
 	}
 
 	public double getMaxX() {
@@ -75,9 +87,23 @@ public class ScanResultImpl implements ScanResult2D {
 		return scanID;
 	}
 
+	/**
+	 * Adds a point to the scan.
+	 * 
+	 * @param range
+	 *            range in meters.
+	 * @param angle
+	 *            angle in radians.
+	 */
+	public void addPoint(float range, float angle) {
+		addPoint(Point2f.fromPolar(range, angle));
+	}
+
 	public void addPoint(Point2f p) {
-		points.add(p);
-		updateBoundaries(p);
+		if (filter.test(p)) {
+			points.add(p);
+			updateBoundaries(p);
+		}
 	}
 
 	private void updateBoundaries(Point2f p) {
@@ -105,18 +131,6 @@ public class ScanResultImpl implements ScanResult2D {
 		return points;
 	}
 
-	/**
-	 * Adds a point to the scan.
-	 * 
-	 * @param range
-	 *            range in meters.
-	 * @param angle
-	 *            angle in radians.
-	 */
-	public void addPoint(float range, float angle) {
-		addPoint(Point2f.fromPolar(range, angle));
-	}
-
 	public void addResult(ScanResultImpl result) {
 		for (Point2f p : result.getPoints()) {
 			addPoint(p);
@@ -135,11 +149,12 @@ public class ScanResultImpl implements ScanResult2D {
 		Collections.sort(points, POINT_COMPARATOR);
 	}
 
-	private static class PointComparator implements Comparator<Point2f> {
-		@Override
-		public int compare(Point2f o1, Point2f o2) {
-			return Float.compare(o1.getAngle(), o2.getAngle());
-		}
+	public Point2f getTargetPoint() {
+		return targetPoint;
+	}
+
+	public void setTargetPoint(Point2f targetPoint) {
+		this.targetPoint = targetPoint;
 	}
 
 	public String toString() {
@@ -158,7 +173,7 @@ public class ScanResultImpl implements ScanResult2D {
 	private float calculateApproximateAngularResolution() {
 		return Math.abs((getRightmostPoint().getAngle() - getLeftmostPoint().getAngle()) / points.size());
 	}
-
+	
 	@Override
 	public Point2f getLeftmostPoint() {
 		return points.get(0);

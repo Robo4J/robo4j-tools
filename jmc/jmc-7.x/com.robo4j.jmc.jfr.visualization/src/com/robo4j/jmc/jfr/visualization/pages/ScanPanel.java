@@ -19,6 +19,7 @@ package com.robo4j.jmc.jfr.visualization.pages;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -55,6 +56,16 @@ public class ScanPanel extends Composite {
 
 	private final ScanViewer scanViewer;
 	private final Label lblRange;
+
+	/*
+	 * This should probably be configurable in the UI...
+	 */
+	private final static Predicate<Point2f> DEFAULT_FILTER = new Predicate<Point2f>() {
+		@Override
+		public boolean test(Point2f t) {
+			return t.getRange() >= 0.08f;
+		}
+	};
 
 	public ScanPanel(Composite parent, int style) {
 		super(parent, style);
@@ -157,9 +168,35 @@ public class ScanPanel extends Composite {
 			ScanResult2D scanResult = createScanResult(scanID, scan);
 			scanResults.add(scanResult);
 		}
-		lblRange.setText(scanResults.size() > 1 ? "(Multiple scans) " : "" + String.format("Max y: %2.1fm", getMaxY(scanResults)));
 		scanViewer.setModel(scanResults);
+		String infoMessage = scanResults.size() > 1 ? "(Multiple scans) "
+				: "" + String.format("Max y: %2.1fm | Max range: %2.1fm | Min range: %2.1fm", getMaxY(scanResults),
+						getMaxRange(scanResults), getMinRange(scanResults));
+		Point2f goalPoint = scanViewer.getGoalPoint();
+		if (goalPoint != null) {
+			infoMessage += " | Goal point: " + goalPoint;
+		}
+		lblRange.setText(infoMessage);
 		scanViewer.redraw();
+	}
+
+	private double getMaxRange(List<ScanResult2D> scanResults) {
+		double max = 0;
+		for (ScanResult2D result : scanResults) {
+			double range = result.getFarthestPoint().getRange();
+			if (range != Double.MAX_VALUE) {
+				max = Math.max(max, range);
+			}
+		}
+		return max;
+	}
+
+	private double getMinRange(List<ScanResult2D> scanResults) {
+		double min = Double.MAX_VALUE;
+		for (ScanResult2D result : scanResults) {
+			min = Math.min(min, result.getNearestPoint().getRange());
+		}
+		return min;
 	}
 
 	private double getMaxY(List<ScanResult2D> scanResults) {
@@ -171,7 +208,7 @@ public class ScanPanel extends Composite {
 	}
 
 	private ScanResult2D createScanResult(IQuantity scanID, IItemCollection scans) {
-		ScanResultImpl scanResult = new ScanResultImpl((int) scanID.longValue());
+		ScanResultImpl scanResult = new ScanResultImpl((int) scanID.longValue(), DEFAULT_FILTER);
 		@SuppressWarnings("deprecation")
 		IMemberAccessor<IQuantity, IItem> xAccessor = ItemToolkit.accessor(Robo4JAttributes.SCAN_POINT_2D_X);
 		@SuppressWarnings("deprecation")
