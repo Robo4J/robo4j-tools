@@ -54,16 +54,16 @@ public class ScanViewer extends Canvas {
 		white, black, grey, red, green, blue, cyan, lightgrey, orange, magenta
 	}
 
-	private final Color[] colors;
+	private final static Color[] PALETTE = new Color[] { new Color(null, 255, 255, 255), new Color(null, 0, 0, 0),
+			new Color(null, 110, 110, 110), new Color(null, 255, 0, 0), new Color(null, 0, 255, 0), new Color(null, 0, 0, 255),
+			new Color(null, 0, 255, 255), new Color(null, 190, 190, 190), new Color(null, 255, 165, 0), new Color(null, 255, 0, 255) };
+
 	private volatile List<ScanResult2D> results = new ArrayList<>();
 
 	public ScanViewer(Composite parent, int style) {
 		super(parent, style);
-		colors = new Color[] { new Color(null, 255, 255, 255), new Color(null, 0, 0, 0), new Color(null, 110, 110, 110),
-				new Color(null, 255, 0, 0), new Color(null, 0, 255, 0), new Color(null, 0, 0, 255), new Color(null, 0, 255, 255),
-				new Color(null, 190, 190, 190), new Color(null, 255, 165, 0), new Color(null, 255, 0, 255) };
 
-		setBackground(colors[0]);
+		setBackground(PALETTE[0]);
 		addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent de) {
 				ScanViewer.this.widgetDisposed(de);
@@ -83,7 +83,7 @@ public class ScanViewer extends Canvas {
 	}
 
 	private void disposeColors() {
-		for (Color c : colors) {
+		for (Color c : PALETTE) {
 			c.dispose();
 		}
 	}
@@ -102,8 +102,8 @@ public class ScanViewer extends Canvas {
 		}
 	}
 
-	private Color getColor(ColorIndex index) {
-		return colors[index.ordinal()];
+	private static Color getColor(ColorIndex index) {
+		return PALETTE[index.ordinal()];
 	}
 
 	private void drawScan(PaintEvent pe, GC gc, ScanResult2D scan) {
@@ -120,11 +120,14 @@ public class ScanViewer extends Canvas {
 		// FIXME(Marcus/17 aug. 2018): This must be fixed - we cannot assume
 		// that we do not have skipped points
 		// - angular delta must be recorded!
-		float angularDelta = scan.getPoints().get(1).getAngle() - scan.getPoints().get(0).getAngle();
+		float angularDelta = scan.getAngularResolution();
 		FeatureSet features = FeatureExtraction.getFeatures(scan.getPoints(), angularDelta);
 
 		if (renderRaycast) {
-			goalPoint = Raycast.raycastMostPromisingPoint(scan.getPoints(), 0.32f, 0.1f, features);
+			float stepAngle = scan.getAngularResolution() / 2;
+			goalPoint = Raycast.raycastFarthestPoint(scan.getPoints(), 0.32f, stepAngle, features);
+			List<Point2f> raycastFull = Raycast.raycastFull(scan.getPoints(), 0.32f, stepAngle, features);
+			paintPointsAsLineFromOrigo(raycastFull, gc, 1, ColorIndex.grey, centerX, height, scale);
 		}
 
 		gc.setForeground(getColor(ColorIndex.black));
@@ -165,7 +168,7 @@ public class ScanViewer extends Canvas {
 			gc.setBackground(getColor(ColorIndex.white));
 
 			for (Line2f line : features.getLines()) {
-				drawLine(gc, line, ColorIndex.magenta, centerX, height, scale);
+				drawLine(gc, line, 1, ColorIndex.magenta, centerX, height, scale);
 			}
 
 			for (Point2f corner : features.getCorners()) {
@@ -186,7 +189,14 @@ public class ScanViewer extends Canvas {
 		}
 	}
 
-	private void drawCross(GC gc, Point2f corner, ColorIndex index, int size, int centerX, int height, double scale) {
+	private static void paintPointsAsLineFromOrigo(List<Point2f> raycastFull, GC gc, int weight, ColorIndex c, int centerX, int height, double scale) {
+		for (Point2f rayPoint : raycastFull) {
+			Line2f ray = new Line2f(ORIGO, rayPoint);
+			drawLine(gc, ray, weight, c, centerX, height, scale);
+		}
+	}
+
+	private static void drawCross(GC gc, Point2f corner, ColorIndex index, int size, int centerX, int height, double scale) {
 		Point2f center = toDeviceCoordinates(corner, centerX, height, scale);
 		gc.setForeground(getColor(index));
 		gc.setLineWidth(2);
@@ -195,18 +205,18 @@ public class ScanViewer extends Canvas {
 		gc.setLineWidth(1);
 	}
 
-	private Point2f toDeviceCoordinates(Point2f p, int centerX, int height, double scale) {
+	private static Point2f toDeviceCoordinates(Point2f p, int centerX, int height, double scale) {
 		return Point2f.fromCartesian(toPaintCoordinateX(centerX, scale, p), toPaintCoordinateY(height, scale, p));
 	}
 
-	private void drawLine(GC gc, Line2f line, ColorIndex color, int centerX, int height, double scale) {
+	private static void drawLine(GC gc, Line2f line, int weight, ColorIndex color, int centerX, int height, double scale) {
 		int x1 = toPaintCoordinateX(centerX, scale, line.getP1());
 		int y1 = toPaintCoordinateY(height, scale, line.getP1());
 		int x2 = toPaintCoordinateX(centerX, scale, line.getP2());
 		int y2 = toPaintCoordinateY(height, scale, line.getP2());
 		gc.setForeground(getColor(color));
 		int lineWidth = gc.getLineWidth();
-		gc.setLineWidth(2);
+		gc.setLineWidth(weight);
 		gc.drawLine(x1, y1, x2, y2);
 		gc.setLineWidth(lineWidth);
 	}
@@ -283,75 +293,12 @@ public class ScanViewer extends Canvas {
 		return (int) Math.round(point.getX() * scale + centerX);
 	}
 
-	public Point2f raycastMostPromisingPoint(GC gc, int centerX, int height, double scale, List<Point2f> points, float noGoRadius,
-			float raycastStepAngle) {
-		float startAlpha = points.get(0).getAngle();
-		float endAlpha = points.get(points.size() - 1).getAngle();
-
-		float resultRange = Float.MIN_VALUE;
-		float resultAlpha = 0;
-
-		FeatureSet features = FeatureExtraction.getFeatures(points, FeatureExtraction.getAngularResolution(points));
-
-		for (float alpha = startAlpha; alpha <= endAlpha; alpha += raycastStepAngle) {
-			float range = raycast(points, features.getCorners(), alpha, noGoRadius);
-			if (range == Float.MAX_VALUE) {
-				continue;
-			}
-			if (range > resultRange) {
-				resultRange = range;
-				resultAlpha = alpha;
-			}
-			paintLine(gc, Point2f.fromPolar(alpha, range), centerX, height, scale);
-		}
-		return Point2f.fromPolar(resultAlpha, resultRange);
-	}
-
-	public static float raycast(List<Point2f> points, List<CurvaturePoint2f> corners, float rayAlpha, float defaultNoGoRadius) {
-		float minIntersectionRange = Float.MAX_VALUE;
-		for (Point2f p : points) {
-			int cornerIndex = corners.indexOf(p);
-			float noGoRadius = defaultNoGoRadius;
-			if (cornerIndex >= 0) {
-				p = corners.get(cornerIndex);
-				noGoRadius = calculateNoGoRadius(p, defaultNoGoRadius);
-			}
-			float tangentDistance = calculateTangentDistance(rayAlpha, p);
-			// Fast rejection
-			if (Math.abs(tangentDistance) >= noGoRadius) {
-				continue;
-			}
-			float intersectionRange = calculateIntersectionRange(rayAlpha, noGoRadius, tangentDistance, p);
-			if (intersectionRange != Float.NaN) {
-				minIntersectionRange = Math.min(minIntersectionRange, intersectionRange);
-			} else {
-				System.out.println(p + " " + tangentDistance + " " + rayAlpha);
-			}
-		}
-		return minIntersectionRange;
-	}
-
-	private static float calculateIntersectionRange(float rayAlpha, float noGoRadius, float tangentDistance, Point2f p) {
-		float delta = (float) Math.sqrt(noGoRadius * noGoRadius - tangentDistance * tangentDistance);
-		if (p.getRange() <= delta) {
-			return 0;
-		}
-		return p.getRange() - delta;
-	}
-
 	public static float calculateTangentDistance(float rayAlpha, Point2f p) {
 		float deltaAlpha = Math.abs(p.getAngle() - rayAlpha);
 		if (deltaAlpha >= 90.0) {
 			return Float.MAX_VALUE;
 		}
 		return (float) (p.getRange() * Math.atan(deltaAlpha));
-	}
-
-	private void paintLine(GC gc, Point2f p, int centerX, float height, double scale) {
-		int x = toPaintCoordinateX(centerX, scale, p);
-		int y = toPaintCoordinateY(height, scale, p);
-		gc.setForeground(colors[ColorIndex.grey.ordinal()]);
-		gc.drawLine(x, y, toPaintCoordinateX(centerX, scale, ORIGO), toPaintCoordinateY(height, scale, ORIGO));
 	}
 
 	public void setRaycastEnabled(boolean selection) {

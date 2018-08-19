@@ -44,7 +44,11 @@ public class ScanResultImpl implements ScanResult2D {
 	private Point2f farthestPoint;
 	private Point2f closestPoint;
 
-	private final float angularResolution;
+	private float angularResolution = Float.NaN;
+
+	public ScanResultImpl(int scanID) {
+		this.scanID = scanID;
+	}
 
 	public ScanResultImpl(int scanID, float angularResolution) {
 		this.scanID = scanID;
@@ -145,7 +149,14 @@ public class ScanResultImpl implements ScanResult2D {
 
 	@Override
 	public float getAngularResolution() {
+		if (Float.isNaN(angularResolution)) {
+			angularResolution = calculateApproximateAngularResolution();
+		}
 		return angularResolution;
+	}
+
+	private float calculateApproximateAngularResolution() {
+		return Math.abs((getRightmostPoint().getAngle() - getLeftmostPoint().getAngle()) / points.size());
 	}
 
 	@Override

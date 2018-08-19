@@ -171,7 +171,7 @@ public class ScanPanel extends Composite {
 	}
 
 	private ScanResult2D createScanResult(IQuantity scanID, IItemCollection scans) {
-		ScanResultImpl scanResult = new ScanResultImpl((int) scanID.longValue(), 0.4f);
+		ScanResultImpl scanResult = new ScanResultImpl((int) scanID.longValue());
 		@SuppressWarnings("deprecation")
 		IMemberAccessor<IQuantity, IItem> xAccessor = ItemToolkit.accessor(Robo4JAttributes.SCAN_POINT_2D_X);
 		@SuppressWarnings("deprecation")
@@ -183,6 +183,7 @@ public class ScanPanel extends Composite {
 				scanResult.addPoint(Point2f.fromCartesian((float) x.doubleValue(), (float) y.doubleValue()));
 			}
 		}
+		scanResult.sort();
 		return scanResult;
 	}
 }
