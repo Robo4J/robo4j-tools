@@ -20,7 +20,9 @@
 
 package com.robo4j.tools.center.property;
 
+import com.robo4j.tools.center.enums.ProjectTypeEnum;
 import com.robo4j.tools.center.enums.SupportedOS;
+import com.robo4j.tools.center.model.CenterProperties;
 
 /**
  * Upload/Compile task information holder
@@ -28,27 +30,46 @@ import com.robo4j.tools.center.enums.SupportedOS;
  * @author Miro Kopecky (@miragemiko)
  * @since 07.09.2016
  */
-public class TaskProperties {
+public class CompilerProperties {
 
 	private final SupportedOS detectedSystem;
+	private final ProjectTypeEnum projectType;
+	private final String srcPath;
+	private final String resourcePath;
 	private final String mainPackage;
 	private final String mainClass;
 	private final String robo4jLibrary;
 	private final String compiledFilename;
 	private final String outputDirectory;
+	private final String excludedPaths;
 
-	public TaskProperties(SupportedOS detectedSystem, String mainPackage, String mainClass, String robo4jLibrary, String compiledFilename,
-						  String outputDirectory) {
+	public CompilerProperties(SupportedOS detectedSystem, CenterProperties centerProperties) {
 		this.detectedSystem = detectedSystem;
-		this.mainPackage = mainPackage;
-		this.mainClass = mainClass;
-		this.robo4jLibrary = robo4jLibrary;
-		this.compiledFilename = compiledFilename;
-		this.outputDirectory = outputDirectory;
+		this.projectType = ProjectTypeEnum.byName(centerProperties.getProjectType());
+		this.srcPath = centerProperties.getSrcPath();
+		this.resourcePath = centerProperties.getResourcePath();
+		this.mainPackage = centerProperties.getMainPackage();
+		this.mainClass = centerProperties.getMainClass();
+		this.robo4jLibrary = centerProperties.getRobo4jLibrary();
+		this.compiledFilename = centerProperties.getJarFileName();
+		this.outputDirectory = centerProperties.getOutDirectory();
+		this.excludedPaths = centerProperties.getExcludedPaths();
 	}
 
 	public SupportedOS getDetectedSystem() {
 		return detectedSystem;
+	}
+
+	public ProjectTypeEnum getProjectType() {
+		return projectType;
+	}
+
+	public String getSrcPath(){
+		return srcPath;
+	}
+
+	public String getResourcePath(){
+		return resourcePath;
 	}
 
 	public String getMainPackage() {
@@ -75,15 +96,15 @@ public class TaskProperties {
 		return outputDirectory;
 	}
 
+	public String getExcludedPaths() {
+		return excludedPaths;
+	}
+
 	@Override
 	public String toString() {
-		return "TaskProperties{" +
-				"detectedSystem=" + detectedSystem +
-				", mainPackage='" + mainPackage + '\'' +
-				", mainClass='" + mainClass + '\'' +
-				", robo4jLibrary='" + robo4jLibrary + '\'' +
-				", compiledFilename='" + compiledFilename + '\'' +
-				", outputDirectory='" + outputDirectory + '\'' +
-				'}';
+		return "CompilerProperties{" + "detectedSystem=" + detectedSystem + ", mainPackage='" + mainPackage + '\''
+				+ ", mainClass='" + mainClass + '\'' + ", robo4jLibrary='" + robo4jLibrary + '\''
+				+ ", compiledFilename='" + compiledFilename + '\'' + ", outputDirectory='" + outputDirectory + '\''
+				+ ", excludedPaths='" + excludedPaths + '\'' + '}';
 	}
 }

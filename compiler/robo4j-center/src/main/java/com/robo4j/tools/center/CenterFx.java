@@ -24,12 +24,11 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 import com.robo4j.RoboBuilder;
 import com.robo4j.tools.center.builder.CenterBuilder;
-
 import com.robo4j.tools.center.model.CenterProperties;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -50,14 +49,15 @@ public class CenterFx extends Application {
 	private static String centerConfigurationFileName;
 
 	private CenterFxController controller;
+
 	public static void main(String[] args) throws Exception {
-		switch (args.length){
-			case 1:
-				centerConfigurationFileName = args[0];
-				break;
-			default:
-				centerConfigurationFileName = null;
-				break;
+		switch (args.length) {
+		case 1:
+			centerConfigurationFileName = args[0];
+			break;
+		default:
+			centerConfigurationFileName = null;
+			break;
 		}
 
 		Application.launch(args);
@@ -67,9 +67,9 @@ public class CenterFx extends Application {
 	public void start(Stage stage) throws Exception {
 		RoboBuilder roboBuilder = new RoboBuilder();
 		URL file = Thread.currentThread().getContextClassLoader().getResource(ROBO4J_CENTER_FXML);
-		InputStream isConfig = centerConfigurationFileName == null ?
-				Thread.currentThread().getContextClassLoader().getResourceAsStream(ROBO4J_CENTER_CONFIGURATION) :
-				Files.newInputStream(Paths.get(centerConfigurationFileName));
+		InputStream isConfig = centerConfigurationFileName == null
+				? Thread.currentThread().getContextClassLoader().getResourceAsStream(ROBO4J_CENTER_CONFIGURATION)
+				: Files.newInputStream(Paths.get(centerConfigurationFileName));
 		CenterBuilder builder = new CenterBuilder().add(isConfig);
 
 		FXMLLoader fxmlLoader = new FXMLLoader(file);

@@ -141,10 +141,8 @@ public class CenterFxController {
 	public void init(CenterProperties properties, RoboBuilder roboBuilder) throws Exception {
 
 	    mainTextFields = Arrays.asList(mainPackageTF, mainClassTF, roboLibTF, outDirTF);
-	    if(properties.isSet()){
-            adjustEditableMainFields(false);
-            adjustPropertiesToTextFields(properties);
-        }
+        adjustEditableMainFields(false);
+        adjustPropertiesToTextFields(properties);
 
         editCB.selectedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) ->{
             if(newValue){

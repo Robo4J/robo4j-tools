@@ -27,21 +27,29 @@ import java.util.stream.Stream;
 /**
  * Supported XML configuration Elements
  *
+ * PROJECT_TYPE: maven, standalone
+ *
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
  */
 public enum  SupportedConfigElements {
 
-    MAIN_PACKAGE    ("mainPackage"),
-    MAIN_CLASS      ("mainClass"),
-    ROBO4J_LIB      ("robo4jLibrary"),
-    OUT_DIR         ("outDirectory"),
-    ACTIONS         ("centerActions"),
-    JAR_FILE_NAME   ("jarFileName"),
-    DEVICE_IP       ("deviceIp"),
-    DEVICE_PORT       ("devicePort"),
-    DEVICE_TYPE     ("deviceType"),
-    DEVICE_PASS     ("devicePass")
+    //@formatter:off
+    PROJECT_TYPE        ("projectType"),
+    MAIN_SRC_PATH       ("mainSourcePath"),
+    MAIN_RESOURCE_PATH  ("mainResourcePath"),
+    MAIN_PACKAGE        ("mainPackage"),
+    MAIN_CLASS          ("mainClass"),
+    ROBO4J_LIB          ("robo4jLibrary"),
+    OUT_DIR             ("outDirectory"),
+    ACTIONS             ("centerActions"),
+    JAR_FILE_NAME       ("jarFileName"),
+    DEVICE_IP           ("deviceIp"),
+    DEVICE_PORT         ("devicePort"),
+    DEVICE_TYPE         ("deviceType"),
+    DEVICE_PASS         ("devicePass"),
+    EXCLUDED_PATHS      ("excludedPaths")
+    //@formatter:on
     ;
 
     String name;
