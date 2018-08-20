@@ -87,7 +87,7 @@ public class CompilerProvider {
 				: getCorrectedMainPath(os, properties.getSrcPath());
 		Path mainResourcesPath = properties.getProjectType().equals(ProjectTypeEnum.MAVEN)
 				? getCorrectedMainPath(os, properties.getProjectType().getResourcesPath())
-				: Paths.get(correctedPath(os, properties.getResourcePath()));
+				: getCorrectedMainPath(os, properties.getResourcePath());
 
 		File outDir = new File(correctedPath(os, String.join(DOT_DELIMITER, properties.getOutputDirectory())));
 		boolean createdDir = outDir.mkdir();
@@ -101,7 +101,10 @@ public class CompilerProvider {
 		if (!properties.getExcludedPaths().isEmpty()) {
 			Stream.of(properties.getExcludedPaths().split(DELIMITER_VALUE))
 					.map(String::trim)
-					.forEach(p -> excludedPaths.add(getCorrectedMainPath(os, p)));
+					.forEach(p -> {
+						excludedPaths.add(getCorrectedMainPath(os, p));
+						excludedPaths.add(getCorrectedMainPath(os, new StringBuilder().append(properties.getOutputDirectory()).append(DOT_DELIMITER).append(p).toString()) );
+					});
 		}
 
 		List<Path> mainSrcPaths = searchFiles(new ArrayList<>(), mainSrcPath, excludedPaths);
@@ -162,8 +165,22 @@ public class CompilerProvider {
 			Manifest manifest = new Manifest(fis);
 			Attributes attrs = manifest.getMainAttributes();
 			attrs.putValue("Manifest-Version", "1.0");
-			attrs.putValue("Main-Class", properties.getMainPackage().concat(DOT_DELIMITER)
-					.concat(properties.getMainClass().replace(ENDING_JAVA, EMPTY_STIRNG)));
+			if(properties.getProjectType().equals(ProjectTypeEnum.MAVEN)){
+				attrs.putValue("Main-Class",
+						new StringBuilder().append(properties.getMainPackage())
+								.append(DOT_DELIMITER)
+								.append(properties.getMainClass()
+										.replace(ENDING_JAVA, EMPTY_STIRNG))
+								.toString());
+			} else {
+				attrs.putValue("Main-Class", new StringBuilder()
+						.append(properties.getSrcPath())
+						.append(DOT_DELIMITER)
+						.append(properties.getMainPackage())
+						.append(DOT_DELIMITER)
+						.append(properties.getMainClass().replace(ENDING_JAVA, EMPTY_STIRNG))
+						.toString());
+			}
 
 			JarOutputStream jarOut = new JarOutputStream(fos, manifest);
 
@@ -229,7 +246,7 @@ public class CompilerProvider {
 	}
 
 	private boolean isExcludedChild(Path child, List<Path> path) {
-		return path.stream().filter(child::startsWith).count() > 0;
+		return path.stream().anyMatch(child::startsWith);
 	}
 
 	private List<Path> searchFiles(List<Path> result, Path directory, List<Path> exclude) throws Exception {
