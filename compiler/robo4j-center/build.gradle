@@ -54,6 +54,7 @@ sourceSets {
 
 dependencies {
     compile "com.robo4j:robo4j-core:${robo4jVersion}"
+    compile "com.robo4j:robo4j-units-lego:${robo4jVersion}"
     compile "com.robo4j:robo4j-socket-http:${robo4jVersion}"
     compile "com.jcraft:jsch:${jschVersion}"
     testCompile "junit:junit:${junitVersion}@jar"

@@ -21,16 +21,9 @@ import com.robo4j.RoboBuilder;
 import com.robo4j.RoboBuilderException;
 import com.robo4j.RoboContext;
 import com.robo4j.logging.SimpleLoggingUtil;
-import com.robo4j.socket.http.HttpHeaderFieldNames;
-import com.robo4j.socket.http.HttpMethod;
-import com.robo4j.socket.http.HttpVersion;
-import com.robo4j.socket.http.message.HttpDecoratedRequest;
-import com.robo4j.socket.http.util.JsonUtil;
-import com.robo4j.socket.http.util.RequestDenominator;
-import com.robo4j.socket.http.util.RoboHttpUtils;
 import com.robo4j.tools.camera.model.CameraCenterProperties;
 import com.robo4j.tools.camera.model.CameraDevice;
-import com.robo4j.tools.camera.model.RawElement;
+import com.robo4j.tools.camera.model.SimpleRawElement;
 import com.robo4j.tools.camera.processor.ConfigurationProcessor;
 import com.robo4j.tools.camera.processor.ImageProcessor;
 import com.robo4j.tools.camera.utils.CameraCenterUtils;
@@ -43,7 +36,6 @@ import javafx.scene.image.ImageView;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -88,24 +80,24 @@ public class CenterFxMultipleController implements CenterController {
     private ImageView cameraIV2;
 
     @FXML
-    private TableView<RawElement> systemTV1;
+    private TableView<SimpleRawElement> systemTV1;
 
     @FXML
-    private TableView<RawElement> systemTV2;
+    private TableView<SimpleRawElement> systemTV2;
 
     @FXML
-    private TableView<RawElement> configImageTV1;
+    private TableView<SimpleRawElement> configImageTV1;
 
     @FXML
-    private TableView<RawElement> configImageTV2;
+    private TableView<SimpleRawElement> configImageTV2;
 
     @FXML
-    private void imageProcessButton1(ActionEvent event){
+    private void imageProcessButton1(ActionEvent event) {
         CameraCenterUtils.buttonImageConfigClick(roboSystem, UNIT_NAME_HTTP_CLIENT, configImageTV1, cameraDevices.get(CAMERA_NAME_1));
     }
 
     @FXML
-    private void imageProcessButton2(ActionEvent event){
+    private void imageProcessButton2(ActionEvent event) {
         CameraCenterUtils.buttonImageConfigClick(roboSystem, UNIT_NAME_HTTP_CLIENT, configImageTV2, cameraDevices.get(CAMERA_NAME_2));
     }
 

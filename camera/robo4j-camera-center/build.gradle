@@ -57,10 +57,6 @@ task fatJar(type: Jar) {
     with jar
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = "${roboGradleVersion}"
-}
-
 //sources
 sourceSets {
     main {
@@ -83,10 +79,16 @@ sourceSets {
 }
 
 dependencies {
+    compile fileTree(dir: 'libs', include: 'h264j.jar')
     compile "com.robo4j:robo4j-core:${robo4jVersion}"
     compile "com.robo4j:robo4j-units-rpi:${robo4jVersion}"
     compile "com.robo4j:robo4j-socket-http:${robo4jVersion}"
     testCompile "junit:junit:${junitVersion}@jar"
     testCompile "org.hamcrest:hamcrest-all:${hamcrestAllVersion}@jar"
     testCompile "org.mockito:mockito-all:${mockitoAllVersion}@jar"
+}
+
+
+wrapper {
+    gradleVersion = "${roboGradleVersion}"
 }

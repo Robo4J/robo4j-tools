@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2017, Marcus Hirt, Miroslav Wengner
+ * Copyright (c) 2014, 2018, Marcus Hirt, Miroslav Wengner
  *
  * Robo4J is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,17 +8,26 @@
  *
  * Robo4J is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with Robo4J. If not, see <http://www.gnu.org/licenses/>.
  */
-ext {
-    robo4jVersion = "alpha-0.4"
-    roboGradleVersion = "4.10"
-    jschVersion = "0.1.52"
-    junitVersion = "4.12"
-    hamcrestAllVersion = "1.3"
-    mockitoAllVersion = "1.10.19"
+
+package com.robo4j.tools.camera;
+
+import com.robo4j.ConfigurationException;
+import com.robo4j.RoboBuilder;
+import com.robo4j.RoboBuilderException;
+
+/**
+ * @author Marcus Hirt (@hirt)
+ * @author Miroslav Wengner (@miragemiko)
+ */
+public interface LookupCenterController {
+
+
+    void init(RoboBuilder builder) throws RoboBuilderException, ConfigurationException;
+
 }

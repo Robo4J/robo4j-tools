@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2017, Marcus Hirt, Miroslav Wengner
+ * Copyright (c) 2014, 2018, Marcus Hirt, Miroslav Wengner
  *
  * Robo4J is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,26 +21,29 @@ import com.robo4j.RoboContext;
 import com.robo4j.RoboUnit;
 import com.robo4j.logging.SimpleLoggingUtil;
 import com.robo4j.socket.http.codec.CameraMessage;
+import com.robo4j.tools.camera.analysis.CannyEdgeDetector;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Base64;
 
 /**
- * ImageProcessor responsible for the main application ImageView
- *
  * @author Marcus Hirt (@hirt)
- * @author Miro Wengner (@miragemiko)
+ * @author Miroslav Wengner (@miragemiko)
  */
-public class ImageProcessor extends RoboUnit<CameraMessage> {
-    public static final String NAME = "imageProcessor";
+public class CannyEdgeDetectorProcessor extends RoboUnit<CameraMessage> {
 
     private volatile ImageView imageView;
 
-    public ImageProcessor(RoboContext context, String id) {
+    public CannyEdgeDetectorProcessor(RoboContext context, String id) {
         super(CameraMessage.class, context, id);
     }
+
     public void setImageView(ImageView imageView){
         this.imageView = imageView;
     }
@@ -49,13 +52,40 @@ public class ImageProcessor extends RoboUnit<CameraMessage> {
     public void onMessage(CameraMessage message) {
         if(message.getImage() != null){
             final byte[] bytes = Base64.getDecoder().decode(message.getImage());
-            if(imageView != null){
-                Image image = new Image(new ByteArrayInputStream(bytes));
-                imageView.setImage(image);
+
+            try {
+                BufferedImage frame = ImageIO.read(new ByteArrayInputStream(bytes));
+
+                CannyEdgeDetector detector  = new CannyEdgeDetector();
+
+                //adjust its parameters as desired
+                detector.setLowThreshold(0.5f);
+                detector.setHighThreshold(1f);
+
+                //apply it to an image
+                detector.setSourceImage(frame);
+                detector.process();
+
+                BufferedImage edges = detector.getEdgesImage();
+
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                ImageIO.write(edges,"jpg", bos);
+
+                if(imageView != null){
+                    Image image = new Image(new ByteArrayInputStream(bos.toByteArray()));
+                    imageView.setImage(image);
+                } else {
+
+                    SimpleLoggingUtil.error(getClass(), "no available");
+                }
+
+            } catch (IOException e) {
+                SimpleLoggingUtil.error(getClass(), e.getMessage());
             }
+
+
         } else {
             SimpleLoggingUtil.error(getClass(), "no imageView");
         }
     }
-
 }

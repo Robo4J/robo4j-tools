@@ -65,6 +65,7 @@ public class CenterMain {
 				CenterBuilder builder = new CenterBuilder().add(configStream);
                 CenterMain center = new CenterMain(builder.build());
                 center.execute();
+				System.out.println("FINISHED...");
 			} else {
 				printHelpAndThrow();
 			}
@@ -92,6 +93,7 @@ public class CenterMain {
 					boolean compileState = compiler.compile();
 					if (compileState) {
 						compiler.createJar();
+						System.out.println(String.format("JAR file %s has been created", centerProperties.getJarFileName()));
 					}
 				} catch (Exception e) {
 					throw new CenterException("compile error", e);
@@ -99,6 +101,7 @@ public class CenterMain {
 				result.add(action.getName());
 				break;
 			case UPLOAD:
+				System.out.println(String.format("JAR file: %s has started", centerProperties.getJarFileName()));
 				UploadProvider uploadProvider = new UploadProvider();
 				DeviceType device = DeviceType.getDeviceByName(centerProperties.getDeviceType());
 				uploadProvider.uploadScp(centerProperties.getJarFileName(), centerProperties.getDeviceIP(),
