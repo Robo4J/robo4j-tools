@@ -22,13 +22,13 @@ import com.robo4j.socket.http.HttpHeaderFieldNames;
 import com.robo4j.socket.http.HttpMethod;
 import com.robo4j.socket.http.HttpVersion;
 import com.robo4j.socket.http.message.HttpDecoratedRequest;
+import com.robo4j.socket.http.message.HttpRequestDenominator;
 import com.robo4j.socket.http.util.JsonUtil;
-import com.robo4j.socket.http.util.RequestDenominator;
 import com.robo4j.socket.http.util.RoboHttpUtils;
 import com.robo4j.tools.camera.model.CameraCenterProperties;
 import com.robo4j.tools.camera.model.CameraDevice;
 import com.robo4j.tools.camera.model.EditableCell;
-import com.robo4j.tools.camera.model.RawElement;
+import com.robo4j.tools.camera.model.SimpleRawElement;
 import com.robo4j.units.rpi.camera.RpiCameraProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -60,7 +60,7 @@ public final class CameraCenterUtils {
     }
 
     public static void sendRequestForClientConfiguration(RoboContext system, String callBackUnitName, String httpClientName, CameraDevice cameraDevice) {
-        final RequestDenominator denominator = new RequestDenominator(HttpMethod.GET, HttpVersion.HTTP_1_1);
+        final HttpRequestDenominator denominator = new HttpRequestDenominator(HttpMethod.GET, HttpVersion.HTTP_1_1);
         final HttpDecoratedRequest request = new HttpDecoratedRequest(denominator);
         request.setHost(cameraDevice.getAddress());
         request.setPort(cameraDevice.getPort());
@@ -71,15 +71,15 @@ public final class CameraCenterUtils {
     }
 
     // TODO: 1/26/18 (miro) separate unit and use codec
-    public static void buttonImageConfigClick(RoboContext system, String httpClientUnitName, TableView<RawElement> configImageTV, CameraDevice cameraDevice) {
+    public static void buttonImageConfigClick(RoboContext system, String httpClientUnitName, TableView<SimpleRawElement> configImageTV, CameraDevice cameraDevice) {
         final String path = "/units/cameraConfig";
-        final Map<String, Object> entities = configImageTV.getItems()
+        final Map<String, String> entities = configImageTV.getItems()
                 .stream()
-                .collect(Collectors.toMap(RawElement::getName, RawElement::getState));
+                .collect(Collectors.toMap(SimpleRawElement::getName, SimpleRawElement::getValue));
 
-        final String message = JsonUtil.toJsonMapObject(entities);
+        final String message = JsonUtil.toJsonMap(entities);
 
-        final RequestDenominator denominator = new RequestDenominator(HttpMethod.POST, path, HttpVersion.HTTP_1_1);
+        final HttpRequestDenominator denominator = new HttpRequestDenominator(HttpMethod.POST, path, HttpVersion.HTTP_1_1);
         final HttpDecoratedRequest request = new HttpDecoratedRequest(denominator);
         request.addHeaderElement(HttpHeaderFieldNames.HOST, RoboHttpUtils.createHost(cameraDevice.getAddress(), cameraDevice.getPort()));
         request.addHeaderElement(HttpHeaderFieldNames.CONTENT_LENGTH, String.valueOf(message.length()));
@@ -89,33 +89,33 @@ public final class CameraCenterUtils {
 
 
     @SuppressWarnings("unchecked")
-    public static void initCameraConfigTV(TableView<RawElement> configImageTV) {
+    public static void initCameraConfigTV(TableView<SimpleRawElement> configImageTV) {
         configImageTV.setEditable(true);
-        final Callback<TableColumn, TableCell> cellFactory = (p) -> new EditableCell();
+        final Callback<TableColumn, TableCell> cellFactory = (p) -> new EditableCell<SimpleRawElement>();
 
-        ObservableList<RawElement> data = FXCollections
+        ObservableList<SimpleRawElement> data = FXCollections
                 .observableArrayList(Arrays.asList(
-                        new RawElement(RpiCameraProperty.WIDTH.getName(), "640"),
-                        new RawElement(RpiCameraProperty.HEIGHT.getName(), "480"),
-                        new RawElement(RpiCameraProperty.BRIGHTNESS.getName(), "0"),
-                        new RawElement(RpiCameraProperty.SHARPNESS.getName(), "0"),
-                        new RawElement(RpiCameraProperty.TIMEOUT.getName(), "2"),
-                        new RawElement(RpiCameraProperty.TIMELAPSE.getName(), "100")));
+                        new SimpleRawElement(RpiCameraProperty.WIDTH.getName(), "640"),
+                        new SimpleRawElement(RpiCameraProperty.HEIGHT.getName(), "480"),
+                        new SimpleRawElement(RpiCameraProperty.BRIGHTNESS.getName(), "50"),
+                        new SimpleRawElement(RpiCameraProperty.SHARPNESS.getName(), "50"),
+                        new SimpleRawElement(RpiCameraProperty.TIMEOUT.getName(), "1"),
+                        new SimpleRawElement(RpiCameraProperty.TIMELAPSE.getName(), "100")));
 
         TableColumn nameCol = new TableColumn("Name");
         nameCol.setMinWidth(100);
         nameCol.setCellValueFactory(
-                new PropertyValueFactory<RawElement, String>("name"));
+                new PropertyValueFactory<SimpleRawElement, String>(SimpleRawElement.KEY_NAME));
 
         TableColumn stateCol = new TableColumn("State");
         stateCol.setMinWidth(100);
         stateCol.setCellValueFactory(
-                new PropertyValueFactory<RawElement, String>("state"));
+                new PropertyValueFactory<SimpleRawElement, String>(SimpleRawElement.KEY_VALUE));
         stateCol.setCellFactory(cellFactory);
         stateCol.setEditable(true);
         stateCol.setOnEditCommit((eh) -> {
-            TableColumn.CellEditEvent<RawElement, String> ev = (TableColumn.CellEditEvent<RawElement, String>) eh;
-            ev.getTableView().getItems().get(ev.getTablePosition().getRow()).setState(((TableColumn.CellEditEvent<RawElement, String>) eh).getNewValue());
+            TableColumn.CellEditEvent<SimpleRawElement, String> ev = (TableColumn.CellEditEvent<SimpleRawElement, String>) eh;
+            ev.getTableView().getItems().get(ev.getTablePosition().getRow()).setValue(((TableColumn.CellEditEvent<SimpleRawElement, String>) eh).getNewValue());
         });
         configImageTV.setItems(data);
         configImageTV.getColumns().addAll(nameCol, stateCol);

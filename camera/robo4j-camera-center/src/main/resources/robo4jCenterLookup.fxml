@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<!--
+  ~ Copyright (c) 2014, 2018, Marcus Hirt, Miroslav Wengner
+  ~
+  ~ Robo4J is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Robo4J is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Robo4J. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<BorderPane maxHeight="600.0" maxWidth="800.0" minHeight="600.0" minWidth="671.0" prefHeight="600.0" prefWidth="671.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.robo4j.tools.camera.CenterFxLookupController">
+   <top>
+      <GridPane maxHeight="613.0" maxWidth="807.0" minHeight="400.0" minWidth="600.0" prefHeight="600.0" prefWidth="647.0" BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="632.0" minWidth="10.0" prefWidth="626.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="195.0" minHeight="10.0" prefHeight="98.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="548.0" minHeight="10.0" prefHeight="502.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <FlowPane alignment="CENTER_LEFT" maxHeight="480.0" maxWidth="680.0" minHeight="97.0" minWidth="403.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="98.0" prefWidth="680.0">
+               <children>
+                  <Pane prefHeight="89.0" prefWidth="620.0">
+                     <children>
+                        <ImageView fitHeight="64.0" fitWidth="64.0" layoutX="30.0" layoutY="13.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@robo4j256.png" />
+                           </image>
+                        </ImageView>
+                        <Label layoutX="112.0" layoutY="33.0" prefWidth="223.0" text="Discovery Center">
+                           <font>
+                              <Font size="19.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </Pane>
+               </children>
+            </FlowPane>
+            <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="674.0" tabClosingPolicy="UNAVAILABLE" GridPane.halignment="LEFT" GridPane.rowIndex="1" GridPane.valignment="TOP">
+              <tabs>
+                <Tab text="Discovery">
+                     <content>
+                        <TableView fx:id="systemsTV" editable="true" prefHeight="467.0" prefWidth="669.0" />
+                     </content>
+                </Tab>
+                  <Tab text="Info">
+                     <content>
+                        <ImageView fx:id="cameraImageView" fitHeight="466.0" fitWidth="623.0" pickOnBounds="true" preserveRatio="true" />
+                     </content>
+                  </Tab>
+              </tabs>
+            </TabPane>
+         </children>
+      </GridPane>
+   </top>
+</BorderPane>

@@ -82,15 +82,17 @@ public class CompilerProvider {
 
 		final SupportedOS os = properties.getDetectedSystem();
 
+		cleanOutDirectory();
+
 		Path mainSrcPath = properties.getProjectType().equals(ProjectTypeEnum.MAVEN)
 				? getCorrectedMainPath(os, properties.getProjectType().getSrcPath())
 				: getCorrectedMainPath(os, properties.getSrcPath());
 		Path mainResourcesPath = properties.getProjectType().equals(ProjectTypeEnum.MAVEN)
 				? getCorrectedMainPath(os, properties.getProjectType().getResourcesPath())
-				: Paths.get(correctedPath(os, properties.getResourcePath()));
+				: getCorrectedMainPath(os, properties.getResourcePath());
 
 		File outDir = new File(correctedPath(os, String.join(DOT_DELIMITER, properties.getOutputDirectory())));
-		boolean createdDir = outDir.mkdir();
+		boolean createdOutDir = outDir.mkdir();
 
 		List<String> compilerOptions = Arrays.asList("-d", outDir.getAbsolutePath(), "-cp",
 				properties.getOutputDirectory());
@@ -101,11 +103,17 @@ public class CompilerProvider {
 		if (!properties.getExcludedPaths().isEmpty()) {
 			Stream.of(properties.getExcludedPaths().split(DELIMITER_VALUE))
 					.map(String::trim)
-					.forEach(p -> excludedPaths.add(getCorrectedMainPath(os, p)));
+					.forEach(p -> {
+						excludedPaths.add(getCorrectedMainPath(os, p));
+						excludedPaths.add(getCorrectedMainPath(os, new StringBuilder().append(properties.getOutputDirectory()).append(DOT_DELIMITER).append(p).toString()) );
+					});
 		}
 
 		List<Path> mainSrcPaths = searchFiles(new ArrayList<>(), mainSrcPath, excludedPaths);
-		List<Path> inputResources = searchFiles(new ArrayList<>(), mainResourcesPath, excludedPaths);
+
+		List<Path> test = new ArrayList<>();
+		test.add(mainResourcesPath);
+		List<Path> inputResources = searchFiles(test, mainResourcesPath, excludedPaths);
 
 		copyResources(os, inputResources);
 
@@ -113,6 +121,9 @@ public class CompilerProvider {
 			List<File> files = mainSrcPaths.stream().map(Path::toFile).filter(f -> f.getName().endsWith(ENDING_JAVA))
 					.collect(Collectors.toList());
 			JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+			if(compiler == null){
+				System.out.println("tool.jar is missing, compiler is null");
+			}
 			StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
 
 			Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(files);
@@ -129,6 +140,16 @@ public class CompilerProvider {
 		}
 
 		return compiled;
+	}
+
+	private void cleanOutDirectory() throws Exception {
+		Path outPath = Paths.get(properties.getOutputDirectory());
+		if(outPath.toFile().exists()){
+			if(outPath.toFile().isDirectory()){
+				deletePath(outPath);
+			}
+		}
+		outPath.toFile().deleteOnExit();
 	}
 
 	private Path getCorrectedMainPath(SupportedOS os, String srcPath) {
@@ -162,8 +183,22 @@ public class CompilerProvider {
 			Manifest manifest = new Manifest(fis);
 			Attributes attrs = manifest.getMainAttributes();
 			attrs.putValue("Manifest-Version", "1.0");
-			attrs.putValue("Main-Class", properties.getMainPackage().concat(DOT_DELIMITER)
-					.concat(properties.getMainClass().replace(ENDING_JAVA, EMPTY_STIRNG)));
+			if(properties.getProjectType().equals(ProjectTypeEnum.MAVEN)){
+				attrs.putValue("Main-Class",
+						new StringBuilder().append(properties.getMainPackage())
+								.append(DOT_DELIMITER)
+								.append(properties.getMainClass()
+										.replace(ENDING_JAVA, EMPTY_STIRNG))
+								.toString());
+			} else {
+				attrs.putValue("Main-Class", new StringBuilder()
+						.append(properties.getSrcPath())
+						.append(DOT_DELIMITER)
+						.append(properties.getMainPackage())
+						.append(DOT_DELIMITER)
+						.append(properties.getMainClass().replace(ENDING_JAVA, EMPTY_STIRNG))
+						.toString());
+			}
 
 			JarOutputStream jarOut = new JarOutputStream(fos, manifest);
 
@@ -185,8 +220,17 @@ public class CompilerProvider {
 					Path tmpFilePath = Paths.get(p.normalize().toString().replaceFirst(properties.getOutputDirectory(),
 							properties.getCompiledFilename()));
 					try {
-						Files.deleteIfExists(tmpFilePath);
-						Files.copy(p, tmpFilePath);
+						if(Files.exists(tmpFilePath)){
+							if(tmpFilePath.endsWith(JAVA_MANIFEST_MF)){
+								System.out.println(JAVA_MANIFEST_MF);
+								tmpFilePath.toFile().deleteOnExit();
+							} else {
+								Files.delete(tmpFilePath);
+							}
+						} else {
+							Files.copy(p, tmpFilePath);
+						}
+
 					} catch (Exception e) {
 						throw new CenterException("jar creation", e);
 					}
@@ -210,6 +254,7 @@ public class CompilerProvider {
 			}
 			jarOut.close();
 			fos.close();
+			cleanOutDirectory();
 			return deletePath(tmpPath);
 
 		} else {
@@ -219,8 +264,10 @@ public class CompilerProvider {
 	}
 
 	private boolean deletePath(Path path) throws Exception {
-		Files.walk(path, FileVisitOption.FOLLOW_LINKS).sorted(Comparator.reverseOrder()).map(Path::toFile)
+		Files.walk(path, FileVisitOption.FOLLOW_LINKS )
+				.sorted(Comparator.reverseOrder()).map(Path::toFile)
 				.forEach(File::delete);
+
 		return true;
 	}
 
@@ -229,7 +276,7 @@ public class CompilerProvider {
 	}
 
 	private boolean isExcludedChild(Path child, List<Path> path) {
-		return path.stream().filter(child::startsWith).count() > 0;
+		return path.stream().anyMatch(child::startsWith);
 	}
 
 	private List<Path> searchFiles(List<Path> result, Path directory, List<Path> exclude) throws Exception {
@@ -253,17 +300,26 @@ public class CompilerProvider {
 
 	private void copyResources(SupportedOS os, List<Path> resourcePaths) throws Exception {
 
+
 		String resourcesString = correctedPath(os, ProjectTypeEnum.MAVEN.getResourcesPath());
+
 		for (Path path : resourcePaths) {
 			if (!path.getFileName().toString().startsWith(DOT_DELIMITER)) {
-				StringBuilder sb = new StringBuilder(properties.getOutputDirectory()).append(os.getSeparator())
-						.append(path.normalize().toString().replace(resourcesString, EMPTY_STIRNG));
+				//@formatter:off
+				StringBuilder sb = new StringBuilder()
+						.append(properties.getOutputDirectory())
+						.append(os.getSeparator())
+						.append(path.normalize()
+								.toString().replace(resourcesString, EMPTY_STIRNG));
+				//@formatter:on
 				Path targetPath = Paths.get(sb.toString());
 				if (targetPath.toFile().exists() && targetPath.toFile().isFile()) {
-					Files.delete(targetPath);
+					Files.deleteIfExists(targetPath);
 					Files.copy(path, targetPath);
 				} else if (path.toFile().isFile()) {
 					Files.copy(path, targetPath);
+				} else if (path.toFile().isDirectory()){
+					targetPath.toFile().mkdir();
 				}
 			}
 		}

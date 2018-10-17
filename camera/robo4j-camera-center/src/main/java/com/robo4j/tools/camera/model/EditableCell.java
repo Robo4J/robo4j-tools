@@ -26,7 +26,7 @@ import javafx.scene.input.KeyCode;
  * @author Marcus Hirt (@hirt)
  * @author Miroslav Wengner (@miragemiko)
  */
-public class EditableCell extends TableCell<RawElement, String> {
+public class EditableCell<T> extends TableCell<T, String> {
 
     private TextField textField;
 

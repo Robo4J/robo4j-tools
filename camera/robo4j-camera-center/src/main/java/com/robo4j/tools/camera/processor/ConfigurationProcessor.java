@@ -22,7 +22,7 @@ import com.robo4j.RoboUnit;
 import com.robo4j.logging.SimpleLoggingUtil;
 import com.robo4j.socket.http.dto.ResponseUnitDTO;
 import com.robo4j.socket.http.util.JsonUtil;
-import com.robo4j.tools.camera.model.RawElement;
+import com.robo4j.tools.camera.model.SimpleRawElement;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -34,12 +34,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * ConfigurationProcessor responsible for camera configuration over HTTP protocol
+ *
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
  */
 public class ConfigurationProcessor extends RoboUnit<String> {
 
-    private TableView<RawElement> tableView;
+    public static final String NAME = "configurationProcessor";
+
+    private TableView<SimpleRawElement> tableView;
 
     public ConfigurationProcessor(RoboContext context, String id) {
         super(String.class, context, id);
@@ -52,17 +56,17 @@ public class ConfigurationProcessor extends RoboUnit<String> {
         try {
             if (Bindings.isEmpty(tableView.getItems()).get()) {
                 List<ResponseUnitDTO> unitDTOs = JsonUtil.jsonToList(ResponseUnitDTO.class, message);
-                ObservableList<RawElement> data = FXCollections.observableArrayList(unitDTOs.stream()
-                        .map(e -> new RawElement(e.getId(), e.getState().getLocalizedName())).collect(Collectors.toList()));
+                ObservableList<SimpleRawElement> data = FXCollections.observableArrayList(unitDTOs.stream()
+                        .map(e -> new SimpleRawElement(e.getId(), e.getState().getLocalizedName())).collect(Collectors.toList()));
                 TableColumn roboUnitCol = new TableColumn("RoboUnit");
                 roboUnitCol.setMinWidth(200);
                 roboUnitCol.setCellValueFactory(
-                        new PropertyValueFactory<RawElement, String>("name"));
+                        new PropertyValueFactory<SimpleRawElement, String>("name"));
 
                 TableColumn stateCol = new TableColumn("State");
                 stateCol.setMinWidth(100);
                 stateCol.setCellValueFactory(
-                        new PropertyValueFactory<RawElement, String>("state"));
+                        new PropertyValueFactory<SimpleRawElement, String>("state"));
 
                 tableView.setItems(data);
                 tableView.getColumns().addAll(roboUnitCol, stateCol);
@@ -74,7 +78,7 @@ public class ConfigurationProcessor extends RoboUnit<String> {
 
     }
 
-    public void setTableView(TableView<RawElement> tableView) {
+    public void setTableView(TableView<SimpleRawElement> tableView) {
         this.tableView = tableView;
     }
 }

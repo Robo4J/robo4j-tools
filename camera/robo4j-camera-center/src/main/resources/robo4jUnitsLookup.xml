@@ -8,4 +8,10 @@
             <value name="unitPathsConfig" type="String">[{"roboUnit":"imageProcessor","method":"POST"}]</value>
         </config>
     </roboUnit>
+    <roboUnit id="defaultImagesUnit">
+        <class>com.robo4j.tools.camera.unit.DefaultImagesUnit</class>
+        <config name="com.robo4j.root">
+            <value name="target" type="String">imageProcessor</value>
+        </config>
+    </roboUnit>
 </robo4j>

@@ -21,37 +21,40 @@ package com.robo4j.tools.camera.model;
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
  */
-public class RawElement {
+public class SimpleRawElement {
+
+    public static final String KEY_NAME = "name";
+    public static final String KEY_VALUE = "value";
 
     private String name;
-    private String state;
+    private String value;
 
-    public RawElement(String name, String state) {
+    public SimpleRawElement(String name, String value) {
         this.name = name;
-        this.state = state;
+        this.value = value;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getState() {
-        return state;
+    public String getValue() {
+        return value;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public void setValue(String value) {
+        this.value = value;
     }
 
     @Override
     public String toString() {
-        return "RawElement{" +
+        return "SimpleRawElement{" +
                 "name='" + name + '\'' +
-                ", state='" + state + '\'' +
+                ", value='" + value + '\'' +
                 '}';
     }
 }
